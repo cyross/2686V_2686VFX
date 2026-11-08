@@ -37,9 +37,9 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
     monoButton.setup(GuiTextButton::Config{
         .parent = parent,
         .title = "-> Monophonic",
-        .textColor = juce::Colours::black,
-        .bgColor = juce::Colours::yellow.darker(0.5f),
-        .borderColor = juce::Colours::yellow,
+        .textColor = GuiColor::MidiButtons::MonoText,
+        .bgColor = GuiColor::MidiButtons::MonoBg,
+        .borderColor = GuiColor::MidiButtons::MonoBorder,
         .isReset = false
         });
     monoButton.setWantsKeyboardFocus(true);
@@ -54,9 +54,9 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
     polyButton.setup(GuiTextButton::Config{
         .parent = parent,
         .title = "-> Polyphonic",
-        .textColor = juce::Colours::black,
-        .bgColor = juce::Colours::orange.darker(0.5f),
-        .borderColor = juce::Colours::orange,
+        .textColor = GuiColor::MidiButtons::PolyText,
+        .bgColor = GuiColor::MidiButtons::PolyBg,
+        .borderColor = GuiColor::MidiButtons::PolyBorder,
         .isReset = false
         });
     polyButton.setWantsKeyboardFocus(true);

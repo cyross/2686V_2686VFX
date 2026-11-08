@@ -352,13 +352,13 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     auto graphArea = bounds.reduced(5.0f);
 
     // 背景とグリッド
-    g.setColour(juce::Colours::black.withAlpha(0.6f));
+    g.setColour(GuiColor::EnvelopeGraphBase::Bg);
     g.fillRoundedRectangle(bounds, 5.0f);
-    g.setColour(juce::Colours::grey.withAlpha(0.3f));
+    g.setColour(GuiColor::EnvelopeGraphBase::Frame);
     g.drawRect(graphArea, 1.0f);
 
     if (!isEnabled()) {
-        g.setColour(juce::Colours::white.withAlpha(0.8f));
+        g.setColour(GuiColor::EnvelopeGraphBase::Message);
         g.setFont(14.0f);
         g.drawText(I18n::pick(u8"利用不可", u8"Not available"), graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
 
@@ -369,12 +369,12 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
 
     // センターライン (Pitch用)
     if (isPitch) {
-        g.setColour(juce::Colours::grey.withAlpha(0.5f));
+        g.setColour(GuiColor::EnvelopeGraphBase::CentreLine);
         g.drawLine(graphArea.getX(), graphArea.getCentreY(), graphArea.getRight(), graphArea.getCentreY(), 1.0f);
     }
 
     if (currentTitle.isNotEmpty()) {
-        g.setColour(juce::Colours::white.withAlpha(0.8f));
+        g.setColour(GuiColor::EnvelopeGraphBase::Message);
         g.setFont(12.0f);
         g.drawText(currentTitle, graphArea.withTrimmedLeft(4).withTrimmedTop(2), juce::Justification::topLeft, false);
     }
@@ -387,7 +387,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     }
 
     if (isBypass) {
-        g.setColour(juce::Colours::white.withAlpha(0.8f));
+        g.setColour(GuiColor::EnvelopeGraphBase::Message);
         g.setFont(14.0f);
         g.drawText(I18n::pick(u8"バイパス中", u8"Bypassed"), graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
 
@@ -441,7 +441,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     bool hasMax = false;
     float maxX = 0.0f;
     float maxY = 0.0f;
-    juce::Colour maxColour = juce::Colours::white;
+    juce::Colour maxColour = GuiColor::EnvelopeGraphBase::MaxMarker;
 
     // 鳴っている位置。印の付いた最初の段に引く (ループで戻っても同じ段の上)
     bool hasLive = false;

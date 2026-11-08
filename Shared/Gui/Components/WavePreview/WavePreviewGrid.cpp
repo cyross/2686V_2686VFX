@@ -86,7 +86,7 @@ void GuiWavePreviewGrid::paint(juce::Graphics& g)
 
         GuiShadow::drawRounded(g, bounds, guiCornerRadius);
 
-        g.setColour(juce::Colours::black.withAlpha(0.35f));
+        g.setColour(GuiColor::WavePreviewShade::Shade);
         g.fillRoundedRectangle(bounds, guiCornerRadius);
 
         // 鳴っているスロットは下地に色を敷く。枠 (読み込み・消去の対象) とは別。

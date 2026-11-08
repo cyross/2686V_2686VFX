@@ -8,7 +8,7 @@ void GuiComponentPresetName::setupComponent(juce::Component& parent, int& tabOrd
     presetNameLabel.setFont(
         juce::Font(juce::FontOptions(18.0f))
     );
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
+    presetNameLabel.setColour(juce::Label::backgroundColourId, GuiColor::PresetName::Bg);
 
 	presetNameSeparator.setupComponent(parent);
 }

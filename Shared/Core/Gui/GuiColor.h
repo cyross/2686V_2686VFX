@@ -814,4 +814,247 @@ namespace GuiColor {
 		// MUL・DET や UNISON・HARMONY など、上のどれでもないもの
 		inline Entry Other{ "FxGroup.Other", []() -> juce::Colour { return juce::Colours::darkcyan.darker(0.3f).withAlpha(0.5f); } };
 	};
+
+	// ============================================================================
+	// 4.4.0 で COLORS へ出した色 (それまで各部品に直書きしていたもの)
+	// ============================================================================
+	// 画面の上の段 (プレビューの開閉・PANIC・UNDO / REDO・INIT・MINI) と、小さい表示のときの板
+	namespace Header {
+		inline Entry PreviewText{ "Header.PreviewText", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry PreviewToggleBg{ "Header.PreviewToggleBg", []() -> juce::Colour { return juce::Colours::green; } };
+		inline Entry PreviewToggleText{ "Header.PreviewToggleText", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry PreviewToggleTextOff{ "Header.PreviewToggleTextOff", []() -> juce::Colour { return juce::Colours::white.darker(0.5f); } };
+		inline Entry PanicBg{ "Header.PanicBg", []() -> juce::Colour { return juce::Colours::red; } };
+		inline Entry PanicText{ "Header.PanicText", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry PanicTextOff{ "Header.PanicTextOff", []() -> juce::Colour { return juce::Colours::white.darker(0.2f); } };
+		inline Entry UndoBg{ "Header.UndoBg", []() -> juce::Colour { return juce::Colours::blue; } };
+		inline Entry UndoText{ "Header.UndoText", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry UndoTextOff{ "Header.UndoTextOff", []() -> juce::Colour { return juce::Colours::white.darker(0.2f); } };
+		inline Entry InitBg{ "Header.InitBg", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry InitText{ "Header.InitText", []() -> juce::Colour { return juce::Colours::black; } };
+		inline Entry InitTextOff{ "Header.InitTextOff", []() -> juce::Colour { return juce::Colours::black.brighter(0.5f); } };
+		inline Entry MiniModeText{ "Header.MiniModeText", []() -> juce::Colour { return juce::Colours::green.brighter(0.6f); } };
+		inline Entry MiniPresetText{ "Header.MiniPresetText", []() -> juce::Colour { return juce::Colours::antiquewhite; } };
+		inline Entry MiniToggleBg{ "Header.MiniToggleBg", []() -> juce::Colour { return juce::Colours::cyan; } };
+		inline Entry MiniToggleText{ "Header.MiniToggleText", []() -> juce::Colour { return juce::Colours::black; } };
+		inline Entry MiniToggleTextOff{ "Header.MiniToggleTextOff", []() -> juce::Colour { return juce::Colours::black.brighter(0.5f); } };
+		inline Entry MiniBoard{ "Header.MiniBoard", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.3f); } };
+		inline Entry MiniBand{ "Header.MiniBand", []() -> juce::Colour { return juce::Colours::blue.withAlpha(0.15f); } };
+	};
+	// リアルタイムのオシロ。L / R の地と線、真ん中の地と線、枠・軸・加工前の線、倍率の字
+	namespace Scope {
+		inline Entry BgLR{ "Scope.BgLR", []() -> juce::Colour { return juce::Colours::white.darker(0.2f).withAlpha(0.5f); } };
+		inline Entry LineL{ "Scope.LineL", []() -> juce::Colour { return juce::Colours::blue.brighter(0.1f); } };
+		inline Entry BgMono{ "Scope.BgMono", []() -> juce::Colour { return juce::Colours::darkgreen.darker(0.8f).withAlpha(0.5f); } };
+		inline Entry LineM{ "Scope.LineM", []() -> juce::Colour { return juce::Colours::green.brighter(0.5f); } };
+		inline Entry LineR{ "Scope.LineR", []() -> juce::Colour { return juce::Colours::red; } };
+		inline Entry Border{ "Scope.Border", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry Axis{ "Scope.Axis", []() -> juce::Colour { return juce::Colours::yellow; } };
+		inline Entry Dry{ "Scope.Dry", []() -> juce::Colour { return juce::Colours::grey.withAlpha(0.6f); } };
+		inline Entry ZoomText{ "Scope.ZoomText", []() -> juce::Colour { return juce::Colours::white; } };
+	};
+	// 鳴っているかの印
+	namespace PlayingState {
+		inline Entry On{ "PlayingState.On", []() -> juce::Colour { return juce::Colours::yellow; } };
+		inline Entry Off{ "PlayingState.Off", []() -> juce::Colour { return juce::Colours::yellow.darker(0.9f).withAlpha(0.6f); } };
+		inline Entry Border{ "PlayingState.Border", []() -> juce::Colour { return juce::Colours::darkgrey; } };
+	};
+	// FM のオペレーターのエンベロープのグラフ。塗りと、段の区切りの線
+	namespace FmEnvGraph {
+		inline Entry Fill{ "FmEnvGraph.Fill", []() -> juce::Colour { return juce::Colours::cyan; } };
+		inline Entry AttackLine{ "FmEnvGraph.AttackLine", []() -> juce::Colour { return juce::Colours::red; } };
+		inline Entry DecayLine{ "FmEnvGraph.DecayLine", []() -> juce::Colour { return juce::Colours::blue; } };
+		inline Entry SustainLine{ "FmEnvGraph.SustainLine", []() -> juce::Colour { return juce::Colours::green; } };
+		inline Entry Release{ "FmEnvGraph.Release", []() -> juce::Colour { return juce::Colours::yellow; } };
+	};
+	// 役目ごとのボタンの地と文字 (パラメータの写し・消去・取り消しにくい操作)
+	namespace Button {
+		inline Entry CopyBg{ "Button.CopyBg", []() -> juce::Colour { return juce::Colours::turquoise.darker(0.5f); } };
+		inline Entry ClearBg{ "Button.ClearBg", []() -> juce::Colour { return juce::Colours::darkred.withAlpha(0.7f); } };
+		inline Entry ClearText{ "Button.ClearText", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry CautionBg{ "Button.CautionBg", []() -> juce::Colour { return juce::Colours::red.withAlpha(0.5f); } };
+		inline Entry CautionText{ "Button.CautionText", []() -> juce::Colour { return juce::Colours::white; } };
+	};
+	// [IM] / [EX] のボタン。区分のものと、オペレーターのもの
+	namespace FileButton {
+		inline Entry Text{ "FileButton.Text", []() -> juce::Colour { return juce::Colours::white.darker(0.2f); } };
+		inline Entry TextOn{ "FileButton.TextOn", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry ImportBg{ "FileButton.ImportBg", []() -> juce::Colour { return juce::Colours::darkkhaki.darker(0.5f); } };
+		inline Entry ExportBg{ "FileButton.ExportBg", []() -> juce::Colour { return juce::Colours::darkgreen; } };
+		inline Entry ImportOpBg{ "FileButton.ImportOpBg", []() -> juce::Colour { return juce::Colours::hotpink.darker(0.5f); } };
+		inline Entry ExportOpBg{ "FileButton.ExportOpBg", []() -> juce::Colour { return juce::Colours::darkblue; } };
+	};
+	// FX タブ。区分の地と、RESET・ROUTE・並び / パラメータの読み書きのボタン
+	namespace FxTab {
+		inline Entry GroupBg{ "FxTab.GroupBg", []() -> juce::Colour { return juce::Colours::darkblue.darker(0.3f).withAlpha(0.5f); } };
+		inline Entry ButtonText{ "FxTab.ButtonText", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry ResetBg{ "FxTab.ResetBg", []() -> juce::Colour { return juce::Colours::grey; } };
+		inline Entry RouteBg{ "FxTab.RouteBg", []() -> juce::Colour { return juce::Colours::darkgoldenrod.darker(0.2f); } };
+		inline Entry OrderImportBg{ "FxTab.OrderImportBg", []() -> juce::Colour { return juce::Colours::darkgrey; } };
+		inline Entry OrderExportBg{ "FxTab.OrderExportBg", []() -> juce::Colour { return juce::Colours::darkgrey.darker(0.5f); } };
+		inline Entry ParamImportBg{ "FxTab.ParamImportBg", []() -> juce::Colour { return juce::Colours::darkgreen; } };
+		inline Entry ParamExportBg{ "FxTab.ParamExportBg", []() -> juce::Colour { return juce::Colours::darkgreen.darker(0.5f); } };
+	};
+	// PRESET タブ。場所の欄、ファイルの欄、各ボタン
+	namespace PresetTab {
+		inline Entry PathBg{ "PresetTab.PathBg", []() -> juce::Colour { return juce::Colours::transparentBlack.withAlpha(0.2f); } };
+		inline Entry FilePathBg{ "PresetTab.FilePathBg", []() -> juce::Colour { return juce::Colours::darkgrey.withAlpha(0.3f); } };
+		inline Entry ButtonText{ "PresetTab.ButtonText", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry InitBg{ "PresetTab.InitBg", []() -> juce::Colour { return juce::Colours::darkblue.withAlpha(0.7f); } };
+		inline Entry SaveAsBg{ "PresetTab.SaveAsBg", []() -> juce::Colour { return juce::Colours::darkgreen.withAlpha(0.7f); } };
+		inline Entry DeleteBg{ "PresetTab.DeleteBg", []() -> juce::Colour { return juce::Colours::darkred.withAlpha(0.7f); } };
+		inline Entry LightButtonText{ "PresetTab.LightButtonText", []() -> juce::Colour { return juce::Colours::black; } };
+		inline Entry LightButtonTextDisabled{ "PresetTab.LightButtonTextDisabled", []() -> juce::Colour { return juce::Colours::white; } };
+	};
+	// SETTINGS タブ。見出しの字、場所の欄の枠、ボタン
+	namespace SettingsTab {
+		inline Entry HeadingText{ "SettingsTab.HeadingText", []() -> juce::Colour { return juce::Colours::yellow; } };
+		inline Entry PathOutline{ "SettingsTab.PathOutline", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry ButtonText{ "SettingsTab.ButtonText", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry ClearUndoBg{ "SettingsTab.ClearUndoBg", []() -> juce::Colour { return juce::Colours::blue.darker(0.3f).withAlpha(0.3f); } };
+	};
+	// MUL の値を当てるボタン。端数・5 分の倍数・4 分の倍数・増減
+	namespace MulRatio {
+		inline Entry Fraction{ "MulRatio.Fraction", []() -> juce::Colour { return juce::Colours::lightseagreen.brighter(0.3f); } };
+		inline Entry Fifth{ "MulRatio.Fifth", []() -> juce::Colour { return juce::Colours::lightsalmon.brighter(0.5f); } };
+		inline Entry Quarter{ "MulRatio.Quarter", []() -> juce::Colour { return juce::Colours::lightgreen.brighter(0.5f); } };
+		inline Entry Step{ "MulRatio.Step", []() -> juce::Colour { return juce::Colours::lightblue.brighter(0.5f); } };
+	};
+	// LEVEL の値を動かすボタン
+	namespace LevelNudge {
+		inline Entry Step{ "LevelNudge.Step", []() -> juce::Colour { return juce::Colours::lightblue.brighter(0.5f); } };
+		inline Entry One{ "LevelNudge.One", []() -> juce::Colour { return juce::Colours::yellow.brighter(0.5f); } };
+		inline Entry Quarter{ "LevelNudge.Quarter", []() -> juce::Colour { return juce::Colours::lightgreen.brighter(0.5f); } };
+		inline Entry Fifth{ "LevelNudge.Fifth", []() -> juce::Colour { return juce::Colours::lightsalmon.brighter(0.5f); } };
+		inline Entry Fraction{ "LevelNudge.Fraction", []() -> juce::Colour { return juce::Colours::lightseagreen.brighter(0.3f); } };
+	};
+	// 値を動かすボタン (増減・基準・上げる・下げる)
+	namespace ValueNudge {
+		inline Entry Step{ "ValueNudge.Step", []() -> juce::Colour { return juce::Colours::lightblue.brighter(0.5f); } };
+		inline Entry Base{ "ValueNudge.Base", []() -> juce::Colour { return juce::Colours::yellow.brighter(0.5f); } };
+		inline Entry Up{ "ValueNudge.Up", []() -> juce::Colour { return juce::Colours::lightgreen.brighter(0.5f); } };
+		inline Entry Down{ "ValueNudge.Down", []() -> juce::Colour { return juce::Colours::lightsalmon.brighter(0.5f); } };
+	};
+	// SSG SW ENV の 1.0 のボタン
+	namespace SsgSwButtons {
+		inline Entry One{ "SsgSwButtons.One", []() -> juce::Colour { return juce::Colours::yellow.brighter(0.5f); } };
+	};
+	// MIDI のモノ / ポリへ切り替えるボタン
+	namespace MidiButtons {
+		inline Entry MonoText{ "MidiButtons.MonoText", []() -> juce::Colour { return juce::Colours::black; } };
+		inline Entry MonoBg{ "MidiButtons.MonoBg", []() -> juce::Colour { return juce::Colours::yellow.darker(0.5f); } };
+		inline Entry MonoBorder{ "MidiButtons.MonoBorder", []() -> juce::Colour { return juce::Colours::yellow; } };
+		inline Entry PolyText{ "MidiButtons.PolyText", []() -> juce::Colour { return juce::Colours::black; } };
+		inline Entry PolyBg{ "MidiButtons.PolyBg", []() -> juce::Colour { return juce::Colours::orange.darker(0.5f); } };
+		inline Entry PolyBorder{ "MidiButtons.PolyBorder", []() -> juce::Colour { return juce::Colours::orange; } };
+	};
+	// FIX の Apply のボタン
+	namespace FixButton {
+		inline Entry ApplyBg{ "FixButton.ApplyBg", []() -> juce::Colour { return juce::Colours::blue.darker(0.1f).withAlpha(0.6f); } };
+	};
+	// プリセット名の欄
+	namespace PresetName {
+		inline Entry Bg{ "PresetName.Bg", []() -> juce::Colour { return juce::Colours::darkblue.withAlpha(0.4f); } };
+	};
+	// WT MOD / WT AMP MOD の FDS のプリセットのボタン
+	namespace WtModButtons {
+		inline Entry FdsPresetBg{ "WtModButtons.FdsPresetBg", []() -> juce::Colour { return juce::Colours::darkgrey.brighter(0.2f); } };
+	};
+	// WT のカスタム波形の欄
+	namespace WtCustom {
+		inline Entry Bg{ "WtCustom.Bg", []() -> juce::Colour { return juce::Colours::darkgrey.withAlpha(0.3f); } };
+		inline Entry BgDisabled{ "WtCustom.BgDisabled", []() -> juce::Colour { return juce::Colours::darkgrey.withAlpha(0.7f); } };
+		inline Entry HoverColumn{ "WtCustom.HoverColumn", []() -> juce::Colour { return juce::Colours::black; } };
+		inline Entry HoverWave{ "WtCustom.HoverWave", []() -> juce::Colour { return juce::Colours::red; } };
+		inline Entry Bar{ "WtCustom.Bar", []() -> juce::Colour { return juce::Colours::green; } };
+		inline Entry HoverBar{ "WtCustom.HoverBar", []() -> juce::Colour { return juce::Colours::magenta; } };
+		inline Entry SmoothBg{ "WtCustom.SmoothBg", []() -> juce::Colour { return juce::Colours::darkcyan; } };
+	};
+	// WT2 の波形の升目
+	namespace Wt2Grid {
+		inline Entry Disabled{ "Wt2Grid.Disabled", []() -> juce::Colour { return juce::Colours::darkgrey.withAlpha(0.7f); } };
+		inline Entry Bg{ "Wt2Grid.Bg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.7f); } };
+		inline Entry Grid{ "Wt2Grid.Grid", []() -> juce::Colour { return juce::Colours::grey.withAlpha(0.2f); } };
+		inline Entry Cell{ "Wt2Grid.Cell", []() -> juce::Colour { return juce::Colours::blue; } };
+		inline Entry CellCentre{ "Wt2Grid.CellCentre", []() -> juce::Colour { return juce::Colours::green; } };
+		inline Entry CellHover{ "Wt2Grid.CellHover", []() -> juce::Colour { return juce::Colours::cyan; } };
+		inline Entry CellCentreHover{ "Wt2Grid.CellCentreHover", []() -> juce::Colour { return juce::Colours::lightgreen; } };
+		inline Entry CentreLine{ "Wt2Grid.CentreLine", []() -> juce::Colour { return juce::Colours::green.withAlpha(0.2f); } };
+	};
+	// ADVANCED のカーブのグラフ。操作点、地・枠・升目・軸・補助線・線
+	namespace CurveGraph {
+		inline Entry Via1{ "CurveGraph.Via1", []() -> juce::Colour { return juce::Colours::cyan; } };
+		inline Entry Via2{ "CurveGraph.Via2", []() -> juce::Colour { return juce::Colours::blue; } };
+		inline Entry Cp1{ "CurveGraph.Cp1", []() -> juce::Colour { return juce::Colours::green; } };
+		inline Entry Cp2{ "CurveGraph.Cp2", []() -> juce::Colour { return juce::Colours::yellow; } };
+		inline Entry Cp3{ "CurveGraph.Cp3", []() -> juce::Colour { return juce::Colours::orange; } };
+		inline Entry Cp4{ "CurveGraph.Cp4", []() -> juce::Colour { return juce::Colours::red; } };
+		inline Entry Cp5{ "CurveGraph.Cp5", []() -> juce::Colour { return juce::Colours::pink; } };
+		inline Entry Cp6{ "CurveGraph.Cp6", []() -> juce::Colour { return juce::Colours::magenta; } };
+		inline Entry Bg{ "CurveGraph.Bg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.5f); } };
+		inline Entry Frame{ "CurveGraph.Frame", []() -> juce::Colour { return juce::Colours::grey.withAlpha(0.6f); } };
+		inline Entry Grid{ "CurveGraph.Grid", []() -> juce::Colour { return juce::Colours::grey.withAlpha(0.3f); } };
+		inline Entry Axis{ "CurveGraph.Axis", []() -> juce::Colour { return juce::Colours::grey.withAlpha(0.8f); } };
+		inline Entry AxisText{ "CurveGraph.AxisText", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.7f); } };
+		inline Entry Guide{ "CurveGraph.Guide", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.3f); } };
+		inline Entry Curve{ "CurveGraph.Curve", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry HandleBorder{ "CurveGraph.HandleBorder", []() -> juce::Colour { return juce::Colours::white; } };
+	};
+	// エンベロープのグラフの地・枠・案内の字・真ん中の線・最大の印
+	namespace EnvelopeGraphBase {
+		inline Entry Bg{ "EnvelopeGraphBase.Bg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.6f); } };
+		inline Entry Frame{ "EnvelopeGraphBase.Frame", []() -> juce::Colour { return juce::Colours::grey.withAlpha(0.3f); } };
+		inline Entry Message{ "EnvelopeGraphBase.Message", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.8f); } };
+		inline Entry CentreLine{ "EnvelopeGraphBase.CentreLine", []() -> juce::Colour { return juce::Colours::grey.withAlpha(0.5f); } };
+		inline Entry MaxMarker{ "EnvelopeGraphBase.MaxMarker", []() -> juce::Colour { return juce::Colours::white; } };
+	};
+	// FM のアルゴリズム図と行列。線・各オペレーターの色・地
+	namespace AlgRouting {
+		inline Entry Carrier{ "AlgRouting.Carrier", []() -> juce::Colour { return juce::Colours::cyan.withAlpha(0.8f); } };
+		inline Entry Modulator{ "AlgRouting.Modulator", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.8f); } };
+		inline Entry DisabledMod{ "AlgRouting.DisabledMod", []() -> juce::Colour { return juce::Colours::grey.withAlpha(0.25f); } };
+		inline Entry Feedback{ "AlgRouting.Feedback", []() -> juce::Colour { return juce::Colours::orange; } };
+		inline Entry PermanentDisabled{ "AlgRouting.PermanentDisabled", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.6f); } };
+		inline Entry Op1{ "AlgRouting.Op1", []() -> juce::Colour { return juce::Colours::red.brighter(0.2f); } };
+		inline Entry Op2{ "AlgRouting.Op2", []() -> juce::Colour { return juce::Colours::orange.brighter(0.2f); } };
+		inline Entry Op3{ "AlgRouting.Op3", []() -> juce::Colour { return juce::Colours::yellow.brighter(0.2f); } };
+		inline Entry Op4{ "AlgRouting.Op4", []() -> juce::Colour { return juce::Colours::green.brighter(0.2f); } };
+		inline Entry Op5{ "AlgRouting.Op5", []() -> juce::Colour { return juce::Colours::cyan.brighter(0.2f); } };
+		inline Entry Op6{ "AlgRouting.Op6", []() -> juce::Colour { return juce::Colours::dodgerblue.brighter(0.2f); } };
+		inline Entry Op7{ "AlgRouting.Op7", []() -> juce::Colour { return juce::Colours::magenta.brighter(0.2f); } };
+		inline Entry Op8{ "AlgRouting.Op8", []() -> juce::Colour { return juce::Colour(0xffe066ff).interpolatedWith(juce::Colours::white, 0.3f); } };
+		inline Entry OpText{ "AlgRouting.OpText", []() -> juce::Colour { return juce::Colours::black; } };
+		inline Entry GraphBg{ "AlgRouting.GraphBg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.3f); } };
+		inline Entry MatrixBg{ "AlgRouting.MatrixBg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.5f); } };
+		inline Entry OutText{ "AlgRouting.OutText", []() -> juce::Colour { return juce::Colours::white; } };
+	};
+	// タブの見出しの縁と字 (選んでいるタブ / それ以外)
+	namespace TabBar {
+		inline Entry Border{ "TabBar.Border", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.5f); } };
+		inline Entry TextFront{ "TabBar.TextFront", []() -> juce::Colour { return juce::Colours::white; } };
+		inline Entry TextBack{ "TabBar.TextBack", []() -> juce::Colour { return juce::Colours::black; } };
+	};
+	// 値をなぞって変える欄で出る吹き出し
+	namespace ValueBubble {
+		inline Entry Bg{ "ValueBubble.Bg", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.8f); } };
+		inline Entry Text{ "ValueBubble.Text", []() -> juce::Colour { return juce::Colours::white; } };
+	};
+	// ABOUT タブの板とリンク
+	namespace AboutTab {
+		inline Entry Board{ "AboutTab.Board", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.6f); } };
+		inline Entry Link{ "AboutTab.Link", []() -> juce::Colour { return juce::Colours::lightblue; } };
+	};
+	// 読み込んだファイル名の欄の枠 (RHYTHM・ADPCM・ADPCM+)
+	namespace FileLabel {
+		inline Entry Outline{ "FileLabel.Outline", []() -> juce::Colour { return juce::Colours::white.withAlpha(0.3f); } };
+	};
+	// 波形の見本の上に掛ける影
+	namespace WavePreviewShade {
+		inline Entry Shade{ "WavePreviewShade.Shade", []() -> juce::Colour { return juce::Colours::black.withAlpha(0.35f); } };
+	};
+	// 表の行の字 (ふだん / 選んでいるとき)
+	namespace TableRow {
+		inline Entry Text{ "TableRow.Text", []() -> juce::Colour { return juce::Colours::lightgrey; } };
+		inline Entry TextSelected{ "TableRow.TextSelected", []() -> juce::Colour { return juce::Colours::white; } };
+	};
 };

@@ -16,7 +16,7 @@ GuiScopeZoom::GuiScopeZoom(GuiProcessorHost& h) : host(h)
 {
 	label.setText(zoomLabel, juce::dontSendNotification);
 	label.setFont(juce::Font(juce::FontOptions(12.0f)));
-	label.setColour(juce::Label::textColourId, juce::Colours::white);
+	label.setColour(juce::Label::textColourId, GuiColor::Scope::ZoomText);
 	label.setJustificationType(juce::Justification::centredLeft);
 	addAndMakeVisible(label);
 

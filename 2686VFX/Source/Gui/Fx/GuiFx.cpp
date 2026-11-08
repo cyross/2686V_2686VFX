@@ -368,7 +368,7 @@ void GuiFx::setup()
 
 	mainSeparator.setupComponent(*this);
 
-    resetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::reset, .textColor = juce::Colours::white, .bgColor = juce::Colours::grey });
+    resetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::reset, .textColor = GuiColor::FxTab::ButtonText, .bgColor = GuiColor::FxTab::ResetBg });
     resetBtn.setWantsKeyboardFocus(true);
     resetBtn.setExplicitFocusOrder(++tabOrder);
     resetBtn.onClick = [&] {
@@ -380,7 +380,7 @@ void GuiFx::setup()
 
     routeSeparator.setupComponent(*this);
 
-    showRouteBtn.setup({ .parent = *this, .title = FxGuiText::Fx::showRoute, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
+    showRouteBtn.setup({ .parent = *this, .title = FxGuiText::Fx::showRoute, .textColor = GuiColor::FxTab::ButtonText, .bgColor = GuiColor::FxTab::RouteBg, .isReset = false });
     showRouteBtn.setWantsKeyboardFocus(true);
     showRouteBtn.setExplicitFocusOrder(++tabOrder);
     showRouteBtn.onClick = [this] {
@@ -447,22 +447,22 @@ void GuiFx::setup()
 
     fileSeparator.setupComponent(*this);
 
-    importFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileImport, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    importFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileImport, .textColor = GuiColor::FileButton::Text, .textOnColor = GuiColor::FileButton::TextOn, .bgColor = GuiColor::FxTab::OrderImportBg, .isReset = false, .isResized = false });
     importFxOrderBtn.setWantsKeyboardFocus(true);
     importFxOrderBtn.setExplicitFocusOrder(++tabOrder);
     importFxOrderBtn.onClick = [this] { importFxOrder(); };
 
-    exportFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileExport, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgrey.darker(0.5f), .isReset = false, .isResized = false});
+    exportFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileExport, .textColor = GuiColor::FileButton::Text, .textOnColor = GuiColor::FileButton::TextOn, .bgColor = GuiColor::FxTab::OrderExportBg, .isReset = false, .isResized = false});
     exportFxOrderBtn.setWantsKeyboardFocus(true);
     exportFxOrderBtn.setExplicitFocusOrder(++tabOrder);
     exportFxOrderBtn.onClick = [this] { exportFxOrder(); };
 
-    importFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileImport, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileImport, .textColor = GuiColor::FileButton::Text, .textOnColor = GuiColor::FileButton::TextOn, .bgColor = GuiColor::FxTab::ParamImportBg, .isReset = false, .isResized = false });
     importFxParamBtn.setWantsKeyboardFocus(true);
     importFxParamBtn.setExplicitFocusOrder(++tabOrder);
     importFxParamBtn.onClick = [this] { importFxParam(); };
 
-    exportFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileExport, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgreen.darker(0.5f), .isReset = false, .isResized = false });
+    exportFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileExport, .textColor = GuiColor::FileButton::Text, .textOnColor = GuiColor::FileButton::TextOn, .bgColor = GuiColor::FxTab::ParamExportBg, .isReset = false, .isResized = false });
     exportFxParamBtn.setWantsKeyboardFocus(true);
     exportFxParamBtn.setExplicitFocusOrder(++tabOrder);
     exportFxParamBtn.onClick = [this] { exportFxParam(); };

@@ -85,7 +85,7 @@ void GuiWavePreview::paint(juce::Graphics& g)
 
     GuiShadow::drawRounded(g, bounds, guiCornerRadius);
 
-    g.setColour(juce::Colours::black.withAlpha(0.35f));
+    g.setColour(GuiColor::WavePreviewShade::Shade);
     g.fillRoundedRectangle(bounds, guiCornerRadius);
 
     auto area = bounds.reduced(2.0f);

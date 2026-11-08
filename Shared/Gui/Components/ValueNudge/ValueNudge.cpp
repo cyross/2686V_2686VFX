@@ -6,10 +6,10 @@
 namespace
 {
 	// 色は LEVEL のナッジに合わせる
-	juce::Colour stepColour() { return juce::Colours::lightblue.brighter(0.5f); }
-	juce::Colour baseColour() { return juce::Colours::yellow.brighter(0.5f); }
-	juce::Colour upColour() { return juce::Colours::lightgreen.brighter(0.5f); }
-	juce::Colour downColour() { return juce::Colours::lightsalmon.brighter(0.5f); }
+	juce::Colour stepColour() { return GuiColor::ValueNudge::Step; }
+	juce::Colour baseColour() { return GuiColor::ValueNudge::Base; }
+	juce::Colour upColour() { return GuiColor::ValueNudge::Up; }
+	juce::Colour downColour() { return GuiColor::ValueNudge::Down; }
 
 	using Spec = GuiComponentValueNudge::Spec;
 	using Action = GuiComponentValueNudge::Action;

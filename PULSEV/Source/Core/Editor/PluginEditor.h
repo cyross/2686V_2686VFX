@@ -352,12 +352,12 @@ private:
     // 緑系のリアルタイムプレビュー
     juce::Label previewTitleLabel;
     juce::Label previewLabels[3];
-    GuiWaveformPreview realtimePreviewL{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::blue.brighter(0.1f) };
-    GuiWaveformPreview realtimePreviewMono{ juce::Colours::darkgreen.darker(0.8f).withAlpha(0.5f), juce::Colours::green.brighter(0.5f) };
-    GuiWaveformPreview realtimePreviewR{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::red };
+    GuiWaveformPreview realtimePreviewL{ GuiColor::Scope::BgLR, GuiColor::Scope::LineL };
+    GuiWaveformPreview realtimePreviewMono{ GuiColor::Scope::BgMono, GuiColor::Scope::LineM };
+    GuiWaveformPreview realtimePreviewR{ GuiColor::Scope::BgLR, GuiColor::Scope::LineR };
 
     // 状態コンポーネント
-    GuiStateView playingState{ juce::Colours::yellow, juce::Colours::yellow.darker(0.9f).withAlpha(0.6f) };
+    GuiStateView playingState{ GuiColor::PlayingState::On, GuiColor::PlayingState::Off };
 
     // オシロの下に置く、押したときだけ作る波形プレビュー
     std::unique_ptr<GuiGenWave> genWaveGui;

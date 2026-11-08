@@ -26,14 +26,14 @@ void GuiCurveGraph::setEnabled(bool enabled) {
 GuiCurveGraph::HandleList GuiCurveGraph::getActiveHandles() const
 {
     HandleList handles;
-    auto colorVia1 = juce::Colours::cyan;
-    auto colorVia2 = juce::Colours::blue;
-    auto colorCp1 = juce::Colours::green;
-    auto colorCp2 = juce::Colours::yellow;
-    auto colorCp3 = juce::Colours::orange;
-    auto colorCp4 = juce::Colours::red;
-    auto colorCp5 = juce::Colours::pink;
-    auto colorCp6 = juce::Colours::magenta;
+    juce::Colour colorVia1 = GuiColor::CurveGraph::Via1;
+    juce::Colour colorVia2 = GuiColor::CurveGraph::Via2;
+    juce::Colour colorCp1 = GuiColor::CurveGraph::Cp1;
+    juce::Colour colorCp2 = GuiColor::CurveGraph::Cp2;
+    juce::Colour colorCp3 = GuiColor::CurveGraph::Cp3;
+    juce::Colour colorCp4 = GuiColor::CurveGraph::Cp4;
+    juce::Colour colorCp5 = GuiColor::CurveGraph::Cp5;
+    juce::Colour colorCp6 = GuiColor::CurveGraph::Cp6;
 
     switch (currentLogic) {
     case 5: // Sp1
@@ -213,7 +213,7 @@ void GuiCurveGraph::paint(juce::Graphics& g)
     updateDisplayRange();
 
     // 背景
-    g.setColour(juce::Colours::black.withAlpha(0.5f));
+    g.setColour(GuiColor::CurveGraph::Bg);
     g.fillRoundedRectangle(bounds, 5.0f);
 
     // 0.0 ~ 1.0 の「基準枠」の描画 (はみ出ている時の目安になる)
@@ -221,11 +221,11 @@ void GuiCurveGraph::paint(juce::Graphics& g)
     auto pt11 = getPixelFromNorm(1.0f, 1.0f);
     juce::Rectangle<float> normBox(pt00.x, pt11.y, pt11.x - pt00.x, pt00.y - pt11.y);
 
-    g.setColour(juce::Colours::grey.withAlpha(0.6f));
+    g.setColour(GuiColor::CurveGraph::Frame);
     g.drawRect(normBox, 1.0f);
 
     // 0.0 ~ 1.0 の枠内のグリッド線
-    g.setColour(juce::Colours::grey.withAlpha(0.3f));
+    g.setColour(GuiColor::CurveGraph::Grid);
     for (int i = 1; i < 4; ++i) {
         float nx = i / 4.0f;
         float px = getPixelFromNorm(nx, 0.0f).x;
@@ -237,20 +237,20 @@ void GuiCurveGraph::paint(juce::Graphics& g)
     }
 
     // 0.0と1.0の基準軸を強調
-    g.setColour(juce::Colours::grey.withAlpha(0.8f));
+    g.setColour(GuiColor::CurveGraph::Axis);
     g.drawLine(pt00.x, graphArea.getY(), pt00.x, graphArea.getBottom(), 1.0f); // X=0
     g.drawLine(pt11.x, graphArea.getY(), pt11.x, graphArea.getBottom(), 1.0f); // X=1
     g.drawLine(graphArea.getX(), pt00.y, graphArea.getRight(), pt00.y, 1.0f);  // Y=0
     g.drawLine(graphArea.getX(), pt11.y, graphArea.getRight(), pt11.y, 1.0f);  // Y=1
 
     if (title.isNotEmpty()) {
-        g.setColour(juce::Colours::white.withAlpha(0.7f));
+        g.setColour(GuiColor::CurveGraph::AxisText);
         g.setFont(12.0f);
         g.drawText(title, graphArea.withTrimmedLeft(4).withTrimmedTop(2), juce::Justification::topLeft, false);
     }
 
     // 補助線の描画
-    g.setColour(juce::Colours::white.withAlpha(0.3f));
+    g.setColour(GuiColor::CurveGraph::Guide);
     auto val = [&](int idx) -> float { return (idx < boundSliders.size()) ? (float)boundSliders[idx]->getValue() : 0.0f; };
     auto pt = [&](int ix, int iy) { return getPixelFromNorm(val(ix), val(iy)); };
     auto drawLine = [&](juce::Point<float> p1, juce::Point<float> p2) { g.drawLine(p1.x, p1.y, p2.x, p2.y, 1.0f); };
@@ -316,7 +316,7 @@ void GuiCurveGraph::paint(juce::Graphics& g)
         if (i == 0) curvePath.startNewSubPath(currentPt);
         else        curvePath.lineTo(currentPt);
     }
-    g.setColour(juce::Colours::white);
+    g.setColour(GuiColor::CurveGraph::Curve);
     g.strokePath(curvePath, juce::PathStrokeType(2.0f, juce::PathStrokeType::curved));
 
     // ハンドルの点描画
@@ -327,7 +327,7 @@ void GuiCurveGraph::paint(juce::Graphics& g)
 
         g.setColour(h.color);
         g.fillEllipse(hPt.x - 5.0f, hPt.y - 5.0f, 10.0f, 10.0f);
-        g.setColour(juce::Colours::white);
+        g.setColour(GuiColor::CurveGraph::HandleBorder);
         g.drawEllipse(hPt.x - 5.0f, hPt.y - 5.0f, 10.0f, 10.0f, 1.0f);
     }
 }

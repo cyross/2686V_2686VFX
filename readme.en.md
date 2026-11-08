@@ -77,6 +77,10 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - "Wildcard": when on, a check applies to every item with the same parent (Category.ContentBg applies to Category.*, LevelMeter.Bar.Low to LevelMeter.Bar.*)
   - "Search" filters the rows by item name. The `*` and `?` wildcards work too (e.g. `LevelMeter.Bar.*`)
   - The checks are kept until the window is closed (they are not saved)
+- **Changed: colours that COLORS could not change can now be changed**
+  - Colours written directly into components were collected and turned into COLORS items (the defaults are unchanged)
+  - New items: `Header.*` (top-row buttons and the small-view boards), `Scope.*` (real-time oscilloscopes), `PlayingState.*`, `FmEnvGraph.*` (FM envelope graphs), `EnvelopeGraphBase.*`, `CurveGraph.*` (ADVANCED curves), `AlgRouting.*` (algorithm diagram and matrix, one colour per operator), `Button.*` (parameter copy, clear and so on), `FileButton.*` ([IM] / [EX]), `FxTab.*`, `PresetTab.*`, `SettingsTab.*`, `AboutTab.*`, `TabBar.*`, `MulRatio.*`, `LevelNudge.*`, `ValueNudge.*`, `SsgSwButtons.*`, `MidiButtons.*`, `FixButton.*`, `PresetName.*`, `WtModButtons.*`, `WtCustom.*` (WT custom wave), `Wt2Grid.*`, `ValueBubble.*`, `FileLabel.*`, `WavePreviewShade.*`, `TableRow.*`
+  - Colours copied into components (button backgrounds, text and so on) take effect when the window is reopened. Colours read on every paint, such as graphs, change at once
 - **Fixed: the graph sometimes had no divider where the key is released (the start of the release)**
   - In the FM AMP ENV with SR set, the sustain section is drawn as a line falling to 0 and the key is released partway through it. Dividers were only drawn at the end of each section, so there was no line where the key is released
   - In the step envelopes (PARAM ENV, SSG SW AMP / PITCH ENV and so on), an infinite loop in Rich Mode also went straight from the dashed line back to the loop start into the release, with no divider

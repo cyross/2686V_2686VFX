@@ -182,7 +182,7 @@ template <size_t tableSize>
 void WaveformContainer<tableSize>::paint(juce::Graphics& g)
 {
     // 1. 背景の描画
-    g.fillAll(isEnabledState ? juce::Colours::darkgrey.withAlpha(0.3f) : juce::Colours::darkgrey.withAlpha(0.7f));
+    g.fillAll(isEnabledState ? GuiColor::WtCustom::Bg.get() : GuiColor::WtCustom::BgDisabled.get());
 
     if (!isEnabledState || m_params.empty()) return;
 
@@ -196,7 +196,7 @@ void WaveformContainer<tableSize>::paint(juce::Graphics& g)
 
         // ホバーされている列の背景を黒にする
         if (i == hoveredIndex) {
-            g.setColour(juce::Colours::black);
+            g.setColour(GuiColor::WtCustom::HoverColumn);
             g.fillRect(x, 0.0f, stepWidth, (float)getHeight());
         }
 
@@ -204,7 +204,7 @@ void WaveformContainer<tableSize>::paint(juce::Graphics& g)
         float val = m_params[i] ? m_params[i]->convertFrom0to1(m_params[i]->getValue()) : 0.0f;
 
         // ホバーされている列の波形を赤色、それ以外は通常色
-        g.setColour((i == hoveredIndex) ? juce::Colours::red : GuiColor::WaveformContainer::Thumb);
+        g.setColour((i == hoveredIndex) ? GuiColor::WtCustom::HoverWave.get() : GuiColor::WaveformContainer::Thumb);
 
         float drawY = halfHeight - (val * halfHeight);
         float drawH = halfHeight - drawY;
@@ -218,7 +218,7 @@ void WaveformContainer<tableSize>::paint(juce::Graphics& g)
         float drawW = (stepWidth > 2.0f) ? stepWidth - 1.0f : stepWidth;
         g.fillRect(x, drawY, drawW, drawH);
 
-        g.setColour((i == hoveredIndex) ? juce::Colours::magenta : juce::Colours::green);
+        g.setColour((i == hoveredIndex) ? GuiColor::WtCustom::HoverBar.get() : GuiColor::WtCustom::Bar.get());
 
         g.fillRect(x, halfHeight, drawW, 1.0f);
     }
@@ -744,7 +744,7 @@ void GuiWt::setup()
         resized();
         };
 
-    customWaveSmoothBtn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::smooth, .font = labelFont, .bgColor = juce::Colours::darkcyan, .isReset = false, .isResized = false });
+    customWaveSmoothBtn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::smooth, .font = labelFont, .bgColor = GuiColor::WtCustom::SmoothBg, .isReset = false, .isResized = false });
     customWaveSmoothBtn.setWantsKeyboardFocus(true);
     customWaveSmoothBtn.setExplicitFocusOrder(++tabOrder);
     customWaveSmoothBtn.onClick = [this] {

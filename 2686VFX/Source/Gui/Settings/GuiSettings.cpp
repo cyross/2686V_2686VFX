@@ -74,7 +74,7 @@ void GuiSettings::setup()
         .title = SettingsGuiText::language,
         .items = languageItems,
         .isReset = false,
-        .labelColor = juce::Colours::yellow
+        .labelColor = GuiColor::SettingsTab::HeadingText
         });
     languageSelector.setSelectedId(I18n::isJa() ? 1 : 2, juce::dontSendNotification);
     languageSelector.setWantsKeyboardFocus(true);
@@ -96,7 +96,7 @@ void GuiSettings::setup()
         .title = SettingsGuiText::uiScale,
         .items = uiScaleItems,
         .isReset = false,
-        .labelColor = juce::Colours::yellow
+        .labelColor = GuiColor::SettingsTab::HeadingText
         });
     uiScaleSelector.setSelectedId(pluginOf(ctx).uiScaleIndex + 1, juce::dontSendNotification);
     uiScaleSelector.setWantsKeyboardFocus(true);
@@ -126,7 +126,7 @@ void GuiSettings::setup()
         .title = SettingsGuiText::fileFormat,
         .items = fileFormatItems,
         .isReset = false,
-        .labelColor = juce::Colours::yellow
+        .labelColor = GuiColor::SettingsTab::HeadingText
         });
     fileFormatSelector.setSelectedId(pluginOf(ctx).fileFormatIndex + 1, juce::dontSendNotification);
     fileFormatSelector.setWantsKeyboardFocus(true);
@@ -141,7 +141,7 @@ void GuiSettings::setup()
     auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = SettingsGuiText::chooseFile) {
 		lbl.setup({ .parent = *this, .title = title });
 		pathLbl.setup({ .parent = *this, .title = Io::empty });
-        pathLbl.setColour(juce::Label::outlineColourId, juce::Colours::white);
+        pathLbl.setColour(juce::Label::outlineColourId, GuiColor::SettingsTab::PathOutline);
         pathLbl.setJustificationType(juce::Justification::centredLeft);
 		btn.setup({ .parent = *this, .title = btnText, .isReset = false });
     };
@@ -149,7 +149,7 @@ void GuiSettings::setup()
     auto setupFolderRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = SettingsGuiText::chooseFolder) {
         lbl.setup({ .parent = *this, .title = title });
         pathLbl.setup({ .parent = *this, .title = Io::empty });
-        pathLbl.setColour(juce::Label::outlineColourId, juce::Colours::white);
+        pathLbl.setColour(juce::Label::outlineColourId, GuiColor::SettingsTab::PathOutline);
         pathLbl.setJustificationType(juce::Justification::centredLeft);
         btn.setup({ .parent = *this, .title = btnText, .isReset = false });
         };
@@ -175,7 +175,7 @@ void GuiSettings::setup()
         );
     };
     
-	wallpaperClearBtn.setup({ .parent = *this, .title = SettingsGuiText::wallpaperClear, .textColor = juce::Colours::white, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
+	wallpaperClearBtn.setup({ .parent = *this, .title = SettingsGuiText::wallpaperClear, .textColor = GuiColor::Button::CautionText, .bgColor = GuiColor::Button::CautionBg, .isReset = false });
     wallpaperClearBtn.setWantsKeyboardFocus(true);
     wallpaperClearBtn.setExplicitFocusOrder(++tabOrder);
     wallpaperClearBtn.onClick = [this] {
@@ -776,7 +776,7 @@ void GuiSettings::setup()
         );
         };
 
-    saveStartupSettingsBtn.setup({ .parent = *this, .title = SettingsGuiText::saveStartup, .textColor = juce::Colours::white, .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
+    saveStartupSettingsBtn.setup({ .parent = *this, .title = SettingsGuiText::saveStartup, .textColor = GuiColor::SettingsTab::ButtonText, .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
     saveStartupSettingsBtn.setWantsKeyboardFocus(true);
     saveStartupSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveStartupSettingsBtn.onClick = [this]
@@ -818,7 +818,7 @@ void GuiSettings::setup()
     separator7.setupComponent(*this);
 
     // --- Clear Undo/Redo History Button ---
-    clearUndoHistoryBtn.setup({ .parent = *this, .title = SettingsGuiText::clearUndoHistory, .textColor = juce::Colours::white, .bgColor = juce::Colours::blue.darker(0.3f).withAlpha(0.3f), .isReset = false});
+    clearUndoHistoryBtn.setup({ .parent = *this, .title = SettingsGuiText::clearUndoHistory, .textColor = GuiColor::SettingsTab::ButtonText, .bgColor = GuiColor::SettingsTab::ClearUndoBg, .isReset = false});
     clearUndoHistoryBtn.setWantsKeyboardFocus(true);
     clearUndoHistoryBtn.setExplicitFocusOrder(++tabOrder);
     clearUndoHistoryBtn.onClick = [this] {

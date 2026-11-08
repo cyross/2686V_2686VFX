@@ -1335,7 +1335,7 @@ void GuiTableList::paintCell(juce::Graphics& g, int rowNumber, int columnId, int
     if (onPaintCell && onPaintCell(g, rowNumber, columnId, width, height, rowIsSelected)) return;
 
     // 文字色
-    g.setColour(rowIsSelected ? juce::Colours::white : juce::Colours::lightgrey);
+    g.setColour(rowIsSelected ? GuiColor::TableRow::TextSelected : GuiColor::TableRow::Text);
 
     // ラムダ式からテキストを取得
     juce::String text = onGetCellText ? onGetCellText(rowNumber, columnId) : "";

@@ -3,7 +3,7 @@
 #include "Shared/Core/Gui/GuiHelpers.h"
 
 void GuiComponentImport::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& title) {
-    importButton.setup({ .parent = parent, .title = juce::String("") + "[IM]" + title, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false});
+    importButton.setup({ .parent = parent, .title = juce::String("") + "[IM]" + title, .textColor = GuiColor::FileButton::Text, .textOnColor = GuiColor::FileButton::TextOn, .bgColor = GuiColor::FileButton::ImportBg, .isReset = false, .isResized = false});
     importButton.setWantsKeyboardFocus(true);
     importButton.setExplicitFocusOrder(++tabOrder);
     importButton.onClick = [this] {
@@ -14,7 +14,7 @@ void GuiComponentImport::setupComponent(juce::Component& parent, int& tabOrder, 
 }
 
 void GuiComponentImport::setupComponentOp(juce::Component& parent, int& tabOrder, const juce::String& title) {
-    importButton.setup({ .parent = parent, .title = juce::String("") + "[IM]" + title, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
+    importButton.setup({ .parent = parent, .title = juce::String("") + "[IM]" + title, .textColor = GuiColor::FileButton::Text, .textOnColor = GuiColor::FileButton::TextOn, .bgColor = GuiColor::FileButton::ImportOpBg, .isReset = false, .isResized = false });
     importButton.setWantsKeyboardFocus(true);
     importButton.setExplicitFocusOrder(++tabOrder);
     importButton.onClick = [this] {

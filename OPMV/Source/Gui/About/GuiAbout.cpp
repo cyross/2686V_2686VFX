@@ -54,7 +54,7 @@ void GuiAbout::setup()
 
     // 3.5 マニュアルへの行き先
     manualLinkButton.setup({ .parent = *this, .title = AboutGuiText::Manual::navigate,
-        .url = juce::URL(AboutGuiText::Manual::linkUrl.get()), .color = juce::Colours::lightblue });
+        .url = juce::URL(AboutGuiText::Manual::linkUrl.get()), .color = GuiColor::AboutTab::Link });
     manualLinkButton.setFont(
         juce::Font(
             juce::FontOptions(
@@ -98,7 +98,7 @@ void GuiAbout::setup()
     gplNoticeLabel.setJustificationType(juce::Justification::centred);
 
     // 2. リンクボタン
-    gplLinkButton.setup({ .parent = *this, .title = Global::About::Gpl::navigate, .url = juce::URL(Global::About::Gpl::linkUrl), .color = juce::Colours::lightblue });
+    gplLinkButton.setup({ .parent = *this, .title = Global::About::Gpl::navigate, .url = juce::URL(Global::About::Gpl::linkUrl), .color = GuiColor::AboutTab::Link });
     gplLinkButton.setFont(
         juce::Font(
             juce::FontOptions(
@@ -151,7 +151,7 @@ void GuiAbout::paint(juce::Graphics& g)
     auto bgArea = area.removeFromLeft(area.getWidth() - (float)EditorGuiValue::Fx::width);
 
     // 半透明の黒色を設定 (0.6f の部分で透明度を 0.0〜1.0 の間で調整できます)
-    g.setColour(juce::Colours::black.withAlpha(0.6f));
+    g.setColour(GuiColor::AboutTab::Board);
 
     // 角丸の矩形で塗りつぶす (角を少し丸くするとUIになじみやすいです)
     g.fillRoundedRectangle(bgArea, 8.0f);

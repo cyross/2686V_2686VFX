@@ -144,7 +144,7 @@ void GuiOpl::setup()
     paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     // チャンネルの設定を OPZX7S のパラメータファイルとして書き出す
-    exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = GuiColor::Button::CopyBg });
     exportOpzx7Btn.setWantsKeyboardFocus(true);
     exportOpzx7Btn.setExplicitFocusOrder(++tabOrder);
     exportOpzx7Btn.onClick = [this] { exportOpzx7Params(); };
@@ -190,21 +190,21 @@ void GuiOpl::setup()
 
     uSep002.setupComponent(mainGroup.contentCanvas);
 
-    copyOpParamToOpl3Btn.setup({ .parent = mainGroup.contentCanvas, .title = "Params -> OPL3", .bgColor = juce::Colours::turquoise.darker(0.5f)});
+    copyOpParamToOpl3Btn.setup({ .parent = mainGroup.contentCanvas, .title = "Params -> OPL3", .bgColor = GuiColor::Button::CopyBg});
     copyOpParamToOpl3Btn.setWantsKeyboardFocus(true);
     copyOpParamToOpl3Btn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOpl3Btn.onClick = [this] {
         editorOf(ctx).copyOplParamsToOpl3();
         };
 
-    copyOpParamToOpl312Btn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPL3 OP1/2", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyOpParamToOpl312Btn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPL3 OP1/2", .bgColor = GuiColor::Button::CopyBg });
     copyOpParamToOpl312Btn.setWantsKeyboardFocus(true);
     copyOpParamToOpl312Btn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOpl312Btn.onClick = [this] {
         editorOf(ctx).copyOplParamsToOpl312();
         };
 
-    copyOpParamToOpl334Btn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPL3 OP3/4", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyOpParamToOpl334Btn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPL3 OP3/4", .bgColor = GuiColor::Button::CopyBg });
     copyOpParamToOpl334Btn.setWantsKeyboardFocus(true);
     copyOpParamToOpl334Btn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOpl334Btn.onClick = [this] {
@@ -1855,7 +1855,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         float tlScale = 1.0f - (tlVal / tlMax); // TL=127で無音
 
         std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-        auto color = juce::Colours::cyan;
+        juce::Colour color = GuiColor::FmEnvGraph::Fill;
         int targetIdx = (int)CurveParams::Target::AmpEnv; // または RegValue
 
         float currentTotalWidth = 0.0f;
@@ -1865,7 +1865,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         phases.push_back({
             .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f * tlScale, .color = color,
             .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Ar),
-            .phaseLineColor = juce::Colours::red, .liveStep = LivePosition::attack
+            .phaseLineColor = GuiColor::FmEnvGraph::AttackLine, .liveStep = LivePosition::attack
             });
         currentTotalWidth += attackWidth;
 
@@ -1874,7 +1874,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         phases.push_back({
             .widthPx = decayWidth, .startLevel = 1.0f * tlScale, .endLevel = sl * tlScale, .color = color,
             .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Dr),
-            .phaseLineColor = juce::Colours::blue, .liveStep = LivePosition::decay
+            .phaseLineColor = GuiColor::FmEnvGraph::DecayLine, .liveStep = LivePosition::decay
             });
         currentTotalWidth += decayWidth;
 
@@ -1882,7 +1882,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         float releaseStartLevel = sl;
         float keyOnWidth = 60.0f;
 
-        phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl * tlScale, .endLevel = sl * tlScale, .color = color, .phaseLineColor = juce::Colours::green, .liveStep = LivePosition::sustain });
+        phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl * tlScale, .endLevel = sl * tlScale, .color = color, .phaseLineColor = GuiColor::FmEnvGraph::SustainLine, .liveStep = LivePosition::sustain });
 
         currentTotalWidth += keyOnWidth;
         float noteOffPositionX = currentTotalWidth;
@@ -1894,7 +1894,7 @@ void GuiOpl::updateOpGraph(int opIndex)
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = releaseStartLevel * tlScale,
                 .isDashed = true,
-                .color = juce::Colours::yellow,
+                .color = GuiColor::FmEnvGraph::Release,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
@@ -1905,7 +1905,7 @@ void GuiOpl::updateOpGraph(int opIndex)
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = 0.0f,
                 .isDashed = true,
-                .color = juce::Colours::yellow,
+                .color = GuiColor::FmEnvGraph::Release,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
@@ -1915,7 +1915,7 @@ void GuiOpl::updateOpGraph(int opIndex)
                 .widthPx = rateToWidth(rrVal, rrMax),
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = releaseStartLevel * tlScale,
-                .color = juce::Colours::yellow,
+                .color = GuiColor::FmEnvGraph::Release,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });

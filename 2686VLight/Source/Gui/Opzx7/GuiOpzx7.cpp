@@ -754,7 +754,7 @@ void GuiOpzx7::setup()
     paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     // OPNA / OPN / OPL / OPL3 / OPM のパラメータファイルを、OPZX7S の設定へ直して読み込む
-    importFmBtn.setup({ .parent = mainGroup.contentCanvas, .title = "[IM]FM Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    importFmBtn.setup({ .parent = mainGroup.contentCanvas, .title = "[IM]FM Params", .bgColor = GuiColor::Button::CopyBg });
     importFmBtn.setWantsKeyboardFocus(true);
     importFmBtn.setExplicitFocusOrder(++tabOrder);
     importFmBtn.onClick = [this] { importFmParams(); };
@@ -1162,7 +1162,7 @@ void GuiOpzx7::setup()
         );
         };
 
-    clearPcmBtn.setup({ .parent = colWs.contentCanvas, .title = Opzx7GuiText::File::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
+    clearPcmBtn.setup({ .parent = colWs.contentCanvas, .title = Opzx7GuiText::File::clear, .textColor = GuiColor::Button::ClearText, .bgColor = GuiColor::Button::ClearBg, .isReset = false, .isResized = true });
     clearPcmBtn.setWantsKeyboardFocus(true);
     clearPcmBtn.setExplicitFocusOrder(++tabOrder);
     clearPcmBtn.onClick = [this] {
@@ -1246,7 +1246,7 @@ void GuiOpzx7::setup()
         );
         };
 
-    clearWtBtn.setup({ .parent = colWs.contentCanvas, .title = Opzx7GuiText::File::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
+    clearWtBtn.setup({ .parent = colWs.contentCanvas, .title = Opzx7GuiText::File::clear, .textColor = GuiColor::Button::ClearText, .bgColor = GuiColor::Button::ClearBg, .isReset = false, .isResized = true });
     clearWtBtn.setWantsKeyboardFocus(true);
     clearWtBtn.setExplicitFocusOrder(++tabOrder);
     clearWtBtn.onClick = [this] {
@@ -1293,7 +1293,7 @@ void GuiOpzx7::setup()
         );
         };
 
-    clearWt2Btn.setup({ .parent = colWs.contentCanvas, .title = Opzx7GuiText::File::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
+    clearWt2Btn.setup({ .parent = colWs.contentCanvas, .title = Opzx7GuiText::File::clear, .textColor = GuiColor::Button::ClearText, .bgColor = GuiColor::Button::ClearBg, .isReset = false, .isResized = true });
     clearWt2Btn.setWantsKeyboardFocus(true);
     clearWt2Btn.setExplicitFocusOrder(++tabOrder);
     clearWt2Btn.onClick = [this] {
@@ -3089,7 +3089,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         if (std::isnan(tlScale) || std::isinf(tlScale)) tlScale = 1.0f;
 
         std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-        auto color = juce::Colours::cyan;
+        juce::Colour color = GuiColor::FmEnvGraph::Fill;
 
         float currentTotalWidth = 0.0f;
 
@@ -3097,7 +3097,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         float attackWidth = rateToWidth(arVal, arMax);
         phases.push_back({
             .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f * tlScale, .color = color,
-            .phaseLineColor = juce::Colours::red, .liveStep = LivePosition::attack
+            .phaseLineColor = GuiColor::FmEnvGraph::AttackLine, .liveStep = LivePosition::attack
             });
         currentTotalWidth += attackWidth;
 
@@ -3105,7 +3105,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         float decayWidth = rateToWidth(d1rVal, d1rMax);
         phases.push_back({
             .widthPx = decayWidth, .startLevel = 1.0f * tlScale, .endLevel = sl * tlScale, .color = color,
-            .phaseLineColor = juce::Colours::blue, .liveStep = LivePosition::decay
+            .phaseLineColor = GuiColor::FmEnvGraph::DecayLine, .liveStep = LivePosition::decay
             });
         currentTotalWidth += decayWidth;
 
@@ -3119,7 +3119,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
 
             phases.push_back({
                 .widthPx = sustainTotalWidth, .startLevel = sl * tlScale, .endLevel = 0.0f, .color = color,
-                .phaseLineColor = juce::Colours::green, .liveStep = LivePosition::sustain
+                .phaseLineColor = GuiColor::FmEnvGraph::SustainLine, .liveStep = LivePosition::sustain
                 });
 
             currentTotalWidth += sustainTotalWidth * 0.5f;
@@ -3130,7 +3130,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .startLevel = sl * tlScale,
                 .endLevel = sl * tlScale,
                 .color = color,
-                .phaseLineColor = juce::Colours::green, .liveStep = LivePosition::sustain
+                .phaseLineColor = GuiColor::FmEnvGraph::SustainLine, .liveStep = LivePosition::sustain
                 });
 
             currentTotalWidth += keyOnWidth;
@@ -3145,7 +3145,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = releaseStartLevel * tlScale,
                 .isDashed = true,
-                .color = juce::Colours::yellow,
+                .color = GuiColor::FmEnvGraph::Release,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
@@ -3156,7 +3156,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = 0.0f,
                 .isDashed = true,
-                .color = juce::Colours::yellow,
+                .color = GuiColor::FmEnvGraph::Release,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
@@ -3166,7 +3166,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .widthPx = rateToWidth(rrVal, rrMax),
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = releaseStartLevel * tlScale,
-                .color = juce::Colours::yellow,
+                .color = GuiColor::FmEnvGraph::Release,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
@@ -3176,7 +3176,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .widthPx = rateToWidth(rrVal, rrMax),
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = 0.0f,
-                .color = d2rVal > 0.0f ? juce::Colours::yellow : color,
+                .color = d2rVal > 0.0f ? GuiColor::FmEnvGraph::Release.get() : color,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX,
                 .isMax = (rrVal == rrMax), .liveStep = LivePosition::release

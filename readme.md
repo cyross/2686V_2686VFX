@@ -77,6 +77,10 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
   - 「ワイルドカード」: 入れると、チェックを同じ親を持つ項目へまとめて当てる (Category.ContentBg なら Category.*、LevelMeter.Bar.Low なら LevelMeter.Bar.*)
   - 「検索」: 項目の名前で行を絞る。`*` と `?` のワイルドカードも使える (例: `LevelMeter.Bar.*`)
   - チェックは画面を閉じるまで覚えている (保存はしない)
+- **COLORS で変えられなかった色を、変えられるようにした**
+  - 各部品に直書きしていた色を洗い出し、COLORS の項目にした (既定の色は今までと同じ)
+  - 増えた項目: `Header.*` (上の段のボタン・小さい表示の板)、`Scope.*` (リアルタイムのオシロ)、`PlayingState.*`、`FmEnvGraph.*` (FM のエンベロープのグラフ)、`EnvelopeGraphBase.*`、`CurveGraph.*` (ADVANCED のカーブ)、`AlgRouting.*` (アルゴリズム図と行列、オペレーターごとの色)、`Button.*` (パラメータの写し・消去など)、`FileButton.*` ([IM] / [EX])、`FxTab.*`、`PresetTab.*`、`SettingsTab.*`、`AboutTab.*`、`TabBar.*`、`MulRatio.*`、`LevelNudge.*`、`ValueNudge.*`、`SsgSwButtons.*`、`MidiButtons.*`、`FixButton.*`、`PresetName.*`、`WtModButtons.*`、`WtCustom.*` (WT のカスタム波形)、`Wt2Grid.*`、`ValueBubble.*`、`FileLabel.*`、`WavePreviewShade.*`、`TableRow.*`
+  - ボタンの地や字など部品へ写している色は、変えたあと画面を開き直すと映る。グラフなど描くたびに読む色は、すぐ映る
 - **グラフで、離したところ (リリースの始まり) に区切りの線が無いことがあるのを修正**
   - FM 音源の AMP ENV で SR が入っていると、サスティンの区間が 0 へ下がる線として描かれ、離すのはその途中になる。区切りの線は区間の終わりにしか引いていなかったので、離したところに線が無かった
   - 段のエンベロープ (PARAM ENV・SSG SW AMP / PITCH ENV など) の Rich Mode で無限のループのときも、戻る先への破線のあとにリリースが続き、区切りが無かった
