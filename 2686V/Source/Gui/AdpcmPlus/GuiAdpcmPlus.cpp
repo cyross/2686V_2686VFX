@@ -239,10 +239,10 @@ void GuiAdpcmPlus::setup()
     slotPreviews.setup(pcmGroup.contentCanvas, GuiColor::WavePreview::AudioFile,
         Global::AdpcmPlus::slots, 8);
     fileNameLabel.setJustificationType(juce::Justification::centredLeft);
-    fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
+    fileNameLabel.setColour(juce::Label::outlineColourId, GuiColor::FileLabel::Outline);
 
     // 音声ファイルのアンロード
-    clearButton.setup({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::File::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
+    clearButton.setup({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::File::clear, .textColor = GuiColor::Button::ClearText, .bgColor = GuiColor::Button::ClearBg, .isReset = false });
     clearButton.setWantsKeyboardFocus(true);
     clearButton.setExplicitFocusOrder(++tabOrder);
     clearButton.onClick = [this]

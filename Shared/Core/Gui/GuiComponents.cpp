@@ -26,7 +26,9 @@ void GuiWaveformPreview::strokeWave(juce::Graphics& g, const std::vector<float>&
     float halfHeight = getHeight() / 2.0f;
     float xStep = (float)getWidth() / (buffer.size() - 1);
 
-    auto yOf = [halfHeight](float v) { return halfHeight - (v * halfHeight * 2.0f); };
+    const float zoom = m_verticalZoom;
+
+    auto yOf = [halfHeight, zoom](float v) { return halfHeight - (v * zoom * halfHeight * 2.0f); };
 
     juce::Path wavePath;
 
@@ -99,8 +101,33 @@ void GuiWaveformPreview::paint(juce::Graphics& g)
     strokeWave(g, m_dryBuffer, dryColor, 1.0f);
     strokeWave(g, m_displayBuffer, lineColor, 2.0f);
 
+    // 1 倍以外のときは、右上に倍率を出す
+    if (m_verticalZoom != 1.0f) {
+        g.setColour(borderColor.withAlpha(0.8f));
+        g.setFont(11.0f);
+        g.drawText("x" + juce::String(m_verticalZoom, m_verticalZoom < 1.0f ? 2 : 1), getLocalBounds().reduced(4, 2), juce::Justification::topRight, false);
+    }
+
     g.setColour(borderColor);
     g.drawRect(getLocalBounds(), 1);
+}
+
+void GuiWaveformPreview::setVerticalZoom(float zoom)
+{
+    if (zoom == m_verticalZoom) return;
+
+    m_verticalZoom = zoom;
+    repaint();
+}
+
+void GuiWaveformPreview::mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel)
+{
+    if (!onVerticalZoomWheel) {
+        juce::Component::mouseWheelMove(e, wheel);
+        return;
+    }
+
+    onVerticalZoomWheel(m_verticalZoom * std::pow(2.0f, wheel.deltaY * 2.0f));
 }
 
 // コンストラクタで色を受け取る
@@ -1308,7 +1335,7 @@ void GuiTableList::paintCell(juce::Graphics& g, int rowNumber, int columnId, int
     if (onPaintCell && onPaintCell(g, rowNumber, columnId, width, height, rowIsSelected)) return;
 
     // 文字色
-    g.setColour(rowIsSelected ? juce::Colours::white : juce::Colours::lightgrey);
+    g.setColour(rowIsSelected ? GuiColor::TableRow::TextSelected : GuiColor::TableRow::Text);
 
     // ラムダ式からテキストを取得
     juce::String text = onGetCellText ? onGetCellText(rowNumber, columnId) : "";

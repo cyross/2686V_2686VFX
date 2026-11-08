@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
+#include <set>
 #include <vector>
 
 #include "Shared/Core/Gui/GuiComponents.h"
@@ -30,12 +31,32 @@ class GuiColors : public GuiBase
 	GuiTextButton loadButton;
 	GuiTextButton saveButton;
 
+	// 読み込みの対象を絞る (4.4.0)。検索の欄・全てチェック・全て外す・ワイルドカード
+	GuiTextEditor searchEditor;
+	GuiTextButton searchClearButton;
+	GuiTextButton checkAllButton;
+	GuiTextButton uncheckAllButton;
+	GuiToggleButton wildcardToggle;
+
 	std::unique_ptr<juce::FileChooser> fileChooser;
 
-	// 表示している行。registry を並べ替えたもの。
+	// 表示している行。registry のうち、検索に合うもの。
 	std::vector<juce::String> ids;
 
+	// 読み込みの対象から外した色。既定は全部が対象なので、外したほうを持つ。
+	// 後から色が増えても、増えたものは対象に入る。
+	std::set<juce::String> excluded;
+
 	void rebuildRows();
+
+	// 読み込みの対象か
+	bool isImportTarget(const juce::String& id) const { return excluded.count(id) == 0; }
+
+	// 対象の入り切り。ワイルドカードが入っていれば、同じ親を持つ色をまとめて変える
+	void setImportTarget(const juce::String& id, bool on);
+
+	// 表示している行をまとめて入り切りする
+	void setShownImportTargets(bool on);
 
 	// その色が既定から変わっているか
 	bool isChanged(int row) const;
@@ -52,7 +73,12 @@ public:
 		table(context),
 		resetAllButton(context),
 		loadButton(context),
-		saveButton(context)
+		saveButton(context),
+		searchEditor(context),
+		searchClearButton(context),
+		checkAllButton(context),
+		uncheckAllButton(context),
+		wildcardToggle(context)
 	{
 	}
 

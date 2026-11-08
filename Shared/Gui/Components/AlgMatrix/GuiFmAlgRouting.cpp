@@ -1,12 +1,15 @@
 ﻿#include "./GuiFmAlgRouting.h"
 
+#include "Shared/Core/Gui/GuiColor.h"
+
 #include "../../../Core/Io/ParamFile.h"
 
-static const juce::Colour crrColor = juce::Colours::cyan.withAlpha(0.8f);
-static const juce::Colour modColor = juce::Colours::white.withAlpha(0.8f);
-static const juce::Colour disabledModColor = juce::Colours::grey.withAlpha(0.25f);
-static const juce::Colour fbModColor = juce::Colours::orange;
-static const juce::Colour permanentDisabledModColor = juce::Colours::black.withAlpha(0.6f);
+// 色は COLORS で変えられるので、使うときに引く (4.4.0)
+static juce::Colour crrColor() { return GuiColor::AlgRouting::Carrier; }
+static juce::Colour modColor() { return GuiColor::AlgRouting::Modulator; }
+static juce::Colour disabledModColor() { return GuiColor::AlgRouting::DisabledMod; }
+static juce::Colour fbModColor() { return GuiColor::AlgRouting::Feedback; }
+static juce::Colour permanentDisabledModColor() { return GuiColor::AlgRouting::PermanentDisabled; }
 
 static const int rectRadius = 2;
 static const int chkW = 10;
@@ -24,12 +27,15 @@ static const int switchGapH = 2;
 
 // オペレータのテーマカラー（最大8色）
 // OP8 は地の暗さに沈んで番号が読みにくかったので、白へ 0.3 寄せてある。
-static const std::array<juce::Colour, 8> opColors = {
-    juce::Colours::red.brighter(0.2f), juce::Colours::orange.brighter(0.2f),
-    juce::Colours::yellow.brighter(0.2f), juce::Colours::green.brighter(0.2f),
-    juce::Colours::cyan.brighter(0.2f), juce::Colours::dodgerblue.brighter(0.2f),
-    juce::Colours::magenta.brighter(0.2f), juce::Colour(0xffe066ff).interpolatedWith(juce::Colours::white, 0.3f)
-};
+static juce::Colour opColor(size_t index)
+{
+    static GuiColor::Entry* const entries[8] = {
+        &GuiColor::AlgRouting::Op1, &GuiColor::AlgRouting::Op2, &GuiColor::AlgRouting::Op3, &GuiColor::AlgRouting::Op4,
+        &GuiColor::AlgRouting::Op5, &GuiColor::AlgRouting::Op6, &GuiColor::AlgRouting::Op7, &GuiColor::AlgRouting::Op8,
+    };
+
+    return entries[index & 7]->get();
+}
 
 // ==============================================================================
 // アルゴリズム図の寸法
@@ -76,7 +82,7 @@ int GuiFmAlgGraph::preferredHeight(int numOps, int margin)
 void GuiFmAlgGraph::paint(juce::Graphics& g) {
     namespace S = AlgGraphSize;
 
-    g.fillAll(juce::Colours::black.withAlpha(0.3f));
+    g.fillAll(GuiColor::AlgRouting::GraphBg);
 
     std::array<juce::Point<float>, 8> pos;
     std::array<int, 8> depths;
@@ -220,14 +226,14 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
     }
 
     // 6. 線の描画
-    g.setColour(modColor);
+    g.setColour(modColor());
     for (int src = 0; src < state.numOps; ++src) {
         // アクティブでない（描画対象外の）ノードからの線は引かない
         if (depths[src] == -1) continue;
 
         // キャリア出力矢印
         if (state.isCarrier[src]) {
-            g.setColour(crrColor);
+            g.setColour(crrColor());
             const float bottom = pos[src].y + S::opHalf;
             g.drawLine(pos[src].x, bottom, pos[src].x, bottom + 9.0f, 1.5f);
             juce::Path p;
@@ -240,7 +246,7 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
 
             // 通常モジュレーション (カギ線/エルボ結線)
             if (state.mod[src][dest]) {
-                g.setColour(modColor);
+                g.setColour(modColor());
 
                 // 中心座標からスタート
                 float x1 = pos[src].x;
@@ -278,7 +284,7 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
             // 「FB」の文字は 3.6.3 でやめた。色と破線で見分けられ、
             // 文字の分だけ横に場所を取っていた。
             if (state.fbMod[src][dest]) {
-                g.setColour(fbModColor);
+                g.setColour(fbModColor());
                 if (src == dest) {
                     // 輪の中心は箱の左上の角に置く
                     const float r = S::selfFbRadius;
@@ -303,9 +309,9 @@ void GuiFmAlgGraph::paint(juce::Graphics& g) {
     for (int i = 0; i < state.numOps; ++i) {
         if (depths[i] == -1) continue;
         const float size = S::opHalf * 2.0f;
-        g.setColour(opColors[i]);
+        g.setColour(opColor((size_t)(i)));
         g.fillRect(pos[i].x - S::opHalf, pos[i].y - S::opHalf, size, size);
-        g.setColour(juce::Colours::black);
+        g.setColour(GuiColor::AlgRouting::OpText);
         g.setFont(8.0f);
         g.drawText(juce::String(i + 1), pos[i].x - S::opHalf, pos[i].y - S::opHalf, size, size, juce::Justification::centred);
     }
@@ -378,14 +384,14 @@ void GuiFmAlgMatrix::paint(juce::Graphics& g) {
     const int chkStartX = labelX + opLabelW;
     const int labelW = opLabelW - margin;
 
-    g.setColour(juce::Colours::black.withAlpha(0.5f));
+    g.setColour(GuiColor::AlgRouting::MatrixBg);
     g.fillRoundedRectangle((float)gridX, (float)gridStartY, (float)gridW, (float)gridTotalH, (float)rectRadius);
 
     g.setFont(11.0f);
 
     // 列の見出し (つなぐ元のオペレータ)
     for (int i = 0; i < numOps; ++i) {
-        g.setColour(opColors[i]);
+        g.setColour(opColor((size_t)(i)));
         g.drawText(juce::String(i + 1), chkStartX + i * cellW, gridStartY + rectRadius, cellW, labelH, juce::Justification::centred);
     }
 
@@ -398,16 +404,16 @@ void GuiFmAlgMatrix::paint(juce::Graphics& g) {
                 const bool enabled = !permDisabled && m_modEnabled[(size_t)src][(size_t)dest];
 
                 if (permDisabled) {
-                    g.setColour(permanentDisabledModColor); g.fillRect(x, y, cellW, cellH);
+                    g.setColour(permanentDisabledModColor()); g.fillRect(x, y, cellW, cellH);
                 }
                 else if (!enabled) {
-                    g.setColour(disabledModColor); g.fillRect(x, y, cellW, cellH);
+                    g.setColour(disabledModColor()); g.fillRect(x, y, cellW, cellH);
                 }
 
                 if (!permDisabled) drawCell(x, y, m_state.mod[(size_t)src][(size_t)dest], enabled);
             }
 
-            g.setColour(opColors[dest]);
+            g.setColour(opColor((size_t)(dest)));
             g.drawText("->" + juce::String(dest + 1), labelX, y, labelW, cellH, juce::Justification::centredRight);
         }
 
@@ -418,7 +424,7 @@ void GuiFmAlgMatrix::paint(juce::Graphics& g) {
             drawCell(chkStartX + src * cellW, outY, m_state.isCarrier[(size_t)src], true);
         }
 
-        g.setColour(juce::Colours::white);
+        g.setColour(GuiColor::AlgRouting::OutText);
         g.drawText("OUT", labelX, outY, labelW, cellH, juce::Justification::centredRight);
 
         return;
@@ -432,16 +438,16 @@ void GuiFmAlgMatrix::paint(juce::Graphics& g) {
             const bool enabled = !permDisabled && m_fbEnabled[(size_t)src][(size_t)dest];
 
             if (permDisabled) {
-                g.setColour(permanentDisabledModColor); g.fillRect(x, y, cellW, cellH);
+                g.setColour(permanentDisabledModColor()); g.fillRect(x, y, cellW, cellH);
             }
             else if (!enabled) {
-                g.setColour(disabledModColor); g.fillRect(x, y, cellW, cellH);
+                g.setColour(disabledModColor()); g.fillRect(x, y, cellW, cellH);
             }
 
             if (!permDisabled) drawCell(x, y, m_state.fbMod[(size_t)src][(size_t)dest], enabled);
         }
 
-        g.setColour(opColors[dest]);
+        g.setColour(opColor((size_t)(dest)));
         g.drawText("->" + juce::String(dest + 1), labelX, y, labelW, cellH, juce::Justification::centredRight);
     }
 }

@@ -197,7 +197,7 @@ void GuiOpn::setup()
     paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     // チャンネルの設定を OPZX7S のパラメータファイルとして書き出す
-    exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = GuiColor::Button::CopyBg });
     exportOpzx7Btn.setWantsKeyboardFocus(true);
     exportOpzx7Btn.setExplicitFocusOrder(++tabOrder);
     exportOpzx7Btn.onClick = [this] { exportOpzx7Params(); };
@@ -214,14 +214,14 @@ void GuiOpn::setup()
         };
 
 
-    copyParamsToOpnaBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPNA", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyParamsToOpnaBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPNA", .bgColor = GuiColor::Button::CopyBg });
     copyParamsToOpnaBtn.setWantsKeyboardFocus(true);
     copyParamsToOpnaBtn.setExplicitFocusOrder(++tabOrder);
     copyParamsToOpnaBtn.onClick = [this] {
         editorOf(ctx).copyOpnParamsToOpna();
         };
 
-    copyParamsToOpmBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params -> OPM", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyParamsToOpmBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params -> OPM", .bgColor = GuiColor::Button::CopyBg });
     copyParamsToOpmBtn.setWantsKeyboardFocus(true);
     copyParamsToOpmBtn.setExplicitFocusOrder(++tabOrder);
     copyParamsToOpmBtn.onClick = [this] {
@@ -1674,7 +1674,7 @@ void GuiOpn::updateOpGraph(int opIndex)
         float tlScale = 1.0f - (tlVal / tlMax); // TL=127で無音
 
         std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-        auto color = juce::Colours::cyan;
+        juce::Colour color = GuiColor::FmEnvGraph::Fill;
         int targetIdx = (int)CurveParams::Target::AmpEnv; // または RegValue
 
         float currentTotalWidth = 0.0f;
@@ -1684,7 +1684,7 @@ void GuiOpn::updateOpGraph(int opIndex)
         phases.push_back({
             .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f * tlScale, .color = color,
             .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Ar),
-            .phaseLineColor = juce::Colours::red, .liveStep = LivePosition::attack
+            .phaseLineColor = GuiColor::FmEnvGraph::AttackLine, .liveStep = LivePosition::attack
             });
         currentTotalWidth += attackWidth;
 
@@ -1693,7 +1693,7 @@ void GuiOpn::updateOpGraph(int opIndex)
         phases.push_back({
             .widthPx = decayWidth, .startLevel = 1.0f * tlScale, .endLevel = sl * tlScale, .color = color,
             .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Dr),
-            .phaseLineColor = juce::Colours::blue, .liveStep = LivePosition::decay
+            .phaseLineColor = GuiColor::FmEnvGraph::DecayLine, .liveStep = LivePosition::decay
             });
         currentTotalWidth += decayWidth;
 
@@ -1713,13 +1713,13 @@ void GuiOpn::updateOpGraph(int opIndex)
             phases.push_back({
                 .widthPx = sustainTotalWidth, .startLevel = sl * tlScale, .endLevel = 0.0f, .color = color,
                 .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Sr),
-                .phaseLineColor = juce::Colours::green, .liveStep = LivePosition::sustain
+                .phaseLineColor = GuiColor::FmEnvGraph::SustainLine, .liveStep = LivePosition::sustain
                 });
 
             currentTotalWidth += sustainTotalWidth * 0.5f;
         }
         else {
-            phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl * tlScale, .endLevel = sl * tlScale, .color = color, .phaseLineColor = juce::Colours::green, .liveStep = LivePosition::sustain });
+            phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl * tlScale, .endLevel = sl * tlScale, .color = color, .phaseLineColor = GuiColor::FmEnvGraph::SustainLine, .liveStep = LivePosition::sustain });
 
             currentTotalWidth += keyOnWidth;
         }
@@ -1732,7 +1732,7 @@ void GuiOpn::updateOpGraph(int opIndex)
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = releaseStartLevel * tlScale,
                 .isDashed = true,
-                .color = juce::Colours::yellow,
+                .color = GuiColor::FmEnvGraph::Release,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
@@ -1742,7 +1742,7 @@ void GuiOpn::updateOpGraph(int opIndex)
                 .widthPx = rateToWidth(rrVal, rrMax),
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = releaseStartLevel * tlScale,
-                .color = juce::Colours::yellow,
+                .color = GuiColor::FmEnvGraph::Release,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
@@ -1752,7 +1752,7 @@ void GuiOpn::updateOpGraph(int opIndex)
                 .widthPx = rateToWidth(rrVal, rrMax),
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = 0.0f,
-                .color = srVal > 0.0f ? juce::Colours::yellow : color,
+                .color = srVal > 0.0f ? GuiColor::FmEnvGraph::Release.get() : color,
                 .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX,

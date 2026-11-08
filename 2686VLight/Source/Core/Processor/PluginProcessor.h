@@ -807,6 +807,9 @@ public:
     // 上の 2 つで、生成波形の計算に使う音源一式を組み立てる (窓口の実装)
     std::unique_ptr<GuiRenderRig> createRenderRig(double sampleRate) override;
 
+    // 生成中の波形の窓 (4.4.0) の音源一式
+    std::unique_ptr<GuiStageRig> createStageRig(double sampleRate, StageSwitch::Mask off, bool noModulation, int voices) override;
+
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
     void loadPreset(const juce::File& file);
@@ -960,6 +963,28 @@ public:
         visit(SettingsKey::paramEnvLiveFps, paramEnvLiveFps);
         visit(SettingsKey::envLiveGraph, envLiveGraph);
         visit(SettingsKey::envLiveFps, envLiveFps);
+        visit(SettingsKey::levelMeterShow, levelMeterShow);
+        visit(SettingsKey::levelMeterFps, levelMeterFps);
+        visit(SettingsKey::levelMeterStyle, levelMeterStyle);
+        visit(SettingsKey::levelMeterBands, levelMeterBands);
+        visit(SettingsKey::levelMeterPeakHold, levelMeterPeakHold);
+        visit(SettingsKey::scopeZoom, scopeZoom);
+        visit(SettingsKey::stageBpm, stageBpm);
+        visit(SettingsKey::stageFollowDaw, stageFollowDaw);
+        visit(SettingsKey::stageBars, stageBars);
+        visit(SettingsKey::stageIntervalDiv, stageIntervalDiv);
+        visit(SettingsKey::stageIntervalTriplet, stageIntervalTriplet);
+        visit(SettingsKey::stageIntervalDotted, stageIntervalDotted);
+        visit(SettingsKey::stageLengthDiv, stageLengthDiv);
+        visit(SettingsKey::stageLengthTriplet, stageLengthTriplet);
+        visit(SettingsKey::stageLengthDotted, stageLengthDotted);
+        visit(SettingsKey::stageMidiNote, stageMidiNote);
+        visit(SettingsKey::stageCycles, stageCycles);
+        visit(SettingsKey::stageFps, stageFps);
+        visit(SettingsKey::stageLoop, stageLoop);
+        visit(SettingsKey::stageReleaseTail, stageReleaseTail);
+        visit(SettingsKey::stageBeatDiv, stageBeatDiv);
+        visit(SettingsKey::stageBeatCount, stageBeatCount);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop

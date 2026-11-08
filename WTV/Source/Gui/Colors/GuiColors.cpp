@@ -44,6 +44,30 @@ public:
 	}
 };
 // ============================================================================
+// 行ごとの「読込」のチェック (4.4.0)
+// ============================================================================
+// 読み込みの対象にするかどうか。セルの真ん中へ四角だけを置く。
+class ImportCell : public juce::Component
+{
+public:
+	juce::ToggleButton toggle;
+
+	// どの行のものかは差し替わる。押されたときに読むこと。
+	int row = -1;
+
+	ImportCell()
+	{
+		addAndMakeVisible(toggle);
+		toggle.setTooltip(ColorsGuiText::Filter::importTooltip);
+	}
+
+	void resized() override
+	{
+		// 四角の大きさぶんだけを真ん中に置く。文字は持たない
+		toggle.setBounds(getLocalBounds().withSizeKeepingCentre(juce::jmin(getHeight(), 24), getHeight()));
+	}
+};
+// ============================================================================
 // 色名のドロップダウン
 // ============================================================================
 // 名前だけでは何色か分からないので、左へ色見本を出す。閉じているときの
@@ -338,8 +362,41 @@ void GuiColors::setup()
 	saveButton.setExplicitFocusOrder(++tabOrder);
 	saveButton.onClick = [this] { saveToFile(); };
 
+	// ---- 読み込みの対象を絞る段
+	searchEditor.setup({ .parent = *this, .title = ColorsGuiText::Filter::search });
+	searchEditor.setTooltip(ColorsGuiText::Filter::searchTooltip);
+	searchEditor.setExplicitFocusOrder(++tabOrder);
+	searchEditor.onTextChange = [this] { rebuildRows(); };
+
+	searchClearButton.setup({ .parent = *this, .title = ColorsGuiText::Filter::clear,
+		.textColor = GuiColor::ColorsTab::SearchClearText, .bgColor = GuiColor::ColorsTab::SearchClearBg, .isReset = false });
+	searchClearButton.setTooltip(ColorsGuiText::Filter::clearTooltip);
+	searchClearButton.setExplicitFocusOrder(++tabOrder);
+	searchClearButton.onClick = [this] {
+		if (searchEditor.isEmpty()) return;
+
+		searchEditor.clear();
+		rebuildRows();
+		};
+
+	checkAllButton.setup({ .parent = *this, .title = ColorsGuiText::Filter::checkAll, .isReset = false });
+	checkAllButton.setTooltip(ColorsGuiText::Filter::bulkTooltip);
+	checkAllButton.setExplicitFocusOrder(++tabOrder);
+	checkAllButton.onClick = [this] { setShownImportTargets(true); };
+
+	uncheckAllButton.setup({ .parent = *this, .title = ColorsGuiText::Filter::uncheckAll, .isReset = false });
+	uncheckAllButton.setTooltip(ColorsGuiText::Filter::bulkTooltip);
+	uncheckAllButton.setExplicitFocusOrder(++tabOrder);
+	uncheckAllButton.onClick = [this] { setShownImportTargets(false); };
+
+	wildcardToggle.setup({ .parent = *this, .title = ColorsGuiText::Filter::wildcard,
+		.justification = juce::Justification::centredLeft });
+	wildcardToggle.setTooltip(ColorsGuiText::Filter::wildcardTooltip);
+	wildcardToggle.setExplicitFocusOrder(++tabOrder);
+
 	table.setup({ .parent = *this, .title = ColorsGuiText::title });
 	table.setWantsKeyboardFocus(false);
+	table.addColumn(ColorsGuiText::Table::importTarget, 5, ColorsGuiValue::Table::ImportWidth);
 	table.addColumn(ColorsGuiText::Table::swatch, 1, ColorsGuiValue::Table::SwatchWidth);
 	table.addColumn(ColorsGuiText::Table::item, 2, ColorsGuiValue::Table::ItemWidth);
 	table.addColumn(ColorsGuiText::Table::value, 3, ColorsGuiValue::Table::ValueWidth);
@@ -392,6 +449,31 @@ void GuiColors::setup()
 	// 4 列目は行ごとの「既定へ戻す」。ダイアログを開かなくても
 	// 1 色だけ戻せるようにする。
 	table.onRefreshCellComponent = [this](int row, int columnId, bool, juce::Component* existing) -> juce::Component* {
+		// 5 列目は読み込みの対象のチェック
+		if (columnId == 5) {
+			auto* cell = dynamic_cast<ImportCell*>(existing);
+
+			if (cell == nullptr) {
+				delete existing;
+
+				cell = new ImportCell();
+
+				cell->toggle.onClick = [this, cell] {
+					if (cell->row < 0 || cell->row >= (int)ids.size()) return;
+
+					setImportTarget(ids[(size_t)cell->row], cell->toggle.getToggleState());
+					};
+			}
+
+			cell->row = row;
+
+			if (row >= 0 && row < (int)ids.size()) {
+				cell->toggle.setToggleState(isImportTarget(ids[(size_t)row]), juce::dontSendNotification);
+			}
+
+			return cell;
+		}
+
 		if (columnId != 4) {
 			delete existing;
 
@@ -442,9 +524,61 @@ void GuiColors::rebuildRows()
 {
 	ids.clear();
 
-	for (const auto& kv : GuiColor::registry()) ids.push_back(kv.first);
+	// 検索の欄。* か ? があればワイルドカード、無ければ名前の一部で探す
+	const juce::String query = searchEditor.getText().trim();
+	const bool wildcard = query.containsAnyOf("*?");
+
+	for (const auto& kv : GuiColor::registry())
+	{
+		if (query.isNotEmpty())
+		{
+			const bool hit = wildcard ? kv.first.matchesWildcard(query, true) : kv.first.containsIgnoreCase(query);
+
+			if (!hit) continue;
+		}
+
+		ids.push_back(kv.first);
+	}
 
 	table.updateContent();
+	table.repaint();
+}
+
+void GuiColors::setImportTarget(const juce::String& id, bool on)
+{
+	const auto apply = [this, on](const juce::String& target) {
+		if (on) excluded.erase(target);
+		else excluded.insert(target);
+	};
+
+	// ワイルドカードが入っていれば、最後の「.」より前が同じ色をまとめて (例: Category.*)
+	if (wildcardToggle.getToggleState() && id.containsChar('.'))
+	{
+		const juce::String parent = id.upToLastOccurrenceOf(".", true, false);
+
+		for (const auto& kv : GuiColor::registry()) {
+			if (kv.first.startsWith(parent)) apply(kv.first);
+		}
+	}
+	else
+	{
+		apply(id);
+	}
+
+	table.updateContent();
+	table.repaint();
+}
+
+void GuiColors::setShownImportTargets(bool on)
+{
+	for (const auto& id : ids)
+	{
+		if (on) excluded.erase(id);
+		else excluded.insert(id);
+	}
+
+	table.updateContent();
+	table.repaint();
 }
 
 // 1 行ぶんの色を変えるダイアログ。
@@ -524,6 +658,23 @@ void GuiColors::layout(juce::Rectangle<int> content)
 	header.removeFromTop(ColorsGuiValue::Row::padding);
 
 	noticeLabel.setBounds(header.removeFromTop(ColorsGuiValue::Row::noticeHeight));
+
+	area.removeFromTop(ColorsGuiValue::Row::padding);
+
+	// 読み込みの対象を絞る段
+	auto filterRow = area.removeFromTop(ColorsGuiValue::Row::height);
+
+	searchEditor.label.setBounds(filterRow.removeFromLeft(ColorsGuiValue::Button::searchLabelWidth));
+	filterRow.removeFromLeft(ColorsGuiValue::Row::padding);
+	searchEditor.setBounds(filterRow.removeFromLeft(ColorsGuiValue::Button::searchWidth));
+	filterRow.removeFromLeft(ColorsGuiValue::Row::padding);
+	searchClearButton.setBounds(filterRow.removeFromLeft(ColorsGuiValue::Button::searchClearWidth));
+	filterRow.removeFromLeft(ColorsGuiValue::Row::padding * 2);
+	checkAllButton.setBounds(filterRow.removeFromLeft(ColorsGuiValue::Button::bulkWidth));
+	filterRow.removeFromLeft(ColorsGuiValue::Row::padding);
+	uncheckAllButton.setBounds(filterRow.removeFromLeft(ColorsGuiValue::Button::bulkWidth));
+	filterRow.removeFromLeft(ColorsGuiValue::Row::padding * 2);
+	wildcardToggle.setBounds(filterRow.removeFromLeft(ColorsGuiValue::Button::wildcardWidth));
 
 	area.removeFromTop(ColorsGuiValue::Row::padding);
 
@@ -617,12 +768,18 @@ void GuiColors::loadFromFile()
 
 			if (colors == nullptr) return;
 
-			// 書かれていない色は既定へ戻す。読み込んだ結果が、書き出した
-			// ときの見た目とそろうようにするため。
-			GuiColor::resetAllColours();
+			// 読み込むのは「読込」にチェックした色だけ (4.4.0)。外した色は今のまま。
+			//
+			// 対象の色のうち、書かれていないものは既定へ戻す。読み込んだ結果が、
+			// 書き出したときの見た目とそろうようにするため。
+			for (const auto& kv : GuiColor::registry())
+			{
+				if (!isImportTarget(kv.first)) continue;
 
-			for (const auto& kv : colors->getProperties()) {
-				GuiColor::setColour(kv.name.toString(), juce::Colour::fromString(kv.value.toString()));
+				const auto value = colors->getProperty(kv.first);
+
+				if (value.isVoid()) GuiColor::resetColour(kv.first);
+				else GuiColor::setColour(kv.first, juce::Colour::fromString(value.toString()));
 			}
 
 			table.updateContent();

@@ -183,11 +183,11 @@ void RhythmPadGui::setup(juce::Component &parent, int& tabOrder)
 
     samplePreview.setup(colForm.contentCanvas, GuiColor::WavePreview::AudioFile);
     fileNameLabel.setJustificationType(juce::Justification::centred);
-    fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
+    fileNameLabel.setColour(juce::Label::outlineColourId, GuiColor::FileLabel::Outline);
 
     // パッド音声アンロード
-    clearButton.setup({ .parent = colForm.contentCanvas, .title = RhythmGuiText::File::clear, .textColor = juce::Colours::white, .isReset = false });
-    clearButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
+    clearButton.setup({ .parent = colForm.contentCanvas, .title = RhythmGuiText::File::clear, .textColor = GuiColor::Button::ClearText, .isReset = false });
+    clearButton.setColour(juce::TextButton::buttonColourId, GuiColor::Button::ClearBg);
     clearButton.setWantsKeyboardFocus(true);
     clearButton.setExplicitFocusOrder(++tabOrder);
     clearButton.onClick = [this]

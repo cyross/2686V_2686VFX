@@ -323,6 +323,9 @@ float BeepCore::getSample() {
     while (m_phase >= 1.0f) m_phase -= 1.0f;
     while (m_phase < 0.0f) m_phase += 1.0f;
 
+    // 生成中の波形の窓 (4.4.0)。音源の中の加工を通す前の音
+    if (m_probe != nullptr) m_probeRaw = output * m_baseLevel;
+
     // 音量に変換
     return output * finalEnv * m_baseLevel * m_level * amMultiplier * sshHwEnvVal;
 }
@@ -344,6 +347,8 @@ void BeepCore::setPitchBendRatio(float ratio)
 void BeepCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
 {
     float sample = getSample();
+
+    probeWrite(sample);
 
     // ユニゾン・ハーモニー向けに変更
     float basePanL = 1.0f;

@@ -86,7 +86,7 @@ namespace
     };
 
     constexpr int playWidth = 24;
-    constexpr int zoomWidth = 44;
+    constexpr int zoomWidth = GenWavePlayer::zoomBoxWidth;
     constexpr int partGap = 4;
 
     // 周期の分からない波形のひとコマ (秒)
@@ -99,8 +99,10 @@ namespace
 // ----------------------------------------------------------------------------
 // コマ
 // ----------------------------------------------------------------------------
-double GenWavePlayer::frameSamples(const GenWaveRender::Wave& wave)
+double GenWavePlayer::frameSamples(const GenWaveRender::Wave& wave) const
 {
+    if (m_fps > 0.0) return juce::jmax(1.0, wave.sampleRate / m_fps);
+
     const double perCycle = wave.samplesPerCycle();
 
     if (perCycle > 0.0) return perCycle;
@@ -108,7 +110,7 @@ double GenWavePlayer::frameSamples(const GenWaveRender::Wave& wave)
     return juce::jmax(1.0, wave.sampleRate * fallbackFrameSeconds);
 }
 
-int GenWavePlayer::frameCount(const GenWaveRender::Wave& wave)
+int GenWavePlayer::frameCount(const GenWaveRender::Wave& wave) const
 {
     if (wave.isEmpty()) return 1;
 
@@ -129,10 +131,13 @@ int GenWavePlayer::frame(const GenWaveRender::Wave& wave, double nowMs) const
 
     if (m_paused) return juce::jlimit(0, count - 1, m_pausedFrame);
 
-    // 経過秒を、作ったものの中の位置として読む。最後まで行ったら頭へ戻る。
+    // 経過秒を、作ったものの中の位置として読む。最後まで行ったら、
+    // ループなら頭へ戻り、そうでなければ最後のコマに留まる。
     const double length = wave.lengthSeconds();
 
     if (length <= 0.0) return 0;
+
+    if (pastEnd(wave, nowMs)) return count - 1;
 
     const double at = std::fmod(juce::jmax(0.0, (nowMs - m_startMs) / 1000.0), length);
 
@@ -145,8 +150,14 @@ int GenWavePlayer::windowStart(const GenWaveRender::Wave& wave, int window, doub
 
     // 窓の頭は周期の切れ目へ合わせる。合わせないと 1 周期が 1 コマの
     // 間に何周も流れてしまい、形が読めない。オシロの同期と同じ考え方。
-    return juce::jlimit(0, juce::jmax(0, total - window),
-        (int)std::lround(frame(wave, nowMs) * frameSamples(wave)));
+    double start = frame(wave, nowMs) * frameSamples(wave);
+
+    // コマを秒で決めているときは、コマの頭を手前の周期の切れ目へ寄せる
+    const double perCycle = wave.samplesPerCycle();
+
+    if (m_fps > 0.0 && perCycle > 0.0) start = std::floor(start / perCycle) * perCycle;
+
+    return juce::jlimit(0, juce::jmax(0, total - window), (int)std::lround(start));
 }
 
 float GenWavePlayer::progress(const GenWaveRender::Wave& wave, double nowMs) const
@@ -158,10 +169,37 @@ float GenWavePlayer::progress(const GenWaveRender::Wave& wave, double nowMs) con
     return (float)frame(wave, nowMs) / (float)(count - 1);
 }
 
+bool GenWavePlayer::pastEnd(const GenWaveRender::Wave& wave, double nowMs) const
+{
+    if (m_loop || m_paused) return false;
+
+    const double length = wave.lengthSeconds();
+
+    return length > 0.0 && (nowMs - m_startMs) / 1000.0 >= length;
+}
+
+bool GenWavePlayer::stopAtEnd(const GenWaveRender::Wave* wave, double nowMs)
+{
+    if (wave == nullptr || wave->isEmpty() || !pastEnd(*wave, nowMs)) return false;
+
+    m_pausedFrame = frameCount(*wave) - 1;
+    m_paused = true;
+
+    return true;
+}
+
 void GenWavePlayer::togglePause(const GenWaveRender::Wave& wave, double nowMs)
 {
     if (m_paused)
     {
+        // ループを切って最後で止まっているなら、頭から流し直す
+        if (!m_loop && m_pausedFrame >= frameCount(wave) - 1)
+        {
+            restart(nowMs);
+
+            return;
+        }
+
         // 止めたコマから動かし直す。コマの真ん中から始めて、
         // 切り捨てで前のコマへ戻らないようにする。
         m_startMs = nowMs - (m_pausedFrame + 0.5) * frameSamples(wave) / wave.sampleRate * 1000.0;
@@ -225,14 +263,25 @@ void GenWavePlayer::seekTo(const GenWaveRender::Wave& wave, int target, double n
 // ----------------------------------------------------------------------------
 // 区画
 // ----------------------------------------------------------------------------
-GenWavePlayer::Parts GenWavePlayer::partsOf(juce::Rectangle<int> area)
+GenWavePlayer::Parts GenWavePlayer::partsOf(juce::Rectangle<int> area, bool withZoom, bool withLoop)
 {
     Parts parts;
 
     parts.play = area.removeFromLeft(playWidth);
     area.removeFromLeft(partGap);
-    parts.zoom = area.removeFromRight(zoomWidth);
-    area.removeFromRight(partGap);
+
+    if (withLoop)
+    {
+        parts.loop = area.removeFromLeft(playWidth);
+        area.removeFromLeft(partGap);
+    }
+
+    if (withZoom)
+    {
+        parts.zoom = area.removeFromRight(zoomWidth);
+        area.removeFromRight(partGap);
+    }
+
     parts.seek = area;
 
     return parts;
@@ -261,7 +310,7 @@ int GenWavePlayer::frameAtX(juce::Rectangle<int> seek, int x, const GenWaveRende
 void GenWavePlayer::draw(juce::Graphics& g, juce::Rectangle<int> area,
     const GenWaveRender::Wave* wave, double nowMs) const
 {
-    const auto parts = partsOf(area);
+    const auto parts = partsOf(area, m_zoomInRow, m_loopInRow);
     const bool timed = (wave != nullptr && !wave->isEmpty());
     const float alpha = timed ? 1.0f : disabledAlpha;
 
@@ -271,14 +320,14 @@ void GenWavePlayer::draw(juce::Graphics& g, juce::Rectangle<int> area,
     {
         const auto box = parts.play.toFloat();
 
-        g.setColour(GuiColor::GenWave::CycleBg.get().withMultipliedAlpha(alpha));
+        g.setColour(GuiColor::GenWave::PlayBg.get().withMultipliedAlpha(alpha));
         g.fillRect(box);
         g.setColour(GuiColor::GenWave::Border.get().withMultipliedAlpha(alpha));
         g.drawRect(box, 1.0f);
 
         const auto icon = box.withSizeKeepingCentre(10.0f, 10.0f);
 
-        g.setColour(GuiColor::GenWave::ControlIcon.get().withMultipliedAlpha(alpha));
+        g.setColour(GuiColor::GenWave::PlayIcon.get().withMultipliedAlpha(alpha));
 
         if (!timed || m_paused)
         {
@@ -295,6 +344,45 @@ void GenWavePlayer::draw(juce::Graphics& g, juce::Rectangle<int> area,
             g.fillRect(icon.withWidth(3.5f));
             g.fillRect(icon.withTrimmedLeft(icon.getWidth() - 3.5f));
         }
+    }
+
+    // --- ループ再生 ---
+    // 入れているときは記号を濃く、切っているときは薄く描く。
+    // 輪の矢印は字形に頼らず線で描く。
+    if (m_loopInRow)
+    {
+        const auto box = parts.loop.toFloat();
+        const float loopAlpha = m_loop ? 1.0f : disabledAlpha;
+
+        g.setColour(GuiColor::GenWave::PlayBg.get().withMultipliedAlpha(loopAlpha));
+        g.fillRect(box);
+        g.setColour(GuiColor::GenWave::Border);
+        g.drawRect(box, 1.0f);
+
+        const auto icon = box.withSizeKeepingCentre(12.0f, 12.0f);
+        const float radius = icon.getWidth() * 0.5f - 1.0f;
+        const auto centre = icon.getCentre();
+        const float from = juce::MathConstants<float>::pi * 0.25f;
+        const float to = juce::MathConstants<float>::pi * 1.85f;
+
+        juce::Path ring;
+
+        ring.addCentredArc(centre.x, centre.y, radius, radius, 0.0f, from, to, true);
+
+        // 矢じりは輪の終わりに、進む向き (時計回り) へ向けて置く
+        const juce::Point<float> tip(centre.x + radius * std::sin(to), centre.y - radius * std::cos(to));
+        const juce::Point<float> ahead(std::cos(to), std::sin(to));
+        const juce::Point<float> side(-ahead.y, ahead.x);
+
+        juce::Path head;
+
+        head.addTriangle(tip.x + ahead.x * 3.5f, tip.y + ahead.y * 3.5f,
+            tip.x + side.x * 3.0f - ahead.x * 1.0f, tip.y + side.y * 3.0f - ahead.y * 1.0f,
+            tip.x - side.x * 3.0f - ahead.x * 1.0f, tip.y - side.y * 3.0f - ahead.y * 1.0f);
+
+        g.setColour(GuiColor::GenWave::PlayIcon.get().withMultipliedAlpha(loopAlpha));
+        g.strokePath(ring, juce::PathStrokeType(1.6f));
+        g.fillPath(head);
     }
 
     // --- シークバー ---
@@ -331,31 +419,32 @@ void GenWavePlayer::draw(juce::Graphics& g, juce::Rectangle<int> area,
 
     // --- 縦の拡大率 ---
     // 止め絵でも効くので、いつでも押せる。
-    {
-        const auto box = parts.zoom;
+    if (m_zoomInRow) drawZoom(g, parts.zoom);
+}
 
-        g.setColour(GuiColor::GenWave::CycleBg);
-        g.fillRect(box);
-        g.setColour(GuiColor::GenWave::Border);
-        g.drawRect(box, 1);
+void GenWavePlayer::drawZoom(juce::Graphics& g, juce::Rectangle<int> box) const
+{
+    g.setColour(GuiColor::GenWave::CycleBg);
+    g.fillRect(box);
+    g.setColour(GuiColor::GenWave::Border);
+    g.drawRect(box, 1);
 
-        g.setColour(m_zoom > zoomMin ? GuiColor::GenWave::Progress.get()
-                                     : GuiColor::GenWave::ControlIcon.get());
-        g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
-        g.drawText(EditorGuiText::GenWave::zoomPrefix + juce::String(m_zoom),
-            box.withTrimmedRight(10), juce::Justification::centred, false);
+    g.setColour(m_zoom > zoomMin ? GuiColor::GenWave::Progress.get()
+                                 : GuiColor::GenWave::ControlIcon.get());
+    g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+    g.drawText(EditorGuiText::GenWave::zoomPrefix + juce::String(m_zoom),
+        box.withTrimmedRight(10), juce::Justification::centred, false);
 
-        // 選択肢があることを示す小さな ▼
-        const auto mark = box.withTrimmedLeft(box.getWidth() - 12).toFloat().withSizeKeepingCentre(6.0f, 4.0f);
+    // 選択肢があることを示す小さな ▼
+    const auto mark = box.withTrimmedLeft(box.getWidth() - 12).toFloat().withSizeKeepingCentre(6.0f, 4.0f);
 
-        juce::Path down;
+    juce::Path down;
 
-        down.addTriangle(mark.getX(), mark.getY(), mark.getRight(), mark.getY(),
-            mark.getCentreX(), mark.getBottom());
+    down.addTriangle(mark.getX(), mark.getY(), mark.getRight(), mark.getY(),
+        mark.getCentreX(), mark.getBottom());
 
-        g.setColour(GuiColor::GenWave::ControlIcon);
-        g.fillPath(down);
-    }
+    g.setColour(GuiColor::GenWave::ControlIcon);
+    g.fillPath(down);
 }
 
 // ----------------------------------------------------------------------------
@@ -366,9 +455,37 @@ GenWavePlayer::Hit GenWavePlayer::mouseDown(juce::Rectangle<int> area, juce::Poi
 {
     if (!area.contains(at)) return Hit::none;
 
-    const auto parts = partsOf(area);
+    const auto parts = partsOf(area, m_zoomInRow, m_loopInRow);
 
     if (parts.zoom.contains(at)) return Hit::zoomMenu;
+
+    // ループの入り切りは、作る前でも押せる
+    if (m_loopInRow && parts.loop.contains(at))
+    {
+        const bool timedNow = (wave != nullptr && !wave->isEmpty());
+
+        // 最後で止まっているところからループを入れたら、頭から流し直す
+        if (!m_loop && m_paused && timedNow && m_pausedFrame >= frameCount(*wave) - 1)
+        {
+            m_loop = true;
+            restart(nowMs);
+
+            return Hit::handled;
+        }
+
+        // 流れている最中に切ったら、今の位置から最後まで流して止める
+        if (m_loop && !m_paused && timedNow)
+        {
+            const double length = juce::jmax(1.0e-9, wave->lengthSeconds());
+            const double elapsed = std::fmod(juce::jmax(0.0, (nowMs - m_startMs) / 1000.0), length);
+
+            m_startMs = nowMs - elapsed * 1000.0;
+        }
+
+        m_loop = !m_loop;
+
+        return Hit::handled;
+    }
 
     const bool timed = (wave != nullptr && !wave->isEmpty());
 
@@ -401,7 +518,7 @@ bool GenWavePlayer::mouseDrag(juce::Rectangle<int> area, juce::Point<int> at,
     if (!m_dragging) return false;
     if (wave == nullptr || wave->isEmpty()) return false;
 
-    seekTo(*wave, frameAtX(partsOf(area).seek, at.getX(), *wave), nowMs);
+    seekTo(*wave, frameAtX(partsOf(area, m_zoomInRow, m_loopInRow).seek, at.getX(), *wave), nowMs);
 
     return true;
 }
@@ -412,7 +529,7 @@ bool GenWavePlayer::mouseWheel(juce::Rectangle<int> area, juce::Point<int> at,
     if (!area.contains(at) || deltaY == 0.0f) return false;
 
     const int step = (deltaY > 0.0f) ? 1 : -1;
-    const auto parts = partsOf(area);
+    const auto parts = partsOf(area, m_zoomInRow, m_loopInRow);
 
     if (parts.zoom.contains(at))
     {
@@ -439,6 +556,12 @@ bool GenWavePlayer::mouseWheel(juce::Rectangle<int> area, juce::Point<int> at,
 void GenWavePlayer::showZoomMenu(juce::Component& owner, juce::Rectangle<int> area,
     int current, std::function<void(int)> apply)
 {
+    showZoomMenuAt(owner, zoomArea(area), current, std::move(apply));
+}
+
+void GenWavePlayer::showZoomMenuAt(juce::Component& owner, juce::Rectangle<int> box,
+    int current, std::function<void(int)> apply)
+{
     juce::PopupMenu menu;
 
     for (int value = zoomMin; value <= zoomMax; ++value)
@@ -448,14 +571,14 @@ void GenWavePlayer::showZoomMenu(juce::Component& owner, juce::Rectangle<int> ar
 
     menu.showMenuAsync(juce::PopupMenu::Options()
         .withTargetComponent(&owner)
-        .withTargetScreenArea(owner.localAreaToGlobal(zoomArea(area))),
+        .withTargetScreenArea(owner.localAreaToGlobal(box)),
         [apply = std::move(apply)](int chosen) {
             if (chosen >= zoomMin && chosen <= zoomMax && apply) apply(chosen);
         });
 }
 
 void GenWavePlayer::showFrameInput(juce::Component& owner, juce::Rectangle<int> area,
-    int current, int count, std::function<void(int)> apply)
+    int current, int count, std::function<void(int)> apply, bool zoomInRow, bool loopInRow)
 {
     // 吹き出しは画面のいちばん上の部品へ載せる。プレビューの部品は小さく、
     // その中へ出すと切れてしまう。
@@ -463,7 +586,7 @@ void GenWavePlayer::showFrameInput(juce::Component& owner, juce::Rectangle<int> 
 
     if (parent == nullptr) return;
 
-    const auto seek = partsOf(area).seek;
+    const auto seek = partsOf(area, zoomInRow, loopInRow).seek;
 
     juce::CallOutBox::launchAsynchronously(
         std::make_unique<FrameInput>(current, count, std::move(apply)),

@@ -131,7 +131,7 @@ void GuiWtPlus::setup() {
     slotWt2Btn.setExplicitFocusOrder(++tabOrder);
     slotWt2Btn.onClick = [this] { importSlotWave(targetSlot(), true); };
 
-    slotClearBtn.setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
+    slotClearBtn.setup({ .parent = waveGroup.contentCanvas, .title = WtPlusGuiText::Wt::Slots::clear, .textColor = GuiColor::Button::ClearText, .bgColor = GuiColor::Button::ClearBg, .isReset = false, .isResized = true });
     slotClearBtn.setWantsKeyboardFocus(true);
     slotClearBtn.setExplicitFocusOrder(++tabOrder);
     slotClearBtn.onClick = [this] { clearSlotWave(targetSlot()); };

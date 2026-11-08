@@ -868,6 +868,11 @@ void RhythmCore::getSampleStereo(float& outL, float& outR)
     outL = 0.0f;
     outR = 0.0f;
 
+    if (m_probe != nullptr) {
+        m_probeOps.fill(0.0f);
+        m_probeCore = 0.0f;
+    }
+
     if (!isPlaying()) return;
 
     // すべてのパッドの音を計算し、それぞれの Pan 設定に従って左右に振り分けてミックス
@@ -885,6 +890,15 @@ void RhythmCore::getSampleStereo(float& outL, float& outR)
 
             float sample = pad.getSample() * 4.0f;
 
+            // 生成中の波形の窓 (4.4.0)。パッドごとの音と、パンを振る前に足した音
+            if (m_probe != nullptr) {
+                const size_t index = (size_t)(&pad - pads.data());
+
+                if (index < m_probeOps.size()) m_probeOps[index] = sample;
+
+                m_probeCore += sample;
+            }
+
             outL += sample * basePanL;
             outR += sample * basePanR;
         }
@@ -898,6 +912,8 @@ void RhythmCore::renderNextBlock(float* outR, float* outL, int startSample, int 
 
     // RhythmCore 内部で Pan 適用済みのステレオミックスを受け取る
     getSampleStereo(padOutL, padOutR);
+
+    probeWrite(m_probeCore);
 
     outL[startSample + sampleIdx] += padOutL;
     outR[startSample + sampleIdx] += padOutR;

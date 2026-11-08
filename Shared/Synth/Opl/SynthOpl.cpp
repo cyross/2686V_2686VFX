@@ -294,6 +294,13 @@ float OplCore::getSample() {
         // =================================================================
         processAllOperators(std::make_index_sequence<OplPrValue::ops>{}, currentOut, finalOut);
 
+        // 生成中の波形の窓 (4.4.0)。オペレーターごとの音と、足しただけの音を写す
+        if (m_probe != nullptr) {
+            for (int i = 0; i < OplPrValue::ops; ++i) m_probeOps[(size_t)i] = currentOut[i];
+
+            m_probeRaw = finalOut * 2.0f;
+        }
+
         // =================================================================
         // 履歴 (History) のシフト
         // =================================================================
@@ -346,6 +353,8 @@ void OplCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
 {
     float sample = getSample();
 
+    probeWrite(sample);
+
     // ユニゾン・ハーモニー向けに変更
     float basePanL = 1.0f;
     float basePanR = 1.0f;
@@ -356,7 +365,7 @@ void OplCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
     outL[startSample + sampleIdx] += sample * basePanL;
     outR[startSample + sampleIdx] += sample * basePanR;
 
-    isActive = isPlaying();
+    isActive = isPlaying() || m_probeHold;
 }
 
 void OplCore::updateRoutingCache()
@@ -416,6 +425,12 @@ inline void OplCore::processSingleOperator(float* currentOut, float& finalOut)
     }
 
     // 3. オペレータを計算
+    // 生成中の波形の窓 (4.4.0)。変調前の音を見るときは、変調を入れずに回す
+    if (m_probeNoMod) {
+        modulator = 0.0f;
+        fbModulator = 0.0f;
+    }
+
     m_operators[I].getSample(currentOut[I], modulator, fbModulator);
 
     if (m_opMask[I]) currentOut[I] = 0.0f;

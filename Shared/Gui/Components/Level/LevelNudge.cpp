@@ -15,11 +15,11 @@ namespace
         juce::Colour (*colour)();
     };
 
-    juce::Colour stepColour() { return juce::Colours::lightblue.brighter(0.5f); }
-    juce::Colour oneColour() { return juce::Colours::yellow.brighter(0.5f); }
-    juce::Colour quarterColour() { return juce::Colours::lightgreen.brighter(0.5f); }
-    juce::Colour fifthColour() { return juce::Colours::lightsalmon.brighter(0.5f); }
-    juce::Colour fractionColour() { return juce::Colours::lightseagreen.brighter(0.3f); }
+    juce::Colour stepColour() { return GuiColor::LevelNudge::Step; }
+    juce::Colour oneColour() { return GuiColor::LevelNudge::One; }
+    juce::Colour quarterColour() { return GuiColor::LevelNudge::Quarter; }
+    juce::Colour fifthColour() { return GuiColor::LevelNudge::Fifth; }
+    juce::Colour fractionColour() { return GuiColor::LevelNudge::Fraction; }
 
     // 並びは作る順 (Tab で送る順) で、置き場所は下の行の表で決める。
     // 送る順は、1 つの部品にまとめる前の LEVEL と同じにしてある。

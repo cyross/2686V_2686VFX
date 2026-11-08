@@ -162,6 +162,15 @@ class GuiSettings : public GuiBase
     GuiToggleButton envLiveToggle;
     GuiComboBox envLiveFpsSelector;
 
+    NormalSeparator separatorLevelMeter;
+
+    // レベルメーター (4.4.0)。出すか・速さ・描き方・帯の数・ピークホールド
+    GuiToggleButton levelMeterToggle;
+    GuiComboBox levelMeterFpsSelector;
+    GuiComboBox levelMeterStyleSelector;
+    GuiComboBox levelMeterBandsSelector;
+    GuiToggleButton levelMeterPeakHoldToggle;
+
     NormalSeparator separator5;
 
     // 仮想MIDIキーボード表示制御
@@ -276,6 +285,12 @@ public:
         paramEnvLiveFpsSelector(context),
         envLiveToggle(context),
         envLiveFpsSelector(context),
+        separatorLevelMeter(context),
+        levelMeterToggle(context),
+        levelMeterFpsSelector(context),
+        levelMeterStyleSelector(context),
+        levelMeterBandsSelector(context),
+        levelMeterPeakHoldToggle(context),
         separator5(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),
@@ -297,6 +312,8 @@ public:
     void clearWavePreviews();
     // 設定を画面へ反映する。値はプロセッサから直に読む。
     void setSettings();
+    // レベルメーターの行を、出すかどうかに合わせて選べるようにする
+    void enableLevelMeterRow();
 	void setWallpaperPath(const juce::String& wallpaperPath);
     float getUiScale(int index);
 };

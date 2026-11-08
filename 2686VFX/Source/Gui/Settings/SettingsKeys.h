@@ -38,6 +38,34 @@ namespace SettingsKey
 	static inline const juce::String showVirtualKeyboard = "showVirtualKeyboard";
 	static inline const juce::String tapLiveGraph = "tapLiveGraph";
 	static inline const juce::String tapLiveFps = "tapLiveFps";
+
+	// レベルメーター (4.4.0)
+	static inline const juce::String levelMeterShow = "levelMeterShow";
+	static inline const juce::String levelMeterFps = "levelMeterFps";
+	static inline const juce::String levelMeterStyle = "levelMeterStyle";
+	static inline const juce::String levelMeterBands = "levelMeterBands";
+	static inline const juce::String levelMeterPeakHold = "levelMeterPeakHold";
+
+	// リアルタイムのオシロの縦の倍率 (4.4.0)
+	static inline const juce::String scopeZoom = "scopeZoom";
+
+	// 生成中の波形の窓 (4.4.0)。打鍵の並びと見せ方
+	static inline const juce::String stageBpm = "stageBpm";
+	static inline const juce::String stageFollowDaw = "stageFollowDaw";
+	static inline const juce::String stageBars = "stageBars";
+	static inline const juce::String stageIntervalDiv = "stageIntervalDiv";
+	static inline const juce::String stageIntervalTriplet = "stageIntervalTriplet";
+	static inline const juce::String stageIntervalDotted = "stageIntervalDotted";
+	static inline const juce::String stageLengthDiv = "stageLengthDiv";
+	static inline const juce::String stageLengthTriplet = "stageLengthTriplet";
+	static inline const juce::String stageLengthDotted = "stageLengthDotted";
+	static inline const juce::String stageMidiNote = "stageMidiNote";
+	static inline const juce::String stageCycles = "stageCycles";
+	static inline const juce::String stageFps = "stageFps";
+	static inline const juce::String stageLoop = "stageLoop";
+	static inline const juce::String stageReleaseTail = "stageReleaseTail";
+	static inline const juce::String stageBeatDiv = "stageBeatDiv";
+	static inline const juce::String stageBeatCount = "stageBeatCount";
 	static inline const juce::String fmParameterCopyType = "fmParameterCopyType";
 	static inline const juce::String fxOrder = "fxOrder";
 };

@@ -30,6 +30,8 @@
 
 #include "Shared/Core/Gui/GuiCopyObj.h"
 #include "Shared/Core/Gui/GuiHost.h"
+#include "Shared/Core/Gui/GuiLevelMeter.h"
+#include "Shared/Core/Gui/GuiScopeZoom.h"
 
 class SystemButtonLF : public juce::LookAndFeel_V4
 {
@@ -355,12 +357,12 @@ private:
     // 緑系のリアルタイムプレビュー
     juce::Label previewTitleLabel;
     juce::Label previewLabels[3];
-    GuiWaveformPreview realtimePreviewL{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::blue.brighter(0.1f) };
-    GuiWaveformPreview realtimePreviewMono{ juce::Colours::darkgreen.darker(0.8f).withAlpha(0.5f), juce::Colours::green.brighter(0.5f) };
-    GuiWaveformPreview realtimePreviewR{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::red };
+    GuiWaveformPreview realtimePreviewL{ GuiColor::Scope::BgLR, GuiColor::Scope::LineL };
+    GuiWaveformPreview realtimePreviewMono{ GuiColor::Scope::BgMono, GuiColor::Scope::LineM };
+    GuiWaveformPreview realtimePreviewR{ GuiColor::Scope::BgLR, GuiColor::Scope::LineR };
 
     // 状態コンポーネント
-    GuiStateView playingState{ juce::Colours::yellow, juce::Colours::yellow.darker(0.9f).withAlpha(0.6f) };
+    GuiStateView playingState{ GuiColor::PlayingState::On, GuiColor::PlayingState::Off };
 
     // オシロの下に置く、押したときだけ作る波形プレビュー
     std::unique_ptr<GuiGenWave> genWaveGui;
@@ -534,6 +536,15 @@ private:
     std::unique_ptr<GuiAbout> aboutGui;
     std::unique_ptr<GuiColors> colorsGui;
 
+
+    // レベルメーター (4.4.0)。壁紙と UI のあいだに描くので、子のいちばん奥に置く
+    std::unique_ptr<GuiLevelMeter> levelMeter;
+
+    // リアルタイムのオシロの縦の倍率 (4.4.0)。フルビューで見出しの下に置く
+    std::unique_ptr<GuiScopeZoom> scopeZoom;
+
+    // メーターを置く場所。枠 (box) の下から 3/4 の高さ
+    static juce::Rectangle<int> levelMeterArea(juce::Rectangle<int> box);
     juce::Image backgroundImage; // Cache for wallpaper
     juce::Image blurredBackgroundImage; // ぼかし背景用のキャッシュ
 

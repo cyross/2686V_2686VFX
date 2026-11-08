@@ -40,6 +40,10 @@ namespace SettingsGuiText
 	static inline const I18n::Text showTooltips{ u8"ツールチップを表示", u8"Show tooltips" };
 	static inline const I18n::Text showVirtualKeyboard{ u8"仮想MIDIキーボード表示", u8"Show the virtual MIDI keyboard" };
 	static inline const I18n::Text tapLiveGraph{ u8"TAP SEQUENCER のいまの段を、弾くのに合わせて動かす", u8"Move the current TAP SEQUENCER step as you play" };
+	static inline const I18n::Text levelMeter{ u8"レベルメーターを、壁紙と画面のあいだに出す (左に周波数ごと、右に L / R)", u8"Show level meters between the wallpaper and the controls (spectrum on the left, L / R on the right)" };
+	static inline const I18n::Text levelMeterStyle{ u8"表示", u8"Style" };
+	static inline const I18n::Text levelMeterBands{ u8"帯の数", u8"Bands" };
+	static inline const I18n::Text levelMeterPeakHold{ u8"ピークホールド", u8"Peak hold" };
 	static inline const I18n::Text liveGraphFps{ u8"速さ", u8"Rate" };
 	static inline const I18n::Text saveSettings{ u8"設定ファイルに保存", u8"Save to a settings file" };
 	static inline const I18n::Text loadSettings{ u8"設定ファイルから読み込み", u8"Load from a settings file" };

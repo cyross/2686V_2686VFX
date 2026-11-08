@@ -195,6 +195,9 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         if (numSamples <= 0) return;
     }
 
+    // 生成中の波形の窓 (4.4.0)。コアが写す位置を、このブロックの頭から数える
+    if (core->m_probe != nullptr) core->m_probe->cursor = startSample;
+
     // アルペジオはユニゾンが2ボイス以上のときだけ意味を持つ
     const bool useArp = m_arpEnable && core->m_unison.getTotal() > 1;
 

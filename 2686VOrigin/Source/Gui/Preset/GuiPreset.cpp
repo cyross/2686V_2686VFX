@@ -109,7 +109,7 @@ void GuiPreset::setup()
 
     pathLabel.setup({ .parent = *this, .title = currentFolder.getFullPathName()});
     pathLabel.setJustificationType(juce::Justification::left);
-    pathLabel.setColour(juce::Label::backgroundColourId, juce::Colours::transparentBlack.withAlpha(0.2f));
+    pathLabel.setColour(juce::Label::backgroundColourId, GuiColor::PresetTab::PathBg);
     pathLabel.setWantsKeyboardFocus(false);
 
     /********************
@@ -164,7 +164,7 @@ void GuiPreset::setup()
         };
 
     clearHistoryButton.setup({ .parent = *this, .title = PresetKey::View::clearHistory,
-        .textColor = juce::Colours::white, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
+        .textColor = GuiColor::Button::CautionText, .bgColor = GuiColor::Button::CautionBg, .isReset = false });
     clearHistoryButton.setWantsKeyboardFocus(true);
     clearHistoryButton.setExplicitFocusOrder(++tabOrder);
     clearHistoryButton.setVisible(false);
@@ -192,7 +192,7 @@ void GuiPreset::setup()
 
     searchBox.onTextChange = [this] { applyFilter(); };
 
-    clearSearchButton.setup({ .parent = *this, .title = PresetKey::Search::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false});
+    clearSearchButton.setup({ .parent = *this, .title = PresetKey::Search::clear, .textColor = GuiColor::Button::CautionText, .bgColor = GuiColor::Button::CautionBg, .isReset = false});
     clearSearchButton.setWantsKeyboardFocus(true);
     clearSearchButton.setExplicitFocusOrder(++tabOrder);
 
@@ -423,7 +423,7 @@ void GuiPreset::setup()
 
     filePathEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::filePath, .isMultiLine = false });
     filePathEditor.setText(pluginOf(ctx).presetFilePath);
-    filePathEditor.setColour(juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.withAlpha(0.3f));
+    filePathEditor.setColour(juce::TextEditor::backgroundColourId, GuiColor::PresetTab::FilePathBg);
     filePathEditor.setReadOnly(true); // ユーザーには手打ちさせない
     filePathEditor.setWantsKeyboardFocus(false);
 
@@ -465,7 +465,7 @@ void GuiPreset::setup()
     *********************/
 
     // --- Init Preset Button ---
-	initButton.setup({ .parent = *this, .title = PresetKey::Button::initPreset, .font = buttonFont, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkblue.withAlpha(0.7f)});
+	initButton.setup({ .parent = *this, .title = PresetKey::Button::initPreset, .font = buttonFont, .textColor = GuiColor::PresetTab::ButtonText, .bgColor = GuiColor::PresetTab::InitBg});
     initButton.setWantsKeyboardFocus(true);
     initButton.setExplicitFocusOrder(++tabOrder);
     initButton.onClick = [this] {
@@ -507,7 +507,7 @@ void GuiPreset::setup()
 
     // --- Load Preset Info Button ---
 	loadButton.setup({ .parent = *this, .title = PresetKey::Button::loadPreset, .font = buttonFont,
-		.textColor = juce::Colours::black, .disabledTextColor = juce::Colours::white, .isReset = false });
+		.textColor = GuiColor::PresetTab::LightButtonText, .disabledTextColor = GuiColor::PresetTab::LightButtonTextDisabled, .isReset = false });
     loadButton.setEnabled(false);
     loadButton.setWantsKeyboardFocus(true);
     loadButton.setExplicitFocusOrder(++tabOrder);
@@ -529,13 +529,13 @@ void GuiPreset::setup()
     saveButton.onClick = [this] { editorOf(ctx).saveCurrentPreset(); };
 
     // --- Save Preset As Button ---
-    saveAsButton.setup({ .parent = *this, .title = PresetKey::Button::savePresetAs, .font = buttonFont, .bgColor = juce::Colours::darkgreen.withAlpha(0.7f) });
+    saveAsButton.setup({ .parent = *this, .title = PresetKey::Button::savePresetAs, .font = buttonFont, .bgColor = GuiColor::PresetTab::SaveAsBg });
     saveAsButton.setWantsKeyboardFocus(true);
     saveAsButton.setExplicitFocusOrder(++tabOrder);
     saveAsButton.onClick = [this] { editorOf(ctx).saveCurrentPresetAs(); };
 
     // --- Delete Preset Button ---
-	deleteButton.setup({ .parent = *this, .title = PresetKey::Button::deletePreset, .font = buttonFont, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f) });
+	deleteButton.setup({ .parent = *this, .title = PresetKey::Button::deletePreset, .font = buttonFont, .textColor = GuiColor::Button::ClearText, .bgColor = GuiColor::PresetTab::DeleteBg });
     deleteButton.setWantsKeyboardFocus(true);
     deleteButton.setExplicitFocusOrder(++tabOrder);
     deleteButton.setEnabled(false);
@@ -587,7 +587,7 @@ void GuiPreset::setup()
 
     // --- Copy Preset Info to Clipboard Button ---
 	copyButton.setup({ .parent = *this, .title = PresetKey::Button::copyPresetInfoToClipboard, .font = buttonFont,
-		.textColor = juce::Colours::black, .disabledTextColor = juce::Colours::white, .isReset = false });
+		.textColor = GuiColor::PresetTab::LightButtonText, .disabledTextColor = GuiColor::PresetTab::LightButtonTextDisabled, .isReset = false });
     copyButton.setWantsKeyboardFocus(true);
     copyButton.setExplicitFocusOrder(++tabOrder);
     copyButton.setEnabled(false);

@@ -319,6 +319,12 @@ private:
     void updatePlayAllText();
     void commitSave();
 
+    // 名前の欄の字から、書き出しの拡張子 (.ccolor.json など) を外す。
+    // 一覧から選んだ名前には拡張子が付いているので、そのまま足すと
+    // 「abc.ccolor.ccolor.json」のように二重になる。形式が違う
+    // (.yaml を選んで .json で書く) ときも外す。
+    juce::String withoutSaveExtension(const juce::String& name) const;
+
     void startBulkGenerate();
     void generateNext();
     void finishBulk();

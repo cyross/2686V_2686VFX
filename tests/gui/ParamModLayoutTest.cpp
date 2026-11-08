@@ -16,6 +16,7 @@
 #include "Core/Editor/PluginEditor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiBase.h"
+#include "Gui/Settings/GuiSettingsText.h"
 #include "./EditorTestAccess.h"
 
 namespace
@@ -169,8 +170,9 @@ TEST_CASE("SETTINGS: グラフの鳴っている位置の表示は入り切り�
 
 	settings->layout(page->getLocalBounds());
 
-	// 入り切りは、速さと同じ行の左に置いてある
+	// 入り切りは、速さと同じ行の左に置いてある。レベルメーター (4.4.0) の行も速さを選ぶので、それは除く
 	std::vector<GuiToggleButton*> toggles;
+	std::vector<GuiComboBox*> liveSelectors;
 
 	for (auto* selector : selectors)
 	{
@@ -184,8 +186,13 @@ TEST_CASE("SETTINGS: グラフの鳴っている位置の表示は入り切り�
 		// 頁からはみ出さない
 		CHECK(selector->getBottom() <= page->getHeight());
 
+		if (row[0]->getButtonText() == SettingsGuiText::levelMeter.get()) continue;
+
 		toggles.push_back(row[0]);
+		liveSelectors.push_back(selector);
 	}
+
+	selectors = liveSelectors;
 
 #if GUI_TEST_IS_FX
 	// 2686VFX は TAP SEQUENCER だけ
@@ -223,6 +230,217 @@ TEST_CASE("SETTINGS: グラフの鳴っている位置の表示は入り切り�
 
 	CHECK_FALSE(processor->tapLiveGraph);
 	CHECK_FALSE(selectors[0]->isEnabled());
+
+	editor.reset();
+}
+
+TEST_CASE("SETTINGS: レベルメーターは入り切りでき、切るとほかの項目は選べない。メーターは子のいちばん奥で、タブの下 3/4 にある")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+
+	auto toggles = findAll<GuiToggleButton>(*editor, [](GuiToggleButton& t) { return t.getButtonText() == SettingsGuiText::levelMeter.get(); });
+
+	REQUIRE(toggles.size() == 1);
+
+	auto* toggle = toggles[0];
+	auto* page = toggle->getParentComponent();
+	auto* settings = dynamic_cast<GuiBase*>(page);
+
+	REQUIRE(settings != nullptr);
+
+	settings->layout(page->getLocalBounds());
+
+	// 同じ行に、速さ・描き方・帯の数・ピークホールド
+	auto selectors = findAll<GuiComboBox>(*page, [toggle](GuiComboBox& b) { return b.isVisible() && b.getY() == toggle->getY() && b.getX() >= toggle->getRight(); });
+	auto peakHolds = findAll<GuiToggleButton>(*page, [](GuiToggleButton& t) { return t.getButtonText() == SettingsGuiText::levelMeterPeakHold.get(); });
+
+	REQUIRE(selectors.size() == 3);
+	REQUIRE(peakHolds.size() == 1);
+
+	CHECK(peakHolds[0]->getY() == toggle->getY());
+	CHECK(peakHolds[0]->getBottom() <= page->getHeight());
+	CHECK(peakHolds[0]->getRight() <= page->getWidth());
+
+	// 初期値は入、15 FPS、LED、32 帯、ピークホールド入
+	CHECK(processor->levelMeterShow);
+	CHECK(processor->levelMeterFps == 15);
+	CHECK(processor->levelMeterStyle == GuiLevelMeter::led);
+	CHECK(processor->levelMeterBands == 32);
+	CHECK(processor->levelMeterPeakHold);
+
+	GuiComboBox* style = nullptr;
+	GuiComboBox* bands = nullptr;
+
+	for (auto* b : selectors) {
+		if (b->getNumItems() == GuiLevelMeter::styleCount) style = b;
+		if (b->getNumItems() == 2) bands = b;
+	}
+
+	REQUIRE(style != nullptr);
+	REQUIRE(bands != nullptr);
+
+	// 80s-90s 01〜04 も選べる
+	CHECK(style->getItemText(GuiLevelMeter::retro01) == "80s-90s 01");
+	CHECK(style->getItemText(GuiLevelMeter::retro04) == "80s-90s 04");
+
+	// 選ぶとプロセッサの値が変わる
+	style->setSelectedId(GuiLevelMeter::line + 1, juce::sendNotificationSync);
+	bands->setSelectedId(16, juce::sendNotificationSync);
+
+	CHECK(processor->levelMeterStyle == GuiLevelMeter::line);
+	CHECK(processor->levelMeterBands == 16);
+
+	// 切るとほかの項目は選べない
+	toggle->setToggleState(false, juce::dontSendNotification);
+
+	REQUIRE(toggle->onClick != nullptr);
+
+	toggle->onClick();
+
+	CHECK_FALSE(processor->levelMeterShow);
+
+	for (auto* b : selectors) CHECK_FALSE(b->isEnabled());
+
+	CHECK_FALSE(peakHolds[0]->isEnabled());
+
+	// メーターは子のいちばん奥 (壁紙のすぐ上) にあり、タブの中身の下 3/4 に収まる
+	auto meters = findAll<GuiLevelMeter>(*editor, [](GuiLevelMeter&) { return true; });
+
+	REQUIRE(meters.size() == 1);
+
+	auto* meter = meters[0];
+
+	CHECK(meter->getParentComponent() == editor.get());
+	CHECK(editor->getIndexOfChildComponent(meter) == 0);
+	bool clicks = true, childClicks = true;
+	meter->getInterceptsMouseClicks(clicks, childClicks);
+
+	CHECK_FALSE(clicks);
+
+	editor->resized();
+
+	auto* tabs = findAll<juce::TabbedComponent>(*editor, [](juce::TabbedComponent&) { return true; }).front();
+	const auto content = tabs->getBounds().withTrimmedTop(tabs->getTabBarDepth());
+
+	CHECK(content.contains(meter->getBounds()));
+	CHECK(meter->getBottom() >= content.getBottom() - 20);
+	CHECK(meter->getHeight() >= content.getHeight() * 3 / 4 - 20);
+	CHECK(meter->getHeight() <= content.getHeight() * 3 / 4);
+
+	// L / R の柱の色は、スペクトラムとは別に COLORS タブで変えられる。既定は同じ色
+	for (const char* id : { "LevelMeter.Lr.Led.Low", "LevelMeter.Lr.Retro01.Dot", "LevelMeter.Lr.Retro04.Peak" }) {
+		INFO(id);
+		CHECK(GuiColor::registry().count(id) == 1);
+	}
+
+	CHECK(GuiColor::LevelMeter::Lr::Led::Low.defaultColour() == GuiColor::LevelMeter::Led::Low.defaultColour());
+
+	// どの描き方でも、広い枠・狭い枠ともに描ける。音を入れて、段が灯った状態で描く
+	processor->levelMeterShow = true;
+	processor->levelMeterPeakHold = true;
+
+	meter->setVisible(true);
+	meter->refresh();
+
+	REQUIRE(processor->levelMeterFeed.active.load());
+
+	{
+		// 低いほうから高いほうへ、大きさを変えた正弦波をいくつか重ねる
+		std::vector<float> l(4096), r(4096);
+		const double freqs[] = { 60.0, 150.0, 400.0, 1000.0, 2400.0, 6000.0, 12000.0 };
+		const float amps[] = { 0.5f, 0.3f, 0.2f, 0.12f, 0.08f, 0.04f, 0.02f };
+
+		for (size_t i = 0; i < l.size(); ++i) {
+			float v = 0.0f;
+
+			for (size_t k = 0; k < std::size(freqs); ++k) v += amps[k] * (float)std::sin(juce::MathConstants<double>::twoPi * freqs[k] * (double)i / 48000.0);
+
+			l[i] = v;
+			r[i] = v * 0.6f;
+		}
+
+		processor->levelMeterFeed.push(l.data(), r.data(), (int)l.size(), 48000.0);
+	}
+
+	for (int st = 0; st < GuiLevelMeter::styleCount; ++st) {
+		for (bool compact : { false, true }) {
+			for (int bandCount : GuiLevelMeter::bandChoices) {
+				INFO("style " << st << " compact " << compact << " bands " << bandCount);
+
+				processor->levelMeterStyle = st;
+				processor->levelMeterBands = bandCount;
+				meter->setCompact(compact);
+
+				meter->pull();
+
+				const auto image = meter->createComponentSnapshot(meter->getLocalBounds());
+
+				CHECK(image.isValid());
+
+				// 見た目を確かめたいときは、置き場を環境変数で渡すと PNG に書き出す
+				if (const auto dir = juce::SystemStats::getEnvironmentVariable("LEVEL_METER_SNAPSHOT_DIR", {}); dir.isNotEmpty()) {
+					juce::Image framed(juce::Image::ARGB, image.getWidth(), image.getHeight(), true);
+					{
+						juce::Graphics fg(framed);
+						fg.fillAll(juce::Colours::black);
+						fg.drawImageAt(image, 0, 0);
+					}
+
+					juce::File file = juce::File(dir).getChildFile("meter_" + juce::String(st) + (compact ? "_compact" : "") + "_" + juce::String(bandCount) + ".png");
+					file.deleteFile();
+
+					juce::FileOutputStream out(file);
+					juce::PNGImageFormat().writeImageToStream(framed, out);
+				}
+			}
+		}
+	}
+
+	editor.reset();
+}
+
+TEST_CASE("オシロ: 縦の倍率は 0.1〜16 倍で、L / M / R をそろえて変える。ホイールでも変えられる")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	auto zooms = findAll<GuiScopeZoom>(*editor, [](GuiScopeZoom&) { return true; });
+
+	REQUIRE(zooms.size() == 1);
+
+	auto* zoom = zooms[0];
+
+	// 倍率をそろえるオシロは L / M / R の 3 つ
+	auto scopes = findAll<GuiWaveformPreview>(*editor, [](GuiWaveformPreview& w) { return (bool)w.onVerticalZoomWheel; });
+
+	REQUIRE(scopes.size() == 3);
+
+	CHECK(processor->scopeZoom == doctest::Approx(1.0f));
+
+	for (auto* scope : scopes) CHECK(scope->getVerticalZoom() == doctest::Approx(1.0f));
+
+	// 範囲を超えた値は端へ寄せる
+	zoom->setZoom(20.0f);
+
+	CHECK(processor->scopeZoom == doctest::Approx(GuiScopeZoom::zoomMax));
+
+	for (auto* scope : scopes) CHECK(scope->getVerticalZoom() == doctest::Approx(GuiScopeZoom::zoomMax));
+
+	// ホイールで変えると、3 つともそろって変わる
+	scopes[1]->onVerticalZoomWheel(0.01f);
+
+	CHECK(processor->scopeZoom == doctest::Approx(GuiScopeZoom::zoomMin));
+
+	for (auto* scope : scopes) CHECK(scope->getVerticalZoom() == doctest::Approx(GuiScopeZoom::zoomMin));
+
+	// 設定から読んだ値を映す
+	processor->scopeZoom = 2.5f;
+	zoom->sync();
+
+	for (auto* scope : scopes) CHECK(scope->getVerticalZoom() == doctest::Approx(2.5f));
 
 	editor.reset();
 }

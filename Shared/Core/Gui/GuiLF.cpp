@@ -29,11 +29,11 @@ void CustomTabLookAndFeel::drawTabButton(juce::TabBarButton& button, juce::Graph
     g.fillRect(area);
 
     // 2. 枠線を描画（隣のタブとの境界線）
-    g.setColour(juce::Colours::black.withAlpha(0.5f));
+    g.setColour(GuiColor::TabBar::Border);
     g.drawRect(area, 1);
 
     // 2. コンテンツ（テキストまたはアイコン）の色決定
-    juce::Colour contentColour = isFrontTab ? juce::Colours::white : contentColour = juce::Colours::black;
+    juce::Colour contentColour = isFrontTab ? GuiColor::TabBar::TextFront.get() : GuiColor::TabBar::TextBack.get();
 
     if (!isFrontTab && isMouseOver) contentColour = contentColour.brighter(0.3f);
 

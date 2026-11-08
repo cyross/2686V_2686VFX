@@ -173,10 +173,10 @@ public:
 
     // 加工前の線の色。エフェクトのプラグインで、加工前と加工後を
     // 重ねて見せるときに使う。
-    juce::Colour dryColor = juce::Colours::grey.withAlpha(0.6f);
+    juce::Colour dryColor = GuiColor::Scope::Dry;
 
     // コンストラクタで色を受け取る
-    GuiWaveformPreview(juce::Colour background, juce::Colour line, juce::Colour border = juce::Colours::white, juce::Colour axis = juce::Colours::yellow);
+    GuiWaveformPreview(juce::Colour background, juce::Colour line, juce::Colour border = GuiColor::Scope::Border, juce::Colour axis = GuiColor::Scope::Axis);
     void pushBuffer(const float* data, int numSamples);
 
     // 加工前の波形。渡さなければ描かないので、音源のプラグインでは
@@ -184,7 +184,20 @@ public:
     void pushDryBuffer(const float* data, int numSamples);
 
     void paint(juce::Graphics& g) override;
+
+    // 縦の倍率 (4.4.0。0.1〜16 倍)。小さな音を大きく見たり、大きな音を枠へ収めたりする。
+    // 1 倍以外のときは、右上に倍率を出す
+    void setVerticalZoom(float zoom);
+    float getVerticalZoom() const { return m_verticalZoom; }
+
+    // 上でホイールを回したときに、新しい倍率を渡す。受ける側が値を決めて setVerticalZoom で返す
+    // (L / M / R をそろえて動かすため)。入れなければホイールは親へ流す
+    std::function<void(float)> onVerticalZoomWheel;
+
+    void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) override;
 private:
+    float m_verticalZoom = 1.0f;
+
     // 線を 1 本描く。加工前と加工後で太さと色だけを変える。
     void strokeWave(juce::Graphics& g, const std::vector<float>& buffer,
         juce::Colour colour, float thickness);
@@ -205,7 +218,7 @@ public:
     juce::Colour borderColor;
 
     // コンストラクタで色を受け取る
-    GuiStateView(juce::Colour tColor = juce::Colours::red.withAlpha(0.85f), juce::Colour fColor = juce::Colours::black.withAlpha(0.85f), juce::Colour bColor = juce::Colours::darkgrey);
+    GuiStateView(juce::Colour tColor = juce::Colours::red.withAlpha(0.85f), juce::Colour fColor = juce::Colours::black.withAlpha(0.85f), juce::Colour bColor = GuiColor::PlayingState::Border);
     void updateState(bool state);
     void paint(juce::Graphics& g) override;
 };

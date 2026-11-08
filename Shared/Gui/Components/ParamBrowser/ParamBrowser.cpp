@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-#include "../GenWave/GenWave.h"
+#include "../StageWave/StageWave.h"
 #include "Shared/Core/Editor/EditorParamBrowserText.h"
 #include "Shared/Core/Editor/EditorGenWaveText.h"
 #include "Shared/Core/Gui/GuiColor.h"
@@ -771,7 +771,8 @@ void GuiParamBrowser::chooseAt(int viewIndex)
     {
         // 書き出す先を決めているときは、名前を写すだけにする。
         // 押した拍子に上書きされては困る。
-        nameEditor.setText(item.file.getFileNameWithoutExtension(), juce::dontSendNotification);
+        // 既定の名前と同じく拡張子まで出す。書くときに形式へ揃え直す。
+        nameEditor.setText(item.file.getFileName(), juce::dontSendNotification);
 
         return;
     }
@@ -883,6 +884,29 @@ void GuiParamBrowser::deleteSelectedFolder()
         }), true);
 }
 
+juce::String GuiParamBrowser::withoutSaveExtension(const juce::String& name) const
+{
+    if (m_extension.isEmpty()) return name;
+
+    if (name.endsWithIgnoreCase(m_extension)) return name.dropLastCharacters(m_extension.length());
+
+    // 「.ccolor.json」なら「.ccolor」。形式の拡張子だけのとき (.json) は空になる。
+    const juce::String mark = m_extension.upToLastOccurrenceOf(".", false, false);
+
+    if (mark.isEmpty()) return name;
+
+    for (const char* format : { ".json", ".yaml" })
+    {
+        const juce::String full = mark + format;
+
+        if (name.endsWithIgnoreCase(full)) return name.dropLastCharacters(full.length());
+    }
+
+    if (name.endsWithIgnoreCase(mark)) return name.dropLastCharacters(mark.length());
+
+    return name;
+}
+
 void GuiParamBrowser::commitSave()
 {
     if (m_mode != Mode::save || !m_root.isDirectory()) return;
@@ -891,12 +915,11 @@ void GuiParamBrowser::commitSave()
 
     if (name.isEmpty()) return;
 
-    juce::String fileName = juce::File::createLegalFileName(name);
+    juce::String fileName = withoutSaveExtension(juce::File::createLegalFileName(name));
 
-    if (m_extension.isNotEmpty() && !fileName.endsWithIgnoreCase(m_extension))
-    {
-        fileName += m_extension;
-    }
+    if (fileName.isEmpty()) return;
+
+    fileName += m_extension;
 
     const auto target = m_root.getChildFile(fileName);
 
@@ -1288,9 +1311,9 @@ juce::Rectangle<int> GuiParamBrowser::actionArea(juce::Rectangle<int> row) const
 juce::Rectangle<int> GuiParamBrowser::cycleCell(int index) const
 {
     auto row = buttonRowArea();
-    auto cells = row.removeFromRight((int)GuiGenWave::cycleChoices.size() * 34);
+    auto cells = row.removeFromRight((int)GuiStageWave::cycleChoices.size() * 34);
 
-    const int count = (int)GuiGenWave::cycleChoices.size();
+    const int count = (int)GuiStageWave::cycleChoices.size();
     const int left = cells.getX() + cells.getWidth() * index / count;
     const int right = cells.getX() + cells.getWidth() * (index + 1) / count;
 
@@ -1313,7 +1336,7 @@ void GuiParamBrowser::resized()
 
     auto row2 = buttonRowArea();
 
-    row2.removeFromRight((int)GuiGenWave::cycleChoices.size() * 34 + padding);
+    row2.removeFromRight((int)GuiStageWave::cycleChoices.size() * 34 + padding);
 
     playAllBtn.setBounds(row2.removeFromRight(playAllButtonWidth));
     row2.removeFromRight(padding);
@@ -1358,7 +1381,7 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
 
     if (m_busy) return;
 
-    for (int i = 0; i < (int)GuiGenWave::cycleChoices.size(); ++i)
+    for (int i = 0; i < (int)GuiStageWave::cycleChoices.size(); ++i)
     {
         if (!cycleCell(i).contains(at)) continue;
 
@@ -1428,7 +1451,7 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
             const auto file = item.file;
 
             GenWavePlayer::showFrameInput(*this, box,
-                item.player.frame(item.wave, nowMs) + 1, GenWavePlayer::frameCount(item.wave),
+                item.player.frame(item.wave, nowMs) + 1, item.player.frameCount(item.wave),
                 [safe, file](int shown) {
                     if (safe == nullptr) return;
 
@@ -1700,7 +1723,7 @@ void GuiParamBrowser::drawCycles(juce::Graphics& g)
 {
     g.setFont(juce::FontOptions(12.0f));
 
-    for (int i = 0; i < (int)GuiGenWave::cycleChoices.size(); ++i)
+    for (int i = 0; i < (int)GuiStageWave::cycleChoices.size(); ++i)
     {
         const auto cell = cycleCell(i).reduced(1);
         const bool on = (i == m_cycleIndex);
@@ -1712,7 +1735,7 @@ void GuiParamBrowser::drawCycles(juce::Graphics& g)
         g.drawRect(cell, 1);
 
         g.setColour(on ? GuiColor::GenWave::CycleTextOn : GuiColor::GenWave::CycleText);
-        g.drawText(juce::String(GuiGenWave::cycleChoices[(size_t)i]), cell,
+        g.drawText(juce::String(GuiStageWave::cycleChoices[(size_t)i]), cell,
             juce::Justification::centred, false);
     }
 }
@@ -1887,7 +1910,7 @@ void GuiParamBrowser::drawWave(juce::Graphics& g, juce::Rectangle<int> area, con
     const double perCycle = item.wave.samplesPerCycle();
     const int total = (int)item.wave.size();
     const int window = juce::jlimit(2, total,
-        (int)std::lround(perCycle * GuiGenWave::cycleChoices[(size_t)m_cycleIndex]));
+        (int)std::lround(perCycle * GuiStageWave::cycleChoices[(size_t)m_cycleIndex]));
 
     const int start = item.player.windowStart(item.wave, window, juce::Time::getMillisecondCounterHiRes());
 

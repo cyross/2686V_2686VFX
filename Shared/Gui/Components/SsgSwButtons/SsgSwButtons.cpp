@@ -30,7 +30,7 @@ void GuiComponentSsgSwButtons::setupComponent(juce::Component& parent, GuiSlider
         slider.setValue(0.0f);
         };
 
-    pm1.setup({ .parent = parent, .id = "", .title = "1.0", .font = font, .bgColor = juce::Colours::yellow.brighter(0.5f), .isReset = false, .darkenWhenPressed = true });
+    pm1.setup({ .parent = parent, .id = "", .title = "1.0", .font = font, .bgColor = GuiColor::SsgSwButtons::One, .isReset = false, .darkenWhenPressed = true });
     pm1.setWantsKeyboardFocus(true);
     pm1.setExplicitFocusOrder(++tabOrder);
     pm1.onClick = [this, &slider] {

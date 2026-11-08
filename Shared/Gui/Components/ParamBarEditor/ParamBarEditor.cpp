@@ -78,10 +78,10 @@ void ParamBarEditorBase::paintHoverText(juce::Graphics& g, const juce::String& t
     if (drawX + textW > getWidth()) drawX = getWidth() - textW;
     if (drawY < 0) drawY = lastMousePos.y + 12;
 
-    g.setColour(juce::Colours::black.withAlpha(0.8f));
+    g.setColour(GuiColor::ValueBubble::Bg);
     g.fillRoundedRectangle((float)drawX, (float)drawY, (float)textW, (float)textH, 4.0f);
 
-    g.setColour(juce::Colours::white);
+    g.setColour(GuiColor::ValueBubble::Text);
     g.drawText(text, drawX, drawY, textW, textH, juce::Justification::centred, false);
 }
 

@@ -156,7 +156,7 @@ template <size_t tableSize>
 void Waveform2Container<tableSize>::paint(juce::Graphics& g)
 {
     if (!isEnabledState || m_params.empty()) {
-        g.fillAll(juce::Colours::darkgrey.withAlpha(0.7f));
+        g.fillAll(GuiColor::Wt2Grid::Disabled);
         return;
     }
 
@@ -166,11 +166,11 @@ void Waveform2Container<tableSize>::paint(juce::Graphics& g)
     float gridHeight = cellSize * resolution;
 
     // グリッド全体の背景を塗りつぶす
-    g.setColour(juce::Colours::black.withAlpha(0.7f));
+    g.setColour(GuiColor::Wt2Grid::Bg);
     g.fillRect(0.0f, 0.0f, (float)getWidth(), gridHeight);
 
     // 薄いグリッド線を描画
-    g.setColour(juce::Colours::grey.withAlpha(0.2f));
+    g.setColour(GuiColor::Wt2Grid::Grid);
 
     for (int y = 0; y <= resolution; ++y) g.drawLine(0.0f, y * cellSize, (float)getWidth(), y * cellSize, 1.0f);
     for (size_t x = 0; x <= tableSize; ++x) g.drawLine(x * cellSize, 0.0f, x * cellSize, gridHeight, 1.0f);
@@ -202,12 +202,12 @@ void Waveform2Container<tableSize>::paint(juce::Graphics& g)
 
             // 指定された色ルールを適用
             if (isSet) {
-                if (isCellCenter) cellColor = juce::Colours::green; // 中心を設定
-                else cellColor = juce::Colours::blue;               // 通常を設定
+                if (isCellCenter) cellColor = GuiColor::Wt2Grid::CellCentre; // 中心を設定
+                else cellColor = GuiColor::Wt2Grid::Cell;               // 通常を設定
             }
             else if (isHovered) {
-                if (isCellCenter) cellColor = juce::Colours::lightgreen; // 中心をホバー
-                else cellColor = juce::Colours::cyan;                    // 通常をホバー（明るい青）
+                if (isCellCenter) cellColor = GuiColor::Wt2Grid::CellCentreHover; // 中心をホバー
+                else cellColor = GuiColor::Wt2Grid::CellHover;                    // 通常をホバー（明るい青）
             }
 
             if (!cellColor.isTransparent()) {
@@ -218,7 +218,7 @@ void Waveform2Container<tableSize>::paint(juce::Graphics& g)
 
             // 値がセットされておらずホバーもしていない「中心線」を薄く光らせる
             if (isCellCenter && !isSet && !isHovered) {
-                g.setColour(juce::Colours::green.withAlpha(0.2f));
+                g.setColour(GuiColor::Wt2Grid::CentreLine);
                 g.fillRect(x * cellSize + 1.0f, y * cellSize + 1.0f, cellSize - 2.0f, cellSize - 2.0f);
             }
         }

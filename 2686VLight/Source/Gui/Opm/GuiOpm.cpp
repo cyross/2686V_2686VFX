@@ -343,7 +343,7 @@ void GuiOpm::setup()
     paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     // チャンネルの設定を OPZX7S のパラメータファイルとして書き出す
-    exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    exportOpzx7Btn.setup({ .parent = mainGroup.contentCanvas, .title = "[EX]OPZX7S Params", .bgColor = GuiColor::Button::CopyBg });
     exportOpzx7Btn.setWantsKeyboardFocus(true);
     exportOpzx7Btn.setExplicitFocusOrder(++tabOrder);
     exportOpzx7Btn.onClick = [this] { exportOpzx7Params(); };
@@ -360,14 +360,14 @@ void GuiOpm::setup()
         };
 
 
-    copyParamsToOpnaBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPNA", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyParamsToOpnaBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPNA", .bgColor = GuiColor::Button::CopyBg });
     copyParamsToOpnaBtn.setWantsKeyboardFocus(true);
     copyParamsToOpnaBtn.setExplicitFocusOrder(++tabOrder);
     copyParamsToOpnaBtn.onClick = [this] {
         editorOf(ctx).copyOpmParamsToOpna();
         };
 
-    copyParamsToOpnBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params -> OPN", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyParamsToOpnBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params -> OPN", .bgColor = GuiColor::Button::CopyBg });
     copyParamsToOpnBtn.setWantsKeyboardFocus(true);
     copyParamsToOpnBtn.setExplicitFocusOrder(++tabOrder);
     copyParamsToOpnBtn.onClick = [this] {
@@ -572,140 +572,140 @@ void GuiOpm::setup()
 
     mulRatio.setupComponent(colKs.contentCanvas, paramPrefix + CPK::mulRatio, OpmGuiText::Fm::Op::MulRatio, tabOrder, std::nullopt);
 
-    mulRatioTo001.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.01", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+    mulRatioTo001.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.01", .bgColor = GuiColor::MulRatio::Fraction, .isReset = false });
 		mulRatioTo001.setWantsKeyboardFocus(true);
 		mulRatioTo001.setExplicitFocusOrder(++tabOrder);
 		mulRatioTo001.onClick = [this, i]() {
 			mulRatio.setValue(0.01f, juce::sendNotification);
 			};
 
-    mulRatioTo005.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.05", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+    mulRatioTo005.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.05", .bgColor = GuiColor::MulRatio::Fraction, .isReset = false });
     mulRatioTo005.setWantsKeyboardFocus(true);
     mulRatioTo005.setExplicitFocusOrder(++tabOrder);
     mulRatioTo005.onClick = [this, i]() {
         mulRatio.setValue(0.05f, juce::sendNotification);
         };
 
-    mulRatioTo1.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "1", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+    mulRatioTo1.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "1", .bgColor = GuiColor::MulRatio::Fraction, .isReset = false });
     mulRatioTo1.setWantsKeyboardFocus(true);
     mulRatioTo1.setExplicitFocusOrder(++tabOrder);
     mulRatioTo1.onClick = [this, i]() {
         mulRatio.setValue(1.0f, juce::sendNotification);
         };
 
-    mulRatioTo10.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "10", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+    mulRatioTo10.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "10", .bgColor = GuiColor::MulRatio::Fraction, .isReset = false });
     mulRatioTo10.setWantsKeyboardFocus(true);
     mulRatioTo10.setExplicitFocusOrder(++tabOrder);
     mulRatioTo10.onClick = [this, i]() {
         mulRatio.setValue(10.0f, juce::sendNotification);
         };
 
-    mulRatioTo2757.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "27.57", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+    mulRatioTo2757.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "27.57", .bgColor = GuiColor::MulRatio::Fraction, .isReset = false });
     mulRatioTo2757.setWantsKeyboardFocus(true);
     mulRatioTo2757.setExplicitFocusOrder(++tabOrder);
     mulRatioTo2757.onClick = [this, i]() {
         mulRatio.setValue(27.57f, juce::sendNotification);
         };
 
-    mulRatioTo02.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.2", .bgColor = juce::Colours::lightsalmon.brighter(0.5f), .isReset = false });
+    mulRatioTo02.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.2", .bgColor = GuiColor::MulRatio::Fifth, .isReset = false });
     mulRatioTo02.setWantsKeyboardFocus(true);
     mulRatioTo02.setExplicitFocusOrder(++tabOrder);
     mulRatioTo02.onClick = [this, i]() {
         mulRatio.setValue(0.2f, juce::sendNotification);
         };
 
-    mulRatioTo025.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.25", .bgColor = juce::Colours::lightgreen.brighter(0.5f), .isReset = false });
+    mulRatioTo025.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.25", .bgColor = GuiColor::MulRatio::Quarter, .isReset = false });
     mulRatioTo025.setWantsKeyboardFocus(true);
     mulRatioTo025.setExplicitFocusOrder(++tabOrder);
     mulRatioTo025.onClick = [this, i]() {
         mulRatio.setValue(0.25f, juce::sendNotification);
         };
 
-    mulRatioTo04.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.4", .bgColor = juce::Colours::lightsalmon.brighter(0.5f), .isReset = false });
+    mulRatioTo04.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.4", .bgColor = GuiColor::MulRatio::Fifth, .isReset = false });
     mulRatioTo04.setWantsKeyboardFocus(true);
     mulRatioTo04.setExplicitFocusOrder(++tabOrder);
     mulRatioTo04.onClick = [this, i]() {
         mulRatio.setValue(0.4f, juce::sendNotification);
         };
 
-    mulRatioTo05.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.5", .bgColor = juce::Colours::lightgreen.brighter(0.5f), .isReset = false });
+    mulRatioTo05.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.5", .bgColor = GuiColor::MulRatio::Quarter, .isReset = false });
     mulRatioTo05.setWantsKeyboardFocus(true);
     mulRatioTo05.setExplicitFocusOrder(++tabOrder);
     mulRatioTo05.onClick = [this, i]() {
         mulRatio.setValue(0.5f, juce::sendNotification);
         };
 
-    mulRatioTo06.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.6", .bgColor = juce::Colours::lightsalmon.brighter(0.5f), .isReset = false });
+    mulRatioTo06.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.6", .bgColor = GuiColor::MulRatio::Fifth, .isReset = false });
     mulRatioTo06.setWantsKeyboardFocus(true);
     mulRatioTo06.setExplicitFocusOrder(++tabOrder);
     mulRatioTo06.onClick = [this, i]() {
         mulRatio.setValue(0.6f, juce::sendNotification);
         };
 
-    mulRatioTo075.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.75", .bgColor = juce::Colours::lightgreen.brighter(0.5f), .isReset = false });
+    mulRatioTo075.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.75", .bgColor = GuiColor::MulRatio::Quarter, .isReset = false });
     mulRatioTo075.setWantsKeyboardFocus(true);
     mulRatioTo075.setExplicitFocusOrder(++tabOrder);
     mulRatioTo075.onClick = [this, i]() {
         mulRatio.setValue(0.75f, juce::sendNotification);
         };
 
-    mulRatioTo08.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.8", .bgColor = juce::Colours::lightsalmon.brighter(0.5f), .isReset = false });
+    mulRatioTo08.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "0.8", .bgColor = GuiColor::MulRatio::Fifth, .isReset = false });
     mulRatioTo08.setWantsKeyboardFocus(true);
     mulRatioTo08.setExplicitFocusOrder(++tabOrder);
     mulRatioTo08.onClick = [this, i]() {
         mulRatio.setValue(0.8f, juce::sendNotification);
         };
 
-    mulRatioPM10.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "-10", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+    mulRatioPM10.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "-10", .bgColor = GuiColor::MulRatio::Step, .isReset = false });
     mulRatioPM10.setWantsKeyboardFocus(true);
     mulRatioPM10.setExplicitFocusOrder(++tabOrder);
     mulRatioPM10.onClick = [this, i]() {
         mulRatio.setValue(mulRatio.getValue() - 10.0f, juce::sendNotification);
         };
 
-    mulRatioP10.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "+10", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+    mulRatioP10.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "+10", .bgColor = GuiColor::MulRatio::Step, .isReset = false });
     mulRatioP10.setWantsKeyboardFocus(true);
     mulRatioP10.setExplicitFocusOrder(++tabOrder);
     mulRatioP10.onClick = [this, i]() {
         mulRatio.setValue(mulRatio.getValue() + 10.0f, juce::sendNotification);
         };
 
-    mulRatioPM1.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "-1", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+    mulRatioPM1.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "-1", .bgColor = GuiColor::MulRatio::Step, .isReset = false });
     mulRatioPM1.setWantsKeyboardFocus(true);
     mulRatioPM1.setExplicitFocusOrder(++tabOrder);
     mulRatioPM1.onClick = [this, i]() {
         mulRatio.setValue(mulRatio.getValue() - 1.0f, juce::sendNotification);
         };
 
-    mulRatioP1.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "+1", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+    mulRatioP1.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "+1", .bgColor = GuiColor::MulRatio::Step, .isReset = false });
     mulRatioP1.setWantsKeyboardFocus(true);
     mulRatioP1.setExplicitFocusOrder(++tabOrder);
     mulRatioP1.onClick = [this, i]() {
         mulRatio.setValue(mulRatio.getValue() + 1.0f, juce::sendNotification);
         };
 
-    mulRatioPM01.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "-0.1", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+    mulRatioPM01.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "-0.1", .bgColor = GuiColor::MulRatio::Step, .isReset = false });
     mulRatioPM01.setWantsKeyboardFocus(true);
     mulRatioPM01.setExplicitFocusOrder(++tabOrder);
     mulRatioPM01.onClick = [this, i]() {
         mulRatio.setValue(mulRatio.getValue() - 0.1f, juce::sendNotification);
         };
 
-    mulRatioP01.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "+0.1", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+    mulRatioP01.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "+0.1", .bgColor = GuiColor::MulRatio::Step, .isReset = false });
     mulRatioP01.setWantsKeyboardFocus(true);
     mulRatioP01.setExplicitFocusOrder(++tabOrder);
     mulRatioP01.onClick = [this, i]() {
         mulRatio.setValue(mulRatio.getValue() + 0.1f, juce::sendNotification);
         };
 
-    mulRatioPM001.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "-0.01", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+    mulRatioPM001.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "-0.01", .bgColor = GuiColor::MulRatio::Step, .isReset = false });
     mulRatioPM001.setWantsKeyboardFocus(true);
     mulRatioPM001.setExplicitFocusOrder(++tabOrder);
     mulRatioPM001.onClick = [this, i]() {
         mulRatio.setValue(mulRatio.getValue() - 0.01f, juce::sendNotification);
         };
 
-    mulRatioP001.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "+0.01", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+    mulRatioP001.setup(GuiTextButton::Config{ .parent = colKs.contentCanvas, .id = "", .title = "+0.01", .bgColor = GuiColor::MulRatio::Step, .isReset = false });
     mulRatioP001.setWantsKeyboardFocus(true);
     mulRatioP001.setExplicitFocusOrder(++tabOrder);
     mulRatioP001.onClick = [this, i]() {
@@ -2162,7 +2162,7 @@ void GuiOpm::updateOpGraph(int opIndex)
         if (std::isnan(tlScale) || std::isinf(tlScale)) tlScale = 1.0f;
 
         std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-        auto color = juce::Colours::cyan;
+        juce::Colour color = GuiColor::FmEnvGraph::Fill;
 
         float currentTotalWidth = 0.0f;
 
@@ -2170,7 +2170,7 @@ void GuiOpm::updateOpGraph(int opIndex)
         float attackWidth = rateToWidth(arVal, arMax);
         phases.push_back({
             .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f * tlScale, .color = color,
-            .phaseLineColor = juce::Colours::red, .liveStep = LivePosition::attack
+            .phaseLineColor = GuiColor::FmEnvGraph::AttackLine, .liveStep = LivePosition::attack
             });
         currentTotalWidth += attackWidth;
 
@@ -2178,7 +2178,7 @@ void GuiOpm::updateOpGraph(int opIndex)
         float decayWidth = rateToWidth(d1rVal, d1rMax);
         phases.push_back({
             .widthPx = decayWidth, .startLevel = 1.0f * tlScale, .endLevel = sl * tlScale, .color = color,
-            .phaseLineColor = juce::Colours::blue, .liveStep = LivePosition::decay
+            .phaseLineColor = GuiColor::FmEnvGraph::DecayLine, .liveStep = LivePosition::decay
             });
         currentTotalWidth += decayWidth;
 
@@ -2194,13 +2194,13 @@ void GuiOpm::updateOpGraph(int opIndex)
 
             phases.push_back({
                 .widthPx = sustainTotalWidth, .startLevel = sl * tlScale, .endLevel = 0.0f, .color = color,
-                .phaseLineColor = juce::Colours::green, .liveStep = LivePosition::sustain
+                .phaseLineColor = GuiColor::FmEnvGraph::SustainLine, .liveStep = LivePosition::sustain
                 });
 
             currentTotalWidth += sustainTotalWidth * 0.5f;
         }
         else {
-            phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl * tlScale, .endLevel = sl * tlScale, .color = color, .phaseLineColor = juce::Colours::green, .liveStep = LivePosition::sustain });
+            phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl * tlScale, .endLevel = sl * tlScale, .color = color, .phaseLineColor = GuiColor::FmEnvGraph::SustainLine, .liveStep = LivePosition::sustain });
 
             currentTotalWidth += keyOnWidth;
         }
@@ -2213,7 +2213,7 @@ void GuiOpm::updateOpGraph(int opIndex)
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = releaseStartLevel * tlScale,
                 .isDashed = true,
-                .color = juce::Colours::yellow,
+                .color = GuiColor::FmEnvGraph::Release,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
@@ -2223,7 +2223,7 @@ void GuiOpm::updateOpGraph(int opIndex)
                 .widthPx = rateToWidth(rrVal, rrMax),
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = releaseStartLevel * tlScale,
-                .color = juce::Colours::yellow,
+                .color = GuiColor::FmEnvGraph::Release,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX, .liveStep = LivePosition::release
                 });
@@ -2233,7 +2233,7 @@ void GuiOpm::updateOpGraph(int opIndex)
                 .widthPx = rateToWidth(rrVal, rrMax),
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = 0.0f,
-                .color = d2rVal > 0.0f ? juce::Colours::yellow : color,
+                .color = d2rVal > 0.0f ? GuiColor::FmEnvGraph::Release.get() : color,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX,
                 .isMax = (rrVal == rrMax), .liveStep = LivePosition::release

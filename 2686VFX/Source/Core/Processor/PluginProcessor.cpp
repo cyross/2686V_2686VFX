@@ -252,6 +252,10 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         m_outputLevel.setCurrentAndTargetValue(prFx.getLevel());
     }
 
+    // レベルメーター (4.4.0)。出し終えた音をそのまま渡す。メーターを出していなければ何もしない
+    if (buffer.getNumChannels() > 0) levelMeterFeed.push(buffer.getReadPointer(0), buffer.getNumChannels() > 1 ? buffer.getReadPointer(1) : nullptr,
+        buffer.getNumSamples(), getSampleRate());
+
     if (previewVisiblity && buffer.getNumChannels() >= 2)
     {
         auto* finalOutL = buffer.getReadPointer(0);

@@ -21,6 +21,7 @@
 #include "Shared/Core/Gui/GuiStructs.h"
 #include "./GuiSettingsHelpers.h"
 #include "../../Core/Gui/GuiPluginContext.h"
+#include "Shared/Core/Gui/GuiLevelMeter.h"
 
 static std::vector<SelectItem> uiScaleItems = {
     {.name = "25%",  .value = 1 },
@@ -74,7 +75,7 @@ void GuiSettings::setup()
         .title = SettingsGuiText::language,
         .items = languageItems,
         .isReset = false,
-        .labelColor = juce::Colours::yellow
+        .labelColor = GuiColor::SettingsTab::HeadingText
         });
     languageSelector.setSelectedId(I18n::isJa() ? 1 : 2, juce::dontSendNotification);
     languageSelector.setWantsKeyboardFocus(true);
@@ -96,7 +97,7 @@ void GuiSettings::setup()
         .title = SettingsGuiText::uiScale,
         .items = uiScaleItems,
         .isReset = false,
-        .labelColor = juce::Colours::yellow
+        .labelColor = GuiColor::SettingsTab::HeadingText
         });
     uiScaleSelector.setSelectedId(pluginOf(ctx).uiScaleIndex + 1, juce::dontSendNotification);
     uiScaleSelector.setWantsKeyboardFocus(true);
@@ -126,7 +127,7 @@ void GuiSettings::setup()
         .title = SettingsGuiText::fileFormat,
         .items = fileFormatItems,
         .isReset = false,
-        .labelColor = juce::Colours::yellow
+        .labelColor = GuiColor::SettingsTab::HeadingText
         });
     fileFormatSelector.setSelectedId(pluginOf(ctx).fileFormatIndex + 1, juce::dontSendNotification);
     fileFormatSelector.setWantsKeyboardFocus(true);
@@ -141,7 +142,7 @@ void GuiSettings::setup()
     auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = SettingsGuiText::chooseFile) {
 		lbl.setup({ .parent = *this, .title = title });
 		pathLbl.setup({ .parent = *this, .title = Io::empty });
-        pathLbl.setColour(juce::Label::outlineColourId, juce::Colours::white);
+        pathLbl.setColour(juce::Label::outlineColourId, GuiColor::SettingsTab::PathOutline);
         pathLbl.setJustificationType(juce::Justification::centredLeft);
 		btn.setup({ .parent = *this, .title = btnText, .isReset = false });
     };
@@ -149,7 +150,7 @@ void GuiSettings::setup()
     auto setupFolderRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = SettingsGuiText::chooseFolder) {
         lbl.setup({ .parent = *this, .title = title });
         pathLbl.setup({ .parent = *this, .title = Io::empty });
-        pathLbl.setColour(juce::Label::outlineColourId, juce::Colours::white);
+        pathLbl.setColour(juce::Label::outlineColourId, GuiColor::SettingsTab::PathOutline);
         pathLbl.setJustificationType(juce::Justification::centredLeft);
         btn.setup({ .parent = *this, .title = btnText, .isReset = false });
         };
@@ -175,7 +176,7 @@ void GuiSettings::setup()
         );
     };
     
-	wallpaperClearBtn.setup({ .parent = *this, .title = SettingsGuiText::wallpaperClear, .textColor = juce::Colours::white, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
+	wallpaperClearBtn.setup({ .parent = *this, .title = SettingsGuiText::wallpaperClear, .textColor = GuiColor::Button::CautionText, .bgColor = GuiColor::Button::CautionBg, .isReset = false });
     wallpaperClearBtn.setWantsKeyboardFocus(true);
     wallpaperClearBtn.setExplicitFocusOrder(++tabOrder);
     wallpaperClearBtn.onClick = [this] {
@@ -777,6 +778,63 @@ void GuiSettings::setup()
     setupLive(paramEnvLiveToggle, paramEnvLiveFpsSelector, SettingsGuiText::paramEnvLiveGraph, pluginOf(ctx).paramEnvLiveGraph, pluginOf(ctx).paramEnvLiveFps);
     setupLive(envLiveToggle, envLiveFpsSelector, SettingsGuiText::envLiveGraph, pluginOf(ctx).envLiveGraph, pluginOf(ctx).envLiveFps);
 
+    separatorLevelMeter.setupComponent(*this);
+
+    // レベルメーター (4.4.0)。壁紙と UI のあいだに出す。見た目だけで、音は変わらない。
+    // 切っているあいだは、ほかの項目を選べない
+    {
+        auto& plugin = pluginOf(ctx);
+
+        levelMeterToggle.setup({ .parent = *this, .title = SettingsGuiText::levelMeter, .font = toggleFont, .isReset = false });
+        levelMeterToggle.setToggleState(plugin.levelMeterShow, juce::dontSendNotification);
+        levelMeterToggle.setWantsKeyboardFocus(true);
+        levelMeterToggle.setExplicitFocusOrder(++tabOrder);
+
+        std::vector<SelectItem> fpsItems;
+
+        for (int f : LiveGraph::fpsChoices) fpsItems.push_back({ .name = juce::String(f) + " FPS", .value = f });
+
+        levelMeterFpsSelector.setup({ .parent = *this, .id = "", .title = SettingsGuiText::liveGraphFps, .items = fpsItems, .isReset = false });
+        levelMeterFpsSelector.setSelectedId(LiveGraph::clampFps(plugin.levelMeterFps), juce::dontSendNotification);
+        levelMeterFpsSelector.setWantsKeyboardFocus(true);
+        levelMeterFpsSelector.setExplicitFocusOrder(++tabOrder);
+        levelMeterFpsSelector.onChange = [this] { pluginOf(ctx).levelMeterFps = levelMeterFpsSelector.getSelectedId(); };
+
+        // 番号は 1 から (0 は「選んでいない」になる)
+        std::vector<SelectItem> styleItems;
+
+        for (int i = 0; i < GuiLevelMeter::styleCount; ++i) styleItems.push_back({ .name = GuiLevelMeter::styleName(i), .value = i + 1 });
+
+        levelMeterStyleSelector.setup({ .parent = *this, .id = "", .title = SettingsGuiText::levelMeterStyle, .items = styleItems, .isReset = false });
+        levelMeterStyleSelector.setSelectedId(GuiLevelMeter::clampStyle(plugin.levelMeterStyle) + 1, juce::dontSendNotification);
+        levelMeterStyleSelector.setWantsKeyboardFocus(true);
+        levelMeterStyleSelector.setExplicitFocusOrder(++tabOrder);
+        levelMeterStyleSelector.onChange = [this] { pluginOf(ctx).levelMeterStyle = levelMeterStyleSelector.getSelectedId() - 1; };
+
+        std::vector<SelectItem> bandItems;
+
+        for (int b : GuiLevelMeter::bandChoices) bandItems.push_back({ .name = juce::String(b), .value = b });
+
+        levelMeterBandsSelector.setup({ .parent = *this, .id = "", .title = SettingsGuiText::levelMeterBands, .items = bandItems, .isReset = false });
+        levelMeterBandsSelector.setSelectedId(GuiLevelMeter::clampBands(plugin.levelMeterBands), juce::dontSendNotification);
+        levelMeterBandsSelector.setWantsKeyboardFocus(true);
+        levelMeterBandsSelector.setExplicitFocusOrder(++tabOrder);
+        levelMeterBandsSelector.onChange = [this] { pluginOf(ctx).levelMeterBands = levelMeterBandsSelector.getSelectedId(); };
+
+        levelMeterPeakHoldToggle.setup({ .parent = *this, .title = SettingsGuiText::levelMeterPeakHold, .font = toggleFont, .isReset = false });
+        levelMeterPeakHoldToggle.setToggleState(plugin.levelMeterPeakHold, juce::dontSendNotification);
+        levelMeterPeakHoldToggle.setWantsKeyboardFocus(true);
+        levelMeterPeakHoldToggle.setExplicitFocusOrder(++tabOrder);
+        levelMeterPeakHoldToggle.onClick = [this] { pluginOf(ctx).levelMeterPeakHold = levelMeterPeakHoldToggle.getToggleState(); };
+
+        levelMeterToggle.onClick = [this] {
+            pluginOf(ctx).levelMeterShow = levelMeterToggle.getToggleState();
+            enableLevelMeterRow();
+            };
+
+        enableLevelMeterRow();
+    }
+
     separator5.setupComponent(*this);
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
@@ -850,7 +908,7 @@ void GuiSettings::setup()
         );
         };
 
-    saveStartupSettingsBtn.setup({ .parent = *this, .title = SettingsGuiText::saveStartup, .textColor = juce::Colours::white, .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
+    saveStartupSettingsBtn.setup({ .parent = *this, .title = SettingsGuiText::saveStartup, .textColor = GuiColor::SettingsTab::ButtonText, .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
     saveStartupSettingsBtn.setWantsKeyboardFocus(true);
     saveStartupSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveStartupSettingsBtn.onClick = [this]
@@ -892,7 +950,7 @@ void GuiSettings::setup()
     separator7.setupComponent(*this);
 
     // --- Clear Undo/Redo History Button ---
-    clearUndoHistoryBtn.setup({ .parent = *this, .title = SettingsGuiText::clearUndoHistory, .textColor = juce::Colours::white, .bgColor = juce::Colours::blue.darker(0.3f).withAlpha(0.3f), .isReset = false});
+    clearUndoHistoryBtn.setup({ .parent = *this, .title = SettingsGuiText::clearUndoHistory, .textColor = GuiColor::SettingsTab::ButtonText, .bgColor = GuiColor::SettingsTab::ClearUndoBg, .isReset = false});
     clearUndoHistoryBtn.setWantsKeyboardFocus(true);
     clearUndoHistoryBtn.setExplicitFocusOrder(++tabOrder);
     clearUndoHistoryBtn.onClick = [this] {
@@ -1312,6 +1370,26 @@ void GuiSettings::layout(juce::Rectangle<int> content)
         selector->setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LiveFpsSelectorWidth));
     }
 
+    separatorLevelMeter.layoutComponent(sRect);
+
+    // レベルメーター (4.4.0)。1 行に、出すか・速さ・描き方・帯の数・ピークホールド
+    {
+        auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+        levelMeterToggle.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+        row.removeFromLeft(SettingsGuiValue::Settings::PaddingWidth);
+        levelMeterFpsSelector.label.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LiveFpsLabelWidth));
+        levelMeterFpsSelector.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LiveFpsSelectorWidth));
+        row.removeFromLeft(SettingsGuiValue::Settings::PaddingWidth);
+        levelMeterStyleSelector.label.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LevelMeterLabelWidth));
+        levelMeterStyleSelector.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LevelMeterStyleSelectorWidth));
+        row.removeFromLeft(SettingsGuiValue::Settings::PaddingWidth);
+        levelMeterBandsSelector.label.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LevelMeterLabelWidth));
+        levelMeterBandsSelector.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LevelMeterBandsSelectorWidth));
+        row.removeFromLeft(SettingsGuiValue::Settings::PaddingWidth * 2);
+        levelMeterPeakHoldToggle.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LevelMeterPeakHoldWidth));
+    }
+
     separator5.layoutComponent(sRect);
 
     // 24. Virtual Keyboard Row
@@ -1336,6 +1414,17 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     // 27. Clear All Wave Previews
     auto rowClearPreviewBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     layoutRow({ .rowRect = rowClearPreviewBtns, .component = &clearWavePreviewsBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight});
+}
+
+// レベルメーターの行。切っているあいだは、ほかの項目を選べない (4.4.0)
+void GuiSettings::enableLevelMeterRow()
+{
+    const bool show = pluginOf(ctx).levelMeterShow;
+
+    levelMeterFpsSelector.setEnabledWithLabel(show);
+    levelMeterStyleSelector.setEnabledWithLabel(show);
+    levelMeterBandsSelector.setEnabledWithLabel(show);
+    levelMeterPeakHoldToggle.setEnabled(show);
 }
 
 void GuiSettings::setSettings()
@@ -1396,6 +1485,13 @@ void GuiSettings::setSettings()
     envLiveToggle.setToggleState(pluginOf(ctx).envLiveGraph, juce::dontSendNotification);
     envLiveFpsSelector.setSelectedId(LiveGraph::clampFps(pluginOf(ctx).envLiveFps), juce::dontSendNotification);
     envLiveFpsSelector.setEnabledWithLabel(pluginOf(ctx).envLiveGraph);
+
+    levelMeterToggle.setToggleState(pluginOf(ctx).levelMeterShow, juce::dontSendNotification);
+    levelMeterFpsSelector.setSelectedId(LiveGraph::clampFps(pluginOf(ctx).levelMeterFps), juce::dontSendNotification);
+    levelMeterStyleSelector.setSelectedId(GuiLevelMeter::clampStyle(pluginOf(ctx).levelMeterStyle) + 1, juce::dontSendNotification);
+    levelMeterBandsSelector.setSelectedId(GuiLevelMeter::clampBands(pluginOf(ctx).levelMeterBands), juce::dontSendNotification);
+    levelMeterPeakHoldToggle.setToggleState(pluginOf(ctx).levelMeterPeakHold, juce::dontSendNotification);
+    enableLevelMeterRow();
 
     // 設定を読み込み直したときも、つまみの見せ方を合わせる
     if (auto* editor = dynamic_cast<juce::Component*>(&ctx.editor)) GuiSlider::refreshN88Display(*editor);

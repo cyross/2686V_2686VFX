@@ -50,6 +50,11 @@ public:
     void setPitchBend(int pitchWheelValue) override;
     void setModulationWheel(int wheelValue) override;
     float getSample() override;
+
+    // 生成中の波形の窓 (4.4.0)
+    StageProbe::Kind stageKind() const override { return StageProbe::Kind::fm; }
+    int stageOpCount() const override { return Opzx7PrValue::ops; }
+    StageSwitch::Mask stageModules() const override { return StageSwitch::present<Opzx7Params>(); }
     void setPcmBuffer(int opIndex, std::vector<float>* pcmData);
     void setWtBuffer(int opIndex, std::vector<float>* wtData);
     void setWt2Buffer(int opIndex, std::vector<float>* wtData);

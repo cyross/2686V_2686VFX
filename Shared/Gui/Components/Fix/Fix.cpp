@@ -218,7 +218,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     note.setup({ .parent = parent, .title = "" });
     note.setText(noteLabelText[(int)freqNote.getValue()], juce::NotificationType::dontSendNotification);
 
-    applyNote.setup(GuiTextButton::Config{ .parent = parent, .title = "Apply", .bgColor = juce::Colours::blue.darker(0.1f).withAlpha(0.6f), .isReset = false, .isResized = false, .darkenWhenPressed = true });
+    applyNote.setup(GuiTextButton::Config{ .parent = parent, .title = "Apply", .bgColor = GuiColor::FixButton::ApplyBg, .isReset = false, .isResized = false, .darkenWhenPressed = true });
     applyNote.setWantsKeyboardFocus(true);
     applyNote.setExplicitFocusOrder(++tabOrder);
     applyNote.onClick = [this] {

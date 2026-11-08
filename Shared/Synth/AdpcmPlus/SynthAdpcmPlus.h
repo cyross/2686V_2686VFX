@@ -40,6 +40,9 @@ public:
     float getCurrentPan() const;
     void setPitchBendRatio(float ratio) override;
     float getSample() override;
+
+    // 生成中の波形の窓 (4.4.0)
+    StageSwitch::Mask stageModules() const override { return StageSwitch::present<AdpcmPlusParams>(); }
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 
     void renderRange(float* outR, float* outL, int startSample, int count, bool& isActive) override

@@ -293,7 +293,7 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     slotWt2Btn.setExplicitFocusOrder(++tabOrder);
     slotWt2Btn.onClick = [this] { importWave(targetSlot(), true); };
 
-    slotClearBtn.setup({ .parent = parent, .title = "Clear", .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
+    slotClearBtn.setup({ .parent = parent, .title = "Clear", .textColor = GuiColor::Button::ClearText, .bgColor = GuiColor::Button::ClearBg, .isReset = false, .isResized = true });
     slotClearBtn.setWantsKeyboardFocus(true);
     slotClearBtn.setExplicitFocusOrder(++tabOrder);
     slotClearBtn.onClick = [this] { clearWave(targetSlot()); };
@@ -352,7 +352,7 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     // 作り置きのテーブルを流し込むボタン
     for (int i = 0; i < FdsMod::tableCount; ++i)
     {
-        fdsPresetBtn[i].setup({ .parent = parent, .title = fdsPresetNames[i], .bgColor = juce::Colours::darkgrey.brighter(0.2f), .isReset = false, .isResized = true });
+        fdsPresetBtn[i].setup({ .parent = parent, .title = fdsPresetNames[i], .bgColor = GuiColor::WtModButtons::FdsPresetBg, .isReset = false, .isResized = true });
         fdsPresetBtn[i].setWantsKeyboardFocus(true);
         fdsPresetBtn[i].setExplicitFocusOrder(++tabOrder);
         fdsPresetBtn[i].onClick = [this, i] { fdsEditor.loadTable(FdsMod::tables[i]); };

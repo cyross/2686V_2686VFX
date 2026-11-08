@@ -32,12 +32,21 @@ public:
     // 操作の段の高さ
     static constexpr int height = 20;
 
+    // 拡大率の欄の幅
+    static constexpr int zoomBoxWidth = 44;
+
     // 押された先
     enum class Hit { none = 0, handled = 1, zoomMenu = 2, frameInput = 3 };
 
     // 1 コマの点数と、コマの数
-    static double frameSamples(const GenWaveRender::Wave& wave);
-    static int frameCount(const GenWaveRender::Wave& wave);
+    double frameSamples(const GenWaveRender::Wave& wave) const;
+    int frameCount(const GenWaveRender::Wave& wave) const;
+
+    // 1 秒あたりのコマ数。0 (既定) なら 1 周期を 1 コマにする。
+    // 決めると 1/fps 秒が 1 コマになり、コマの数は長さ × fps になる。
+    // 窓の頭はそれでも周期の切れ目へ合わせる (形が流れないように)。
+    void setFramesPerSecond(double fps) { m_fps = juce::jmax(0.0, fps); }
+    double framesPerSecond() const { return m_fps; }
 
     // 頭から再生し直す。波形を作り直したときに呼ぶ。
     void restart(double nowMs);
@@ -64,6 +73,27 @@ public:
     int zoom() const { return m_zoom; }
     void setZoom(int value) { m_zoom = juce::jlimit(zoomMin, zoomMax, value); }
 
+    // 拡大率の欄を段の右端に置くか (既定は置く)。置かないときは、持ち主が
+    // 好きな場所へ drawZoom で描き、押されたら showZoomMenuAt で選択肢を出す。
+    // 段からは拡大率の欄が抜け、シークバーがそのぶん広がる。
+    void setZoomInRow(bool inRow) { m_zoomInRow = inRow; }
+    bool isZoomInRow() const { return m_zoomInRow; }
+
+    // 再生のボタンの右にループ再生のボタンを置くか (既定は置かない)。
+    // ループを切ると、最後まで行ったところで止まる。
+    void setLoopInRow(bool inRow) { m_loopInRow = inRow; }
+    bool isLoopInRow() const { return m_loopInRow; }
+
+    void setLooping(bool loop) { m_loop = loop; }
+    bool isLooping() const { return m_loop; }
+
+    // ループを切っていて、最後まで行ったら止める。描き直しのたびに呼ぶ。
+    // 止めたら true (再生のボタンを ▶ に戻すため)。
+    bool stopAtEnd(const GenWaveRender::Wave* wave, double nowMs);
+
+    // 拡大率の欄だけを描く
+    void drawZoom(juce::Graphics& g, juce::Rectangle<int> box) const;
+
     // 描く。wave が nullptr なら時間の軸が無いものとして、一時停止と
     // シークバーを薄く出して押させない (止め絵のプレビュー用)。
     void draw(juce::Graphics& g, juce::Rectangle<int> area,
@@ -89,12 +119,17 @@ public:
     static void showZoomMenu(juce::Component& owner, juce::Rectangle<int> area,
         int current, std::function<void(int)> apply);
 
+    // 拡大率の欄そのもの (box) の下へ選択肢を出す
+    static void showZoomMenuAt(juce::Component& owner, juce::Rectangle<int> box,
+        int current, std::function<void(int)> apply);
+
     // コマの番号を打ち込む欄を、シークバーの下へ出す。横に全コマ数を添える。
     //
     // 打ち込んだ番号は、画面に出している番号 (1 から) のまま apply で返す。
     // 当てる先の探し直しは、拡大率のメニューと同じく呼ぶ側で行うこと。
+    // zoomInRow には、その段に拡大率の欄を置いているか (setZoomInRow と同じ値) を渡す。
     static void showFrameInput(juce::Component& owner, juce::Rectangle<int> area,
-        int current, int count, std::function<void(int)> apply);
+        int current, int count, std::function<void(int)> apply, bool zoomInRow = true, bool loopInRow = false);
 
     // 拡大率の欄の区画。メニューを出す位置に使う。
     static juce::Rectangle<int> zoomArea(juce::Rectangle<int> area);
@@ -104,15 +139,25 @@ private:
     int m_pausedFrame = 0;
     int m_zoom = zoomMin;
     bool m_dragging = false;
+    bool m_zoomInRow = true;
+    bool m_loopInRow = false;
+    bool m_loop = true;
+    double m_fps = 0.0;
 
     struct Parts
     {
         juce::Rectangle<int> play;
+        juce::Rectangle<int> loop;
         juce::Rectangle<int> seek;
         juce::Rectangle<int> zoom;
     };
 
-    static Parts partsOf(juce::Rectangle<int> area);
+    // withZoom が false なら zoom は空で、シークバーが右端まで伸びる
+    // withLoop なら再生のボタンの右にループのボタンを置く
+    static Parts partsOf(juce::Rectangle<int> area, bool withZoom = true, bool withLoop = false);
+
+    // 経過が全体の長さを過ぎたか (ループを切っているときだけ意味がある)
+    bool pastEnd(const GenWaveRender::Wave& wave, double nowMs) const;
 
     void togglePause(const GenWaveRender::Wave& wave, double nowMs);
     void seekTo(const GenWaveRender::Wave& wave, int frame, double nowMs);

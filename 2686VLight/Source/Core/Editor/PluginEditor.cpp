@@ -181,22 +181,22 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     addChildComponent(previewTitleLabel);
     previewTitleLabel.setText(EditorGuiText::Preview::label, juce::NotificationType::dontSendNotification);
     previewTitleLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
-    previewTitleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    previewTitleLabel.setColour(juce::Label::textColourId, GuiColor::Header::PreviewText);
 
     addChildComponent(previewLabels[0]);
     previewLabels[0].setText(EditorGuiText::Preview::labelL, juce::NotificationType::dontSendNotification);
     previewLabels[0].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
-    previewLabels[0].setColour(juce::Label::textColourId, juce::Colours::white);
+    previewLabels[0].setColour(juce::Label::textColourId, GuiColor::Header::PreviewText);
 
     addChildComponent(previewLabels[1]);
     previewLabels[1].setText(EditorGuiText::Preview::labelMono, juce::NotificationType::dontSendNotification);
     previewLabels[1].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
-    previewLabels[1].setColour(juce::Label::textColourId, juce::Colours::white);
+    previewLabels[1].setColour(juce::Label::textColourId, GuiColor::Header::PreviewText);
 
     addChildComponent(previewLabels[2]);
     previewLabels[2].setText(EditorGuiText::Preview::labelR, juce::NotificationType::dontSendNotification);
     previewLabels[2].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
-    previewLabels[2].setColour(juce::Label::textColourId, juce::Colours::white);
+    previewLabels[2].setColour(juce::Label::textColourId, GuiColor::Header::PreviewText);
 
     addAndMakeVisible(playingState);
 
@@ -208,9 +208,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     togglePreviewBtn.setButtonText(getPreviewButtonText());
     togglePreviewBtn.setTooltip(getPreviewTooltipText());
     togglePreviewBtn.setLookAndFeel(&togglePreviewButtonLF);
-    togglePreviewBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    togglePreviewBtn.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
-    togglePreviewBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
+    togglePreviewBtn.setColour(juce::TextButton::textColourOnId, GuiColor::Header::PreviewToggleText);
+    togglePreviewBtn.setColour(juce::TextButton::textColourOffId, GuiColor::Header::PreviewToggleTextOff);
+    togglePreviewBtn.setColour(juce::TextButton::buttonColourId, GuiColor::Header::PreviewToggleBg);
     togglePreviewBtn.onClick = [this] {
         isPreviewVisible = !isPreviewVisible;
 
@@ -241,9 +241,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     panicButton.setButtonText(EditorGuiText::Panic::title);
     panicButton.setTooltip(EditorGuiText::Panic::tooltip);
     panicButton.setLookAndFeel(&panicButtonLF);
-    panicButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    panicButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.2f));
-    panicButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red);
+    panicButton.setColour(juce::TextButton::textColourOnId, GuiColor::Header::PanicText);
+    panicButton.setColour(juce::TextButton::textColourOffId, GuiColor::Header::PanicTextOff);
+    panicButton.setColour(juce::TextButton::buttonColourId, GuiColor::Header::PanicBg);
     panicButton.onClick = [this] {
         audioProcessor.panic();
         };
@@ -255,9 +255,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     undoButton.setButtonText(EditorGuiText::Undo::title);
     undoButton.setTooltip(getUndoTooltipText());
     undoButton.setLookAndFeel(&undoButtonLF);
-    undoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    undoButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.2f));
-    undoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue);
+    undoButton.setColour(juce::TextButton::textColourOnId, GuiColor::Header::UndoText);
+    undoButton.setColour(juce::TextButton::textColourOffId, GuiColor::Header::UndoTextOff);
+    undoButton.setColour(juce::TextButton::buttonColourId, GuiColor::Header::UndoBg);
     undoButton.onClick = [this] {
         audioProcessor.undoManager.undo();
         };
@@ -268,9 +268,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     redoButton.setButtonText(EditorGuiText::Redo::title);
     redoButton.setTooltip(getRedoTooltipText());
     redoButton.setLookAndFeel(&redoButtonLF);
-    redoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    redoButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.2f));
-    redoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue);
+    redoButton.setColour(juce::TextButton::textColourOnId, GuiColor::Header::UndoText);
+    redoButton.setColour(juce::TextButton::textColourOffId, GuiColor::Header::UndoTextOff);
+    redoButton.setColour(juce::TextButton::buttonColourId, GuiColor::Header::UndoBg);
     redoButton.onClick = [this] {
         audioProcessor.undoManager.redo();
         };
@@ -285,9 +285,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     initParamsButton.setButtonText(EditorGuiText::Reset::title);
     initParamsButton.setTooltip(EditorGuiText::Reset::tooltip);
     initParamsButton.setLookAndFeel(&initParamsButtonLF);
-    initParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
-    initParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black.brighter(0.5f));
-    initParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::white);
+    initParamsButton.setColour(juce::TextButton::textColourOnId, GuiColor::Header::InitText);
+    initParamsButton.setColour(juce::TextButton::textColourOffId, GuiColor::Header::InitTextOff);
+    initParamsButton.setColour(juce::TextButton::buttonColourId, GuiColor::Header::InitBg);
     initParamsButton.onClick = [this] {
         initParams();
 
@@ -299,12 +299,12 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     addAndMakeVisible(miniModeLabel);
     miniModeLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::FontStyleFlags::bold)));
-    miniModeLabel.setColour(juce::Label::textColourId, juce::Colours::green.brighter(0.6f));
+    miniModeLabel.setColour(juce::Label::textColourId, GuiColor::Header::MiniModeText);
     miniModeLabel.setVisible(false);
 
     addAndMakeVisible(miniPresetLabel);
     miniPresetLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::FontStyleFlags::bold)));
-    miniPresetLabel.setColour(juce::Label::textColourId, juce::Colours::antiquewhite);
+    miniPresetLabel.setColour(juce::Label::textColourId, GuiColor::Header::MiniPresetText);
     miniPresetLabel.setVisible(false);
 
     // ミニプレイヤー表示切替ボタン
@@ -344,10 +344,10 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
     toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
     toggleMiniBtn.setLookAndFeel(&miniToggleBtnLF);
-    toggleMiniBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
-    toggleMiniBtn.setColour(juce::TextButton::textColourOffId, juce::Colours::black.brighter(0.5f));
-    toggleMiniBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::cyan);
-    toggleMiniBtn.setColour(juce::TextButton::buttonOnColourId, juce::Colours::cyan);
+    toggleMiniBtn.setColour(juce::TextButton::textColourOnId, GuiColor::Header::MiniToggleText);
+    toggleMiniBtn.setColour(juce::TextButton::textColourOffId, GuiColor::Header::MiniToggleTextOff);
+    toggleMiniBtn.setColour(juce::TextButton::buttonColourId, GuiColor::Header::MiniToggleBg);
+    toggleMiniBtn.setColour(juce::TextButton::buttonOnColourId, GuiColor::Header::MiniToggleBg);
     toggleMiniBtn.onClick = [this] {
         switch (viewMode) {
         case ViewMode::Full: // -> MiniPlayer
@@ -404,6 +404,17 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     updateAdpcmPlusFileNames("Reload");
     updateOpzx7PcmFileNames("Reload");
     updateOpzx7WtFileNames("Reload");
+
+    // レベルメーター (4.4.0)。壁紙と UI のあいだに描くので、子のいちばん奥へ入れる
+    levelMeter = std::make_unique<GuiLevelMeter>(audioProcessor);
+    addAndMakeVisible(*levelMeter);
+    levelMeter->toBack();
+
+    // リアルタイムのオシロの縦の倍率 (4.4.0)。L / M / R をそろえ、オシロの上のホイールでも変えられる
+    scopeZoom = std::make_unique<GuiScopeZoom>(audioProcessor);
+    addChildComponent(*scopeZoom);
+    scopeZoom->attach({ &realtimePreviewL, &realtimePreviewMono, &realtimePreviewR });
+    resized();
 
     updateTimerState();
 
@@ -573,19 +584,19 @@ void AudioPlugin2686VEditor::paint(juce::Graphics& g)
     case ViewMode::Full:
         break;
     case ViewMode::MiniPlayer:
-        g.setColour(juce::Colours::black.withAlpha(0.3f));
+        g.setColour(GuiColor::Header::MiniBoard);
         g.fillRect(5, 5, 630, 290);
 
-        g.setColour(juce::Colours::blue.withAlpha(0.15f));
+        g.setColour(GuiColor::Header::MiniBand);
         g.fillRect(10, 5, 400, 40);
         g.fillRect(420, 5, 150, 40);
 
         break;
     case ViewMode::Minimum:
-        g.setColour(juce::Colours::black.withAlpha(0.3f));
+        g.setColour(GuiColor::Header::MiniBoard);
         g.fillRect(5, 5, 630, 90);
 
-        g.setColour(juce::Colours::blue.withAlpha(0.15f));
+        g.setColour(GuiColor::Header::MiniBand);
         g.fillRect(10, 5, 400, 40);
         g.fillRect(420, 5, 150, 40);
 
@@ -641,6 +652,13 @@ void AudioPlugin2686VEditor::resized()
     // プレビューの表示判定 (FullでトグルがON、またはMiniPlayerの時)
     bool showPreview = (isFull && isPreviewVisible) || isMini;
     previewTitleLabel.setVisible(showPreview);
+
+    // オシロの縦の倍率のつまみはフルビューだけ (ほかはオシロの上のホイールで変える)。
+    // 設定を読み直したあとも、ここで値を映す
+    if (scopeZoom != nullptr) {
+        scopeZoom->setVisible(isFull && showPreview);
+        scopeZoom->sync();
+    }
     previewLabels[0].setVisible(showPreview);
     realtimePreviewL.setVisible(showPreview);
     previewLabels[1].setVisible(showPreview);
@@ -655,11 +673,11 @@ void AudioPlugin2686VEditor::resized()
     if (isFull) {
         toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
         toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
-        previewLabels[0].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[0].setColour(juce::Label::textColourId, GuiColor::Header::PreviewText);
         previewLabels[0].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
-        previewLabels[1].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[1].setColour(juce::Label::textColourId, GuiColor::Header::PreviewText);
         previewLabels[1].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
-        previewLabels[2].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[2].setColour(juce::Label::textColourId, GuiColor::Header::PreviewText);
         previewLabels[2].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
     }
     else if (isMini) {
@@ -667,11 +685,11 @@ void AudioPlugin2686VEditor::resized()
         toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMinimum);
         miniPresetLabel.setText(juce::String("") + (audioProcessor.presetName.length() == 0 ? "(EMPTY)" : audioProcessor.presetName), juce::NotificationType::dontSendNotification);
         miniModeLabel.setText(juce::String("") + getModeName(audioProcessor.getCurrentMode()), juce::NotificationType::dontSendNotification);
-        previewLabels[0].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[0].setColour(juce::Label::textColourId, GuiColor::Header::PreviewText);
         previewLabels[0].setFont(juce::Font(juce::FontOptions(14.0f, juce::Font::bold)));
-        previewLabels[1].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[1].setColour(juce::Label::textColourId, GuiColor::Header::PreviewText);
         previewLabels[1].setFont(juce::Font(juce::FontOptions(14.0f, juce::Font::bold)));
-        previewLabels[2].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[2].setColour(juce::Label::textColourId, GuiColor::Header::PreviewText);
         previewLabels[2].setFont(juce::Font(juce::FontOptions(14.0f, juce::Font::bold)));
     }
     else {
@@ -755,6 +773,12 @@ void AudioPlugin2686VEditor::resized()
             );
         }
 
+        // レベルメーター (4.4.0)。paint で敷いている枠の中に置く
+        if (levelMeter != nullptr) {
+            levelMeter->setCompact(true);
+            levelMeter->setBounds(levelMeterArea(isMini ? juce::Rectangle<int>(5, 5, 630, 290) : juce::Rectangle<int>(5, 5, 630, 90)));
+        }
+
         return; // Full Viewの計算は行わずに終了
     }
 
@@ -773,6 +797,9 @@ void AudioPlugin2686VEditor::resized()
         int x = rightArea.getX() + EditorGuiValue::Preview::paddingLeft;
         int y = EditorGuiValue::Preview::paddingTop;
         previewTitleLabel.setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::labelHeight);
+
+        // 縦の倍率は、見出しと [L] のあいだの空きに置く
+        if (scopeZoom != nullptr) scopeZoom->setBounds(x, y + EditorGuiValue::Preview::labelHeight + 1, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::paddingInnerY - 2);
 
         y += EditorGuiValue::Preview::labelHeight + EditorGuiValue::Preview::paddingInnerY;
         previewLabels[0].setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::labelHeight);
@@ -835,6 +862,12 @@ void AudioPlugin2686VEditor::resized()
 
     tabs.setBounds(area);
 
+    // レベルメーター (4.4.0)。タブの中身の範囲の、下から 3/4 の高さ。FX の列には描かない
+    if (levelMeter != nullptr) {
+        levelMeter->setCompact(false);
+        levelMeter->setBounds(levelMeterArea(tabs.getBounds().withTrimmedTop(tabs.getTabBarDepth()).withTrimmedRight(EditorGuiValue::Fx::width)));
+    }
+
     auto content = tabs.getLocalBounds();
     auto tabContent = content.removeFromLeft(content.getWidth() - EditorGuiValue::Fx::width);
     tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
@@ -865,6 +898,14 @@ void AudioPlugin2686VEditor::resized()
             EditorGuiValue::StateBtns::height
         );
     }
+}
+
+// レベルメーターを置く場所 (4.4.0)。枠の下から 3/4 の高さで、枠の内側へ少し寄せる
+juce::Rectangle<int> AudioPlugin2686VEditor::levelMeterArea(juce::Rectangle<int> box)
+{
+    box = box.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
+
+    return box.removeFromBottom(box.getHeight() * 3 / 4);
 }
 
 void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)

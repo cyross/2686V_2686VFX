@@ -12,6 +12,9 @@ namespace ColorsGuiValue
 		// 行ごとの「既定へ戻す」ボタンを置く列
 		static inline constexpr int ResetWidth = 90;
 
+		// 読み込みの対象のチェックを置く列
+		static inline constexpr int ImportWidth = 50;
+
 		// セルの中でボタンの周りに取る余白
 		static inline constexpr int CellPadding = 3;
 
@@ -37,6 +40,13 @@ namespace ColorsGuiValue
 
 		// 読み込み・書き出しは字が短いので狭くてよい
 		static inline constexpr int fileWidth = 90;
+
+		// 読み込みの対象を絞る段
+		static inline constexpr int searchLabelWidth = 50;
+		static inline constexpr int searchWidth = 260;
+		static inline constexpr int searchClearWidth = 64;
+		static inline constexpr int bulkWidth = 110;
+		static inline constexpr int wildcardWidth = 140;
 	}
 
 	// 色の変更ダイアログ
