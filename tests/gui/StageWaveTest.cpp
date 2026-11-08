@@ -448,6 +448,14 @@ TEST_CASE("生成中の波形: エディタのボタンから別の窓を開け�
 	CHECK(options.pattern.bpm == doctest::Approx(120.0));
 	CHECK(options.off == 0);
 
+	// 間隔・音符の初期値はどちらも 4 分音符で、3 連・付点は切
+	CHECK(options.pattern.interval.division == 4);
+	CHECK_FALSE(options.pattern.interval.triplet);
+	CHECK_FALSE(options.pattern.interval.dotted);
+	CHECK(options.pattern.length.division == 4);
+	CHECK_FALSE(options.pattern.length.triplet);
+	CHECK_FALSE(options.pattern.length.dotted);
+
 	// 枠は窓に合わせて伸び縮みし、最初の大きさの縦横半分より小さくはならない
 	{
 		auto& stage = *launcher->stageWave();
