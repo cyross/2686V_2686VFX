@@ -128,9 +128,38 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	followDawToggle.setEnabled(dawFollowAvailable());
 	followDawToggle.onClick = [this] {
 		ctx.audioProcessor.stageFollowDaw = followDawToggle.getToggleState();
-		tempoSlider.setEnabled(!(followDawToggle.getToggleState() && dawFollowAvailable()));
+		updateFollowDawState();
 	};
 	addAndMakeVisible(followDawToggle);
+
+	// ---- 1 小節の拍 (音符と数)
+	styleLabel(beatLabel, EditorGuiText::StageWave::beat);
+	beatLabel.setTooltip(EditorGuiText::StageWave::beatTooltip);
+	addAndMakeVisible(beatLabel);
+
+	for (int note : beatNotes) beatNoteBox.addItem(divisionName(note), note);
+
+	beatNoteBox.setTooltip(EditorGuiText::StageWave::beatTooltip);
+	beatNoteBox.onChange = [this] {
+		const int note = beatNoteBox.getSelectedId();
+
+		if (note <= 0) return;
+
+		// 音符を替えたら、数はその音符の既定 (4 分音符は 4、8 分音符は 6) に戻す
+		ctx.audioProcessor.stageBeatDiv = note;
+		ctx.audioProcessor.stageBeatCount = defaultBeatCount(note);
+		beatCountSlider.setValue(ctx.audioProcessor.stageBeatCount, juce::dontSendNotification);
+	};
+	addAndMakeVisible(beatNoteBox);
+
+	beatCountSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+	beatCountSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 28, 18);
+	beatCountSlider.setRange(1.0, (double)beatCountMax, 1.0);
+	beatCountSlider.setTooltip(EditorGuiText::StageWave::beatTooltip);
+	beatCountSlider.onValueChange = [this] {
+		ctx.audioProcessor.stageBeatCount = juce::jlimit(1, beatCountMax, (int)beatCountSlider.getValue());
+	};
+	addAndMakeVisible(beatCountSlider);
 
 	// ---- 小節数
 	styleLabel(barsLabel, EditorGuiText::StageWave::bars);
@@ -177,6 +206,10 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 
 	// 縦の倍率は再生の段に置かず、周期のボタンの右に置く
 	m_player.setZoomInRow(false);
+
+	// 再生のボタンの右にループ再生のボタン (既定は入り)
+	m_player.setLoopInRow(true);
+	m_player.setLooping(host.stageLoop);
 
 	syncFromHost();
 	applyColours();
@@ -234,11 +267,11 @@ void GuiStageWave::applyColours()
 	deleteBtn.setColour(juce::TextButton::textColourOffId, DeleteText);
 	deleteBtn.setColour(juce::TextButton::textColourOnId, DeleteText);
 
-	for (auto* label : { &keyLabel, &fpsLabel, &tempoLabel, &barsLabel, &intervalControls.label, &lengthControls.label, &switchesLabel, &padsLabel }) {
+	for (auto* label : { &keyLabel, &fpsLabel, &tempoLabel, &beatLabel, &barsLabel, &intervalControls.label, &lengthControls.label, &switchesLabel, &padsLabel }) {
 		label->setColour(juce::Label::textColourId, RowText);
 	}
 
-	for (auto* box : { &fpsBox, &tempoPresetBox, &barsBox, &intervalControls.division, &lengthControls.division })
+	for (auto* box : { &fpsBox, &tempoPresetBox, &beatNoteBox, &barsBox, &intervalControls.division, &lengthControls.division })
 	{
 		box->setColour(juce::ComboBox::backgroundColourId, WindowControlBg);
 		box->setColour(juce::ComboBox::textColourId, WindowControlText);
@@ -246,7 +279,7 @@ void GuiStageWave::applyColours()
 		box->setColour(juce::ComboBox::arrowColourId, WindowControlText);
 	}
 
-	for (auto* slider : { &keySlider, &tempoSlider })
+	for (auto* slider : { &keySlider, &tempoSlider, &beatCountSlider })
 	{
 		slider->setColour(juce::Slider::textBoxBackgroundColourId, WindowControlBg);
 		slider->setColour(juce::Slider::textBoxTextColourId, WindowControlText);
@@ -309,8 +342,16 @@ void GuiStageWave::syncFromHost()
 	keySlider.setValue(juce::jlimit(0, 127, host.stageMidiNote), juce::dontSendNotification);
 	tempoSlider.setValue(juce::jlimit(20.0, 300.0, (double)host.stageBpm), juce::dontSendNotification);
 	followDawToggle.setToggleState(host.stageFollowDaw && dawFollowAvailable(), juce::dontSendNotification);
-	tempoSlider.setEnabled(!followDawToggle.getToggleState());
 	barsBox.setSelectedId(juce::jlimit(1, 16, host.stageBars), juce::dontSendNotification);
+
+	if (std::find(beatNotes.begin(), beatNotes.end(), host.stageBeatDiv) == beatNotes.end()) host.stageBeatDiv = beatNotes[0];
+
+	host.stageBeatCount = juce::jlimit(1, beatCountMax, host.stageBeatCount);
+
+	beatNoteBox.setSelectedId(host.stageBeatDiv, juce::dontSendNotification);
+	beatCountSlider.setValue(host.stageBeatCount, juce::dontSendNotification);
+
+	updateFollowDawState();
 
 	intervalControls.division.setSelectedItemIndex(divisionIndex(host.stageIntervalDiv), juce::dontSendNotification);
 	intervalControls.triplet.setToggleState(host.stageIntervalTriplet, juce::dontSendNotification);
@@ -325,6 +366,16 @@ void GuiStageWave::syncFromHost()
 	if (std::find(fpsChoices.begin(), fpsChoices.end(), host.stageFps) == fpsChoices.end()) host.stageFps = 30;
 
 	fpsBox.setSelectedId(host.stageFps, juce::dontSendNotification);
+}
+
+void GuiStageWave::updateFollowDawState()
+{
+	const bool daw = followDawToggle.getToggleState() && dawFollowAvailable();
+
+	tempoSlider.setEnabled(!daw);
+	tempoPresetBox.setEnabled(!daw);
+	beatNoteBox.setEnabled(!daw);
+	beatCountSlider.setEnabled(!daw);
 }
 
 void GuiStageWave::refreshInfo()
@@ -394,6 +445,8 @@ void GuiStageWave::resized()
 	int x = margin;
 	int y = margin;
 
+	m_dividers.clear();
+
 	const auto place = [&](juce::Component& c, int width) {
 		if (c.isVisible()) {
 			c.setBounds(x, y, width, controlHeight);
@@ -414,6 +467,19 @@ void GuiStageWave::resized()
 
 		fpsLabel.setBounds(zoom.getRight() + groupGap, margin, 30, controlHeight);
 		fpsBox.setBounds(fpsLabel.getRight() + itemGap, margin, 70, controlHeight);
+
+		// 区分のあいだの縦線: 生成・削除 | キー | 周期・倍率 | FPS
+		if (keySlider.isVisible())
+		{
+			addDivider(deleteBtn.getRight(), keyLabel.getX(), margin);
+			addDivider(keySlider.getRight(), cycleArea().getX(), margin);
+		}
+		else
+		{
+			addDivider(deleteBtn.getRight(), cycleArea().getX(), margin);
+		}
+
+		addDivider(zoom.getRight(), fpsLabel.getX(), margin);
 	}
 
 	// ---- その下に再生の段 (playerArea で描く)。2 段目: テンポ・小節・間隔・音符
@@ -424,6 +490,10 @@ void GuiStageWave::resized()
 	place(tempoSlider, 110);
 	place(tempoPresetBox, 70);
 	place(followDawToggle, 100);
+	x += groupGap;
+	place(beatLabel, 24);
+	place(beatNoteBox, 90);
+	place(beatCountSlider, 120);
 	x += groupGap;
 	place(barsLabel, 36);
 	place(barsBox, 60);
@@ -436,6 +506,12 @@ void GuiStageWave::resized()
 		place(c->triplet, 56);
 		place(c->dotted, 56);
 	}
+
+	// 区分のあいだの縦線: テンポ | 拍 | 小節 | 間隔 | 音符
+	addDivider(followDawToggle.getRight(), beatLabel.getX(), y);
+	addDivider(beatCountSlider.getRight(), barsLabel.getX(), y);
+	addDivider(barsBox.getRight(), intervalControls.label.getX(), y);
+	addDivider(intervalControls.dotted.getRight(), lengthControls.label.getX(), y);
 
 	// ---- 3 段目: 入れ切り
 	x = margin;
@@ -459,6 +535,13 @@ void GuiStageWave::resized()
 		t.setBounds(x, y, 104, rowLabelHeight);
 		x += 104;
 	}
+}
+
+void GuiStageWave::addDivider(int leftEdge, int rightEdge, int y)
+{
+	const int centre = (leftEdge + rightEdge) / 2;
+
+	m_dividers.push_back({ centre - dividerWidth / 2, y, dividerWidth, controlHeight });
 }
 
 juce::Rectangle<int> GuiStageWave::rowArea(int row) const
@@ -570,6 +653,12 @@ void GuiStageWave::timerCallback()
 		refreshInfo();
 	}
 
+	if (m_player.stopAtEnd(timeline(), juce::Time::getMillisecondCounterHiRes()))
+	{
+		repaint();
+		return;
+	}
+
 	if (!m_result.isEmpty() && !m_player.isPaused()) repaint();
 }
 
@@ -595,10 +684,12 @@ void GuiStageWave::mouseDown(const juce::MouseEvent& event)
 
 				safe->m_player.showFrame(*safe->timeline(), shown - 1, juce::Time::getMillisecondCounterHiRes());
 				safe->repaint();
-			}, m_player.isZoomInRow());
+			}, m_player.isZoomInRow(), m_player.isLoopInRow());
 		return;
 	}
 	case GenWavePlayer::Hit::handled:
+		// ループの入り切りは設定に残す
+		ctx.audioProcessor.stageLoop = m_player.isLooping();
 		repaint();
 		return;
 	default:
@@ -726,6 +817,11 @@ void GuiStageWave::paint(juce::Graphics& g)
 	using namespace StageWaveRender;
 
 	g.fillAll(GuiColor::GenWave::WindowBg);
+
+	// 区分のあいだの縦線
+	g.setColour(GuiColor::GenWave::GroupDivider);
+
+	for (const auto& d : m_dividers) g.fillRect(d);
 
 	// ---- 周期の欄
 	{

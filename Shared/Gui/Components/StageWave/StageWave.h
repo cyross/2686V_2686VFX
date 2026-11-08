@@ -3,6 +3,7 @@
 #include <array>
 #include <functional>
 #include <memory>
+#include <vector>
 
 #include <JuceHeader.h>
 
@@ -47,6 +48,15 @@ public:
 	// 再生の 1 秒あたりのコマ数の選択肢
 	static constexpr std::array<int, 4> fpsChoices{ 15, 30, 60, 120 };
 
+	// 拍の音符の選択肢 (4 分音符・8 分音符) と、それぞれの拍の数の既定
+	static constexpr std::array<int, 2> beatNotes{ 4, 8 };
+	static constexpr int beatCountMax = 12;
+
+	static constexpr int defaultBeatCount(int note) { return note == 8 ? 6 : 4; }
+
+	// 区分のあいだの縦線の太さ
+	static constexpr int dividerWidth = 2;
+
 	explicit GuiStageWave(const GuiContext& context);
 	~GuiStageWave() override;
 
@@ -89,6 +99,11 @@ private:
 	juce::ComboBox tempoPresetBox;
 	juce::ToggleButton followDawToggle;
 
+	// 1 小節の拍 (音符と数)。テンポと小節のあいだに置く
+	juce::Label beatLabel;
+	juce::ComboBox beatNoteBox;
+	juce::Slider beatCountSlider;
+
 	juce::Label barsLabel;
 	juce::ComboBox barsBox;
 
@@ -120,6 +135,15 @@ private:
 
 	// 様子を見直す間隔を数える
 	int m_idleTicks = 0;
+
+	// 区分のあいだに引く縦線 (resized で決める)
+	std::vector<juce::Rectangle<int>> m_dividers;
+
+	// 左の部品の右端と、右の部品の左端のあいだへ縦線を足す
+	void addDivider(int leftEdge, int rightEdge, int y);
+
+	// DAW 追従のときはテンポと拍を DAW に任せるので、押せなくする
+	void updateFollowDawState();
 
 	// FPS を再生と描き直しの間隔へ当てる
 	void applyFps();

@@ -79,6 +79,18 @@ public:
     void setZoomInRow(bool inRow) { m_zoomInRow = inRow; }
     bool isZoomInRow() const { return m_zoomInRow; }
 
+    // 再生のボタンの右にループ再生のボタンを置くか (既定は置かない)。
+    // ループを切ると、最後まで行ったところで止まる。
+    void setLoopInRow(bool inRow) { m_loopInRow = inRow; }
+    bool isLoopInRow() const { return m_loopInRow; }
+
+    void setLooping(bool loop) { m_loop = loop; }
+    bool isLooping() const { return m_loop; }
+
+    // ループを切っていて、最後まで行ったら止める。描き直しのたびに呼ぶ。
+    // 止めたら true (再生のボタンを ▶ に戻すため)。
+    bool stopAtEnd(const GenWaveRender::Wave* wave, double nowMs);
+
     // 拡大率の欄だけを描く
     void drawZoom(juce::Graphics& g, juce::Rectangle<int> box) const;
 
@@ -117,7 +129,7 @@ public:
     // 当てる先の探し直しは、拡大率のメニューと同じく呼ぶ側で行うこと。
     // zoomInRow には、その段に拡大率の欄を置いているか (setZoomInRow と同じ値) を渡す。
     static void showFrameInput(juce::Component& owner, juce::Rectangle<int> area,
-        int current, int count, std::function<void(int)> apply, bool zoomInRow = true);
+        int current, int count, std::function<void(int)> apply, bool zoomInRow = true, bool loopInRow = false);
 
     // 拡大率の欄の区画。メニューを出す位置に使う。
     static juce::Rectangle<int> zoomArea(juce::Rectangle<int> area);
@@ -128,17 +140,24 @@ private:
     int m_zoom = zoomMin;
     bool m_dragging = false;
     bool m_zoomInRow = true;
+    bool m_loopInRow = false;
+    bool m_loop = true;
     double m_fps = 0.0;
 
     struct Parts
     {
         juce::Rectangle<int> play;
+        juce::Rectangle<int> loop;
         juce::Rectangle<int> seek;
         juce::Rectangle<int> zoom;
     };
 
     // withZoom が false なら zoom は空で、シークバーが右端まで伸びる
-    static Parts partsOf(juce::Rectangle<int> area, bool withZoom = true);
+    // withLoop なら再生のボタンの右にループのボタンを置く
+    static Parts partsOf(juce::Rectangle<int> area, bool withZoom = true, bool withLoop = false);
+
+    // 経過が全体の長さを過ぎたか (ループを切っているときだけ意味がある)
+    bool pastEnd(const GenWaveRender::Wave& wave, double nowMs) const;
 
     void togglePause(const GenWaveRender::Wave& wave, double nowMs);
     void seekTo(const GenWaveRender::Wave& wave, int frame, double nowMs);

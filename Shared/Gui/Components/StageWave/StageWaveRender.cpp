@@ -226,6 +226,10 @@ StageWaveRender::Pattern StageWaveRender::patternFrom(const GuiProcessorHost& ho
 	p.length = { host.stageLengthDiv, host.stageLengthTriplet, host.stageLengthDotted };
 	p.midiNote = juce::jlimit(0, 127, host.stageMidiNote);
 
+	// 1 小節の拍 (4 分音符 × 4 なら 4/4、8 分音符 × 6 なら 6/8)
+	p.sigNumerator = juce::jlimit(1, 12, host.stageBeatCount);
+	p.sigDenominator = host.stageBeatDiv == 8 ? 8 : 4;
+
 	if (followDaw)
 	{
 		const double bpm = host.hostBpm.load(std::memory_order_relaxed);

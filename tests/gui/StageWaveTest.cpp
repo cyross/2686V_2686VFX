@@ -17,6 +17,7 @@
 #include "Core/Editor/PluginEditor.h"
 #include "Shared/Core/Synth/StageSwitch.h"
 #include "Shared/Gui/Components/GenWave/GenWave.h"
+#include "Shared/Gui/Components/GenWave/GenWavePlayer.h"
 #include "Shared/Gui/Components/StageWave/StageWaveRender.h"
 
 #include "./GuiTestChips.h"
@@ -155,6 +156,119 @@ TEST_CASE("生成中の波形: 打鍵の並びどおりに押す・離すが並�
 		for (const auto& e : events) ons += e.on ? 1 : 0;
 
 		CHECK(ons == 3);
+	}
+}
+
+TEST_CASE("生成中の波形: 1 小節の拍 (音符と数) で小節の長さが決まる")
+{
+	using namespace StageWaveRender;
+
+	auto holder = std::make_unique<AudioPlugin2686V>();
+	auto& host = *holder;
+
+	host.stageBars = 1;
+	host.stageIntervalDiv = 8;
+	host.stageIntervalTriplet = false;
+	host.stageIntervalDotted = false;
+	host.stageLengthDiv = 8;
+	host.stageLengthTriplet = false;
+	host.stageLengthDotted = false;
+
+	const auto countOns = [](const Pattern& p) {
+		bool truncated = false;
+		int ons = 0;
+
+		for (const auto& e : buildEvents(p, { 60 }, 1000.0, truncated)) ons += e.on ? 1 : 0;
+
+		return ons;
+	};
+
+	SUBCASE("4 分音符 × 4 で 8 分音符ごとなら 8 回")
+	{
+		host.stageBeatDiv = 4;
+		host.stageBeatCount = 4;
+
+		const auto p = patternFrom(host, false);
+
+		CHECK(p.sigNumerator == 4);
+		CHECK(p.sigDenominator == 4);
+		CHECK(countOns(p) == 8);
+	}
+
+	SUBCASE("8 分音符 × 6 で 8 分音符ごとなら 6 回")
+	{
+		host.stageBeatDiv = 8;
+		host.stageBeatCount = 6;
+
+		const auto p = patternFrom(host, false);
+
+		CHECK(p.sigNumerator == 6);
+		CHECK(p.sigDenominator == 8);
+		CHECK(countOns(p) == 6);
+	}
+
+	SUBCASE("数は 1〜12 に収める")
+	{
+		host.stageBeatDiv = 4;
+		host.stageBeatCount = 40;
+
+		CHECK(patternFrom(host, false).sigNumerator == 12);
+	}
+}
+
+TEST_CASE("生成中の波形: ループを切ると最後で止まり、押すと頭から流れる")
+{
+	GenWaveRender::Wave wave;
+
+	wave.sampleRate = 1000.0;
+	wave.left.assign(1000, 0.0f); // 1 秒
+	wave.right = wave.left;
+
+	GenWavePlayer player;
+
+	player.setFramesPerSecond(10.0); // 10 コマ
+	player.setLoopInRow(true);
+	player.restart(0.0);
+
+	REQUIRE(player.frameCount(wave) == 10);
+
+	SUBCASE("ループ (既定) なら頭へ戻る")
+	{
+		CHECK(player.isLooping());
+		CHECK(player.frame(wave, 1050.0) == 0);
+		CHECK_FALSE(player.stopAtEnd(&wave, 1050.0));
+	}
+
+	SUBCASE("切れば最後のコマで止まる")
+	{
+		player.setLooping(false);
+
+		CHECK(player.frame(wave, 950.0) == 9);
+		CHECK(player.frame(wave, 1500.0) == 9);
+		CHECK(player.stopAtEnd(&wave, 1500.0));
+		CHECK(player.isPaused());
+		CHECK(player.frame(wave, 5000.0) == 9);
+
+		// 再生のボタン (段の左端) を押すと頭から
+		const juce::Rectangle<int> area(0, 0, 300, GenWavePlayer::height);
+
+		player.mouseDown(area, { 5, 5 }, &wave, 6000.0, false);
+
+		CHECK_FALSE(player.isPaused());
+		CHECK(player.frame(wave, 6000.0) == 0);
+	}
+
+	SUBCASE("ループのボタン (再生のボタンの右) で入り切りする")
+	{
+		const juce::Rectangle<int> area(0, 0, 300, GenWavePlayer::height);
+
+		player.mouseDown(area, { 24 + 4 + 5, 5 }, &wave, 100.0, false);
+
+		CHECK_FALSE(player.isLooping());
+
+		player.mouseDown(area, { 24 + 4 + 5, 5 }, &wave, 200.0, false);
+
+		CHECK(player.isLooping());
 	}
 }
 

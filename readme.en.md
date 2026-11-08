@@ -56,6 +56,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
     - Each frame is 210×129 (the window is about 1740 wide). The pause and seek bar row sits right under the Generate row, and the vertical zoom box sits to the right of the cycle buttons
     - The playback FPS can be chosen (15, 30, 60 or 120; 30 by default). One frame is 1/FPS seconds, so the number of frames is length × FPS. The window start still snaps to a cycle boundary. Saved in the settings file (`stageFps`)
     - The pause / play button now has an off-white background with an off-black symbol (the row previews in the parameter browser too)
+    - A loop button sits to the right of the play button (on by default). When off, playback stops at the end and the play button starts it again from the top. Saved in the settings file (`stageLoop`)
+    - The window title is "Build process preview". Vertical dividers (2px, off-white, `GenWave.GroupDivider`) separate the key, cycles, FPS, tempo, beat, bars, interval and note groups
+    - "Beat" is added between "Tempo" and "Bars": the note of one beat (quarter or eighth) and how many per bar (1 to 12). Changing the note resets the count to its default (4 for quarter, 6 for eighth). With Follow DAW on, the DAW's time signature is used. Saved in the settings file (`stageBeatDiv` / `stageBeatCount`)
   - The window's colours can be changed on the COLORS tab and the window follows at once: the background (`GenWave.WindowBg`), headings (`GenWave.RowText`), the OFF text (`GenWave.OffText`), the choice and number boxes (`GenWave.WindowControlBg` / `Text` / `Outline` / `Accent`), the pause / play button (`GenWave.PlayBg` / `GenWave.PlayIcon`) and the other colours starting with `GenWave.`
   - It is built only when Generate is pressed, and a window moves along the built waveform (as the generated waveform did; pause and frame stepping work too). No sound is played
   - The note pattern can be set
@@ -65,7 +68,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
     - Interval (how often a key is pressed) and Note (how long it is held): whole to 32nd notes, with triplet and dotted
     - The defaults are tempo 120, 1 bar, a whole-note interval and a dotted half note, which is close to the old "one note released at 3/4 of the way"
     - Up to 30 seconds (anything longer is cut off, and the window says so). After the last release it keeps going until the sound has been silent for 0.5 seconds
-  - Under "Use", groups such as envelopes and LFOs (AMP ENV, OP EG, PITCH ENV, LFO, SSG HW ENV, SSG SW ENV, WT MOD, STEP ENV, PARAM ENV) can be switched off for the build. Only the groups the current channel has are listed
+  - Under "Process", groups such as envelopes and LFOs (AMP ENV, OP EG, PITCH ENV, LFO, SSG HW ENV, SSG SW ENV, WT MOD, STEP ENV, PARAM ENV) can be switched off for the build. Only the groups the current channel has are listed
     - They are switched off only when building in this window. The patch does not change, and nothing is saved
     - With an envelope off, the sound stays at full level while held and stops on release. With OP EG off, TL no longer applies either, just as when BYPASS is pressed
   - The note pattern, key and horizontal width are saved in the settings file (`stageBpm`, `stageBars` and so on), not in the patch

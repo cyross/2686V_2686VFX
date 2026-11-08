@@ -11,7 +11,7 @@ namespace EditorGuiText
 {
 	namespace StageWave
 	{
-		static inline const I18n::Text windowTitle{ u8"生成中の波形", u8"Waveform stages" };
+		static inline const I18n::Text windowTitle{ u8"生成過程プレビュー", u8"Build process preview" };
 
 		// エディタに置く、窓を開くボタン
 		static inline const I18n::Text open{ u8"生成過程をプレビュー", u8"Preview build process" };
@@ -34,12 +34,14 @@ namespace EditorGuiText
 		static inline const I18n::Text tempo{ u8"テンポ", u8"Tempo" };
 		static inline const I18n::Text followDaw{ u8"DAW 追従", u8"Follow DAW" };
 		static inline const I18n::Text followDawTooltip{ u8"「生成」を押した瞬間の DAW のテンポと拍子を使います。スタンドアロンでは使えません。", u8"Uses the DAW's tempo and time signature at the moment Generate is pressed. Not available in the standalone app." };
+		static inline const I18n::Text beat{ u8"拍", u8"Beat" };
+		static inline const I18n::Text beatTooltip{ u8"1 小節の拍。音符と、その数 (1〜12)。4 分音符なら 4、8 分音符なら 6 が既定です。DAW 追従のときは DAW の拍子を使います。", u8"Beats per bar: the note and how many (1-12). The default is 4 for quarter notes and 6 for eighth notes. With Follow DAW on, the DAW's time signature is used." };
 		static inline const I18n::Text bars{ u8"小節", u8"Bars" };
 		static inline const I18n::Text interval{ u8"間隔", u8"Interval" };
 		static inline const I18n::Text length{ u8"音符", u8"Note" };
 		static inline const I18n::Text triplet{ u8"3連", u8"Triplet" };
 		static inline const I18n::Text dotted{ u8"付点", u8"Dotted" };
-		static inline const I18n::Text switches{ u8"入れる", u8"Use" };
+		static inline const I18n::Text switches{ u8"加工", u8"Process" };
 		static inline const I18n::Text switchesTooltip{ u8"切ったものは、この窓で作るときだけ外します。パッチは変わりません。エンベロープを切ると、押しているあいだは最大のまま鳴り、離したところで止まります。", u8"Anything switched off is left out only when building in this window. The patch is not changed. With an envelope off, the sound stays at full level while held and stops on release." };
 		static inline const I18n::Text pads{ u8"混ぜるパッド", u8"Pads to mix" };
 

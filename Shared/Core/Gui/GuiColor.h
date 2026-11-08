@@ -522,6 +522,8 @@ namespace GuiColor {
 		// 一時停止 / 再生のボタン。目に付くよう地をオフホワイト、記号をオフブラックにする。
 		inline Entry PlayBg{ "GenWave.PlayBg", []() -> juce::Colour { return Palette::OffWhite; } };
 		inline Entry PlayIcon{ "GenWave.PlayIcon", []() -> juce::Colour { return Palette::OffBlack; } };
+		// 生成過程のプレビューで、区分 (キー・周期・テンポ・拍・小節など) のあいだに引く縦線
+		inline Entry GroupDivider{ "GenWave.GroupDivider", []() -> juce::Colour { return Palette::OffWhite; } };
 		// シークバーの進んだぶんと、コマの番号
 		inline Entry SeekFill{ "GenWave.SeekFill", []() -> juce::Colour { return Palette::MikuPink.get().withAlpha(0.3f); } };
 		inline Entry SeekText{ "GenWave.SeekText", []() -> juce::Colour { return Palette::OffWhite; } };
