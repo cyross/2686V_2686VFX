@@ -129,6 +129,7 @@ private:
 	juce::Rectangle<int> viewArea(int row, int column) const;
 	juce::Rectangle<int> cycleArea() const;
 	juce::Rectangle<int> cycleCell(int index) const;
+	juce::Rectangle<int> zoomBox() const;
 	juce::Rectangle<int> playerArea() const;
 
 	// 時間の軸に使う波形 (出来上がり)

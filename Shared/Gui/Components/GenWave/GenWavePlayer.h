@@ -32,6 +32,9 @@ public:
     // 操作の段の高さ
     static constexpr int height = 20;
 
+    // 拡大率の欄の幅
+    static constexpr int zoomBoxWidth = 44;
+
     // 押された先
     enum class Hit { none = 0, handled = 1, zoomMenu = 2, frameInput = 3 };
 
@@ -64,6 +67,15 @@ public:
     int zoom() const { return m_zoom; }
     void setZoom(int value) { m_zoom = juce::jlimit(zoomMin, zoomMax, value); }
 
+    // 拡大率の欄を段の右端に置くか (既定は置く)。置かないときは、持ち主が
+    // 好きな場所へ drawZoom で描き、押されたら showZoomMenuAt で選択肢を出す。
+    // 段からは拡大率の欄が抜け、シークバーがそのぶん広がる。
+    void setZoomInRow(bool inRow) { m_zoomInRow = inRow; }
+    bool isZoomInRow() const { return m_zoomInRow; }
+
+    // 拡大率の欄だけを描く
+    void drawZoom(juce::Graphics& g, juce::Rectangle<int> box) const;
+
     // 描く。wave が nullptr なら時間の軸が無いものとして、一時停止と
     // シークバーを薄く出して押させない (止め絵のプレビュー用)。
     void draw(juce::Graphics& g, juce::Rectangle<int> area,
@@ -89,12 +101,17 @@ public:
     static void showZoomMenu(juce::Component& owner, juce::Rectangle<int> area,
         int current, std::function<void(int)> apply);
 
+    // 拡大率の欄そのもの (box) の下へ選択肢を出す
+    static void showZoomMenuAt(juce::Component& owner, juce::Rectangle<int> box,
+        int current, std::function<void(int)> apply);
+
     // コマの番号を打ち込む欄を、シークバーの下へ出す。横に全コマ数を添える。
     //
     // 打ち込んだ番号は、画面に出している番号 (1 から) のまま apply で返す。
     // 当てる先の探し直しは、拡大率のメニューと同じく呼ぶ側で行うこと。
+    // zoomInRow には、その段に拡大率の欄を置いているか (setZoomInRow と同じ値) を渡す。
     static void showFrameInput(juce::Component& owner, juce::Rectangle<int> area,
-        int current, int count, std::function<void(int)> apply);
+        int current, int count, std::function<void(int)> apply, bool zoomInRow = true);
 
     // 拡大率の欄の区画。メニューを出す位置に使う。
     static juce::Rectangle<int> zoomArea(juce::Rectangle<int> area);
@@ -104,6 +121,7 @@ private:
     int m_pausedFrame = 0;
     int m_zoom = zoomMin;
     bool m_dragging = false;
+    bool m_zoomInRow = true;
 
     struct Parts
     {
@@ -112,7 +130,8 @@ private:
         juce::Rectangle<int> zoom;
     };
 
-    static Parts partsOf(juce::Rectangle<int> area);
+    // withZoom が false なら zoom は空で、シークバーが右端まで伸びる
+    static Parts partsOf(juce::Rectangle<int> area, bool withZoom = true);
 
     void togglePause(const GenWaveRender::Wave& wave, double nowMs);
     void seekTo(const GenWaveRender::Wave& wave, int frame, double nowMs);

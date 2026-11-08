@@ -53,7 +53,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
     - Row 3: (1) before processing (the operators simply added up) (2) after the processing inside the sound source (SSG HW ENV, WT AMP MOD, AMP ENV, SSG SW ENV, BIT, interpolation, LEVEL) (3) after unison (4) after CHIP DAC (5) after FX (final). (1) is FM only. Unused stages keep their frame and show "OFF". From (3) on, L / M / R are drawn on top of each other
     - For RHYTHM, row 3 is the mix of only the pads ticked under "Pads to mix"
   - Eight frames per row. The vertical zoom (x1 to x8; the mouse wheel over the frames also changes it) and the horizontal width (1, 2, 5 or 10 cycles) are shared by every frame, and the frames keep their size
-    - Each frame is 210×129 (the window is about 1740 wide). The pause, seek bar and zoom row sits right under the Generate row
+    - Each frame is 210×129 (the window is about 1740 wide). The pause and seek bar row sits right under the Generate row, and the vertical zoom box sits to the right of the cycle buttons
     - The pause / play button now has an off-white background with an off-black symbol (the row previews in the parameter browser too)
   - The window's colours can be changed on the COLORS tab and the window follows at once: the background (`GenWave.WindowBg`), headings (`GenWave.RowText`), the OFF text (`GenWave.OffText`), the choice and number boxes (`GenWave.WindowControlBg` / `Text` / `Outline` / `Accent`), the pause / play button (`GenWave.PlayBg` / `GenWave.PlayIcon`) and the other colours starting with `GenWave.`
   - It is built only when Generate is pressed, and a window moves along the built waveform (as the generated waveform did; pause and frame stepping work too). No sound is played

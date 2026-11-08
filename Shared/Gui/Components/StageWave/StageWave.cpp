@@ -159,6 +159,9 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 		addChildComponent(t);
 	}
 
+	// 縦の倍率は再生の段に置かず、周期のボタンの右に置く
+	m_player.setZoomInRow(false);
+
 	syncFromHost();
 	applyColours();
 
@@ -432,6 +435,12 @@ juce::Rectangle<int> GuiStageWave::cycleCell(int index) const
 	return { area.getX() + index * 34, area.getY(), 34, area.getHeight() };
 }
 
+juce::Rectangle<int> GuiStageWave::zoomBox() const
+{
+	// 周期のボタンの右
+	return { cycleArea().getRight() + itemGap * 2, margin + 2, GenWavePlayer::zoomBoxWidth, controlHeight - 4 };
+}
+
 juce::Rectangle<int> GuiStageWave::playerArea() const
 {
 	// 1 段目 (生成・削除・キー・周期) のすぐ下
@@ -531,19 +540,7 @@ void GuiStageWave::mouseDown(const juce::MouseEvent& event)
 
 				safe->m_player.showFrame(*safe->timeline(), shown - 1, juce::Time::getMillisecondCounterHiRes());
 				safe->repaint();
-			});
-		return;
-	}
-	case GenWavePlayer::Hit::zoomMenu:
-	{
-		juce::Component::SafePointer<GuiStageWave> safe(this);
-
-		GenWavePlayer::showZoomMenu(*this, playerArea(), m_player.zoom(), [safe](int zoom) {
-			if (safe == nullptr) return;
-
-			safe->m_player.setZoom(zoom);
-			safe->repaint();
-		});
+			}, m_player.isZoomInRow());
 		return;
 	}
 	case GenWavePlayer::Hit::handled:
@@ -551,6 +548,19 @@ void GuiStageWave::mouseDown(const juce::MouseEvent& event)
 		return;
 	default:
 		break;
+	}
+
+	if (zoomBox().contains(event.getPosition()))
+	{
+		juce::Component::SafePointer<GuiStageWave> safe(this);
+
+		GenWavePlayer::showZoomMenuAt(*this, zoomBox(), m_player.zoom(), [safe](int zoom) {
+			if (safe == nullptr) return;
+
+			safe->m_player.setZoom(zoom);
+			safe->repaint();
+		});
+		return;
 	}
 
 	for (int i = 0; i < (int)cycleChoices.size(); ++i)
@@ -581,8 +591,8 @@ void GuiStageWave::mouseWheelMove(const juce::MouseEvent& event, const juce::Mou
 		return;
 	}
 
-	// 枠の上のホイールは縦の倍率 (全部の枠で同じ)
-	if (event.getPosition().y >= rowArea(0).getY() && wheel.deltaY != 0.0f)
+	// 倍率の欄と枠の上のホイールは縦の倍率 (全部の枠で同じ)
+	if ((zoomBox().contains(event.getPosition()) || event.getPosition().y >= rowArea(0).getY()) && wheel.deltaY != 0.0f)
 	{
 		m_player.setZoom(m_player.zoom() + (wheel.deltaY > 0.0f ? 1 : -1));
 		repaint();
@@ -681,9 +691,11 @@ void GuiStageWave::paint(juce::Graphics& g)
 			g.drawText(juce::String(cycleChoices[(size_t)i]), cell, juce::Justification::centred, false);
 		}
 
+		m_player.drawZoom(g, zoomBox());
+
 		// 様子 (作っている最中・打ち切り・音源が無い)
-		auto status = juce::Rectangle<int>(cycleArea().getRight() + groupGap, margin,
-			contentWidth - margin - cycleArea().getRight() - groupGap, controlHeight);
+		auto status = juce::Rectangle<int>(zoomBox().getRight() + groupGap, margin,
+			contentWidth - margin - zoomBox().getRight() - groupGap, controlHeight);
 
 		juce::String text;
 

@@ -86,7 +86,7 @@ namespace
     };
 
     constexpr int playWidth = 24;
-    constexpr int zoomWidth = 44;
+    constexpr int zoomWidth = GenWavePlayer::zoomBoxWidth;
     constexpr int partGap = 4;
 
     // 周期の分からない波形のひとコマ (秒)
@@ -225,14 +225,19 @@ void GenWavePlayer::seekTo(const GenWaveRender::Wave& wave, int target, double n
 // ----------------------------------------------------------------------------
 // 区画
 // ----------------------------------------------------------------------------
-GenWavePlayer::Parts GenWavePlayer::partsOf(juce::Rectangle<int> area)
+GenWavePlayer::Parts GenWavePlayer::partsOf(juce::Rectangle<int> area, bool withZoom)
 {
     Parts parts;
 
     parts.play = area.removeFromLeft(playWidth);
     area.removeFromLeft(partGap);
-    parts.zoom = area.removeFromRight(zoomWidth);
-    area.removeFromRight(partGap);
+
+    if (withZoom)
+    {
+        parts.zoom = area.removeFromRight(zoomWidth);
+        area.removeFromRight(partGap);
+    }
+
     parts.seek = area;
 
     return parts;
@@ -261,7 +266,7 @@ int GenWavePlayer::frameAtX(juce::Rectangle<int> seek, int x, const GenWaveRende
 void GenWavePlayer::draw(juce::Graphics& g, juce::Rectangle<int> area,
     const GenWaveRender::Wave* wave, double nowMs) const
 {
-    const auto parts = partsOf(area);
+    const auto parts = partsOf(area, m_zoomInRow);
     const bool timed = (wave != nullptr && !wave->isEmpty());
     const float alpha = timed ? 1.0f : disabledAlpha;
 
@@ -331,31 +336,32 @@ void GenWavePlayer::draw(juce::Graphics& g, juce::Rectangle<int> area,
 
     // --- 縦の拡大率 ---
     // 止め絵でも効くので、いつでも押せる。
-    {
-        const auto box = parts.zoom;
+    if (m_zoomInRow) drawZoom(g, parts.zoom);
+}
 
-        g.setColour(GuiColor::GenWave::CycleBg);
-        g.fillRect(box);
-        g.setColour(GuiColor::GenWave::Border);
-        g.drawRect(box, 1);
+void GenWavePlayer::drawZoom(juce::Graphics& g, juce::Rectangle<int> box) const
+{
+    g.setColour(GuiColor::GenWave::CycleBg);
+    g.fillRect(box);
+    g.setColour(GuiColor::GenWave::Border);
+    g.drawRect(box, 1);
 
-        g.setColour(m_zoom > zoomMin ? GuiColor::GenWave::Progress.get()
-                                     : GuiColor::GenWave::ControlIcon.get());
-        g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
-        g.drawText(EditorGuiText::GenWave::zoomPrefix + juce::String(m_zoom),
-            box.withTrimmedRight(10), juce::Justification::centred, false);
+    g.setColour(m_zoom > zoomMin ? GuiColor::GenWave::Progress.get()
+                                 : GuiColor::GenWave::ControlIcon.get());
+    g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+    g.drawText(EditorGuiText::GenWave::zoomPrefix + juce::String(m_zoom),
+        box.withTrimmedRight(10), juce::Justification::centred, false);
 
-        // 選択肢があることを示す小さな ▼
-        const auto mark = box.withTrimmedLeft(box.getWidth() - 12).toFloat().withSizeKeepingCentre(6.0f, 4.0f);
+    // 選択肢があることを示す小さな ▼
+    const auto mark = box.withTrimmedLeft(box.getWidth() - 12).toFloat().withSizeKeepingCentre(6.0f, 4.0f);
 
-        juce::Path down;
+    juce::Path down;
 
-        down.addTriangle(mark.getX(), mark.getY(), mark.getRight(), mark.getY(),
-            mark.getCentreX(), mark.getBottom());
+    down.addTriangle(mark.getX(), mark.getY(), mark.getRight(), mark.getY(),
+        mark.getCentreX(), mark.getBottom());
 
-        g.setColour(GuiColor::GenWave::ControlIcon);
-        g.fillPath(down);
-    }
+    g.setColour(GuiColor::GenWave::ControlIcon);
+    g.fillPath(down);
 }
 
 // ----------------------------------------------------------------------------
@@ -366,7 +372,7 @@ GenWavePlayer::Hit GenWavePlayer::mouseDown(juce::Rectangle<int> area, juce::Poi
 {
     if (!area.contains(at)) return Hit::none;
 
-    const auto parts = partsOf(area);
+    const auto parts = partsOf(area, m_zoomInRow);
 
     if (parts.zoom.contains(at)) return Hit::zoomMenu;
 
@@ -401,7 +407,7 @@ bool GenWavePlayer::mouseDrag(juce::Rectangle<int> area, juce::Point<int> at,
     if (!m_dragging) return false;
     if (wave == nullptr || wave->isEmpty()) return false;
 
-    seekTo(*wave, frameAtX(partsOf(area).seek, at.getX(), *wave), nowMs);
+    seekTo(*wave, frameAtX(partsOf(area, m_zoomInRow).seek, at.getX(), *wave), nowMs);
 
     return true;
 }
@@ -412,7 +418,7 @@ bool GenWavePlayer::mouseWheel(juce::Rectangle<int> area, juce::Point<int> at,
     if (!area.contains(at) || deltaY == 0.0f) return false;
 
     const int step = (deltaY > 0.0f) ? 1 : -1;
-    const auto parts = partsOf(area);
+    const auto parts = partsOf(area, m_zoomInRow);
 
     if (parts.zoom.contains(at))
     {
@@ -439,6 +445,12 @@ bool GenWavePlayer::mouseWheel(juce::Rectangle<int> area, juce::Point<int> at,
 void GenWavePlayer::showZoomMenu(juce::Component& owner, juce::Rectangle<int> area,
     int current, std::function<void(int)> apply)
 {
+    showZoomMenuAt(owner, zoomArea(area), current, std::move(apply));
+}
+
+void GenWavePlayer::showZoomMenuAt(juce::Component& owner, juce::Rectangle<int> box,
+    int current, std::function<void(int)> apply)
+{
     juce::PopupMenu menu;
 
     for (int value = zoomMin; value <= zoomMax; ++value)
@@ -448,14 +460,14 @@ void GenWavePlayer::showZoomMenu(juce::Component& owner, juce::Rectangle<int> ar
 
     menu.showMenuAsync(juce::PopupMenu::Options()
         .withTargetComponent(&owner)
-        .withTargetScreenArea(owner.localAreaToGlobal(zoomArea(area))),
+        .withTargetScreenArea(owner.localAreaToGlobal(box)),
         [apply = std::move(apply)](int chosen) {
             if (chosen >= zoomMin && chosen <= zoomMax && apply) apply(chosen);
         });
 }
 
 void GenWavePlayer::showFrameInput(juce::Component& owner, juce::Rectangle<int> area,
-    int current, int count, std::function<void(int)> apply)
+    int current, int count, std::function<void(int)> apply, bool zoomInRow)
 {
     // 吹き出しは画面のいちばん上の部品へ載せる。プレビューの部品は小さく、
     // その中へ出すと切れてしまう。
@@ -463,7 +475,7 @@ void GenWavePlayer::showFrameInput(juce::Component& owner, juce::Rectangle<int> 
 
     if (parent == nullptr) return;
 
-    const auto seek = partsOf(area).seek;
+    const auto seek = partsOf(area, zoomInRow).seek;
 
     juce::CallOutBox::launchAsynchronously(
         std::make_unique<FrameInput>(current, count, std::move(apply)),
