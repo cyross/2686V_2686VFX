@@ -548,6 +548,9 @@ void GuiStageWave::resized()
 		t.setBounds(x, y, 104, rowLabelHeight);
 		x += 104;
 	}
+
+	// 枠の大きさが変わるので描き直す
+	repaint();
 }
 
 void GuiStageWave::addDivider(int leftEdge, int rightEdge, int y)
@@ -561,14 +564,34 @@ juce::Rectangle<int> GuiStageWave::rowArea(int row) const
 {
 	const int top = margin + (controlHeight + viewGap) * 3 + GenWavePlayer::height + viewGap + rowGap;
 
-	return { margin, top + row * (rowLabelHeight + viewHeight + rowGap), contentWidth - margin * 2, rowLabelHeight + viewHeight };
+	const int h = currentViewHeight();
+
+	return { margin, top + row * (rowLabelHeight + h + rowGap), juce::jmax(contentWidth, getWidth()) - margin * 2, rowLabelHeight + h };
+}
+
+int GuiStageWave::currentViewWidth() const
+{
+	const int n = StageWaveRender::viewsPerRow;
+
+	return juce::jmax(viewWidth, (getWidth() - margin * 2 - (n - 1) * viewGap) / n);
+}
+
+int GuiStageWave::currentViewHeight() const
+{
+	// 枠の 3 段より上 (操作と再生の段) と下の余白を引いた残りを 3 段で分ける
+	const int top = margin + (controlHeight + viewGap) * 3 + GenWavePlayer::height + viewGap + rowGap;
+	const int rows = getHeight() - top - margin + rowGap;
+
+	return juce::jmax(viewHeight, rows / 3 - rowLabelHeight - rowGap);
 }
 
 juce::Rectangle<int> GuiStageWave::viewArea(int row, int column) const
 {
 	const auto area = rowArea(row);
 
-	return { area.getX() + column * (viewWidth + viewGap), area.getY() + rowLabelHeight, viewWidth, viewHeight };
+	const int w = currentViewWidth();
+
+	return { area.getX() + column * (w + viewGap), area.getY() + rowLabelHeight, w, area.getHeight() - rowLabelHeight };
 }
 
 juce::Rectangle<int> GuiStageWave::cycleArea() const
@@ -595,7 +618,7 @@ juce::Rectangle<int> GuiStageWave::zoomBox() const
 juce::Rectangle<int> GuiStageWave::playerArea() const
 {
 	// 1 段目 (生成・削除・キー・周期) のすぐ下
-	return { margin, margin + controlHeight + viewGap, contentWidth - margin * 2, GenWavePlayer::height };
+	return { margin, margin + controlHeight + viewGap, juce::jmax(contentWidth, getWidth()) - margin * 2, GenWavePlayer::height };
 }
 
 // ============================================================================
@@ -859,7 +882,7 @@ void GuiStageWave::paint(juce::Graphics& g)
 
 		// 様子 (作っている最中・打ち切り・音源が無い)
 		auto status = juce::Rectangle<int>(fpsBox.getRight() + groupGap, margin,
-			contentWidth - margin - fpsBox.getRight() - groupGap, controlHeight);
+			juce::jmax(contentWidth, getWidth()) - margin - fpsBox.getRight() - groupGap, controlHeight);
 
 		juce::String text;
 
@@ -1004,7 +1027,10 @@ GuiStageWaveWindow::GuiStageWaveWindow(const GuiContext& context, std::function<
 
 	setUsingNativeTitleBar(true);
 	setContentOwned(content.release(), true);
-	setResizable(false, false);
+	// 広げると枠も広がる。作った大きさより小さくはしない
+	setResizable(true, false);
+	setResizeLimits(GuiStageWave::contentWidth, GuiStageWave::contentHeight,
+		GuiStageWave::maxContentWidth, GuiStageWave::maxContentHeight);
 
 	// DAW の窓の後ろへ隠れないように
 	setAlwaysOnTop(true);

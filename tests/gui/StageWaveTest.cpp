@@ -443,6 +443,24 @@ TEST_CASE("生成中の波形: エディタのボタンから別の窓を開け�
 	CHECK(options.pattern.bpm == doctest::Approx(120.0));
 	CHECK(options.off == 0);
 
+	// 広げると枠も広がり、最小より小さくはならない
+	{
+		auto& stage = *launcher->stageWave();
+
+		CHECK(stage.currentViewWidth() == GuiStageWave::viewWidth);
+		CHECK(stage.currentViewHeight() == GuiStageWave::viewHeight);
+
+		stage.setSize(GuiStageWave::contentWidth + StageWaveRender::viewsPerRow * 50, GuiStageWave::contentHeight + 3 * 40);
+
+		CHECK(stage.currentViewWidth() == GuiStageWave::viewWidth + 50);
+		CHECK(stage.currentViewHeight() == GuiStageWave::viewHeight + 40);
+
+		stage.setSize(100, 100);
+
+		CHECK(stage.currentViewWidth() == GuiStageWave::viewWidth);
+		CHECK(stage.currentViewHeight() == GuiStageWave::viewHeight);
+	}
+
 	launcher->setWindowOpen(false);
 
 	CHECK_FALSE(launcher->isWindowOpen());
