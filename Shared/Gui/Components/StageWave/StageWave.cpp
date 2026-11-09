@@ -24,22 +24,6 @@ namespace
 		return juce::MidiMessage::getMidiNoteName(note, true, true, 3);
 	}
 
-	juce::String divisionName(int division)
-	{
-		if (division <= 1) return EditorGuiText::StageWave::whole;
-
-		return juce::String(division) + juce::String(EditorGuiText::StageWave::fraction);
-	}
-
-	int divisionIndex(int division)
-	{
-		for (int i = 0; i < (int)StageWaveRender::divisions.size(); ++i) {
-			if (StageWaveRender::divisions[(size_t)i] == division) return i;
-		}
-
-		return 0;
-	}
-
 	bool dawFollowAvailable()
 	{
 		return !juce::JUCEApplicationBase::isStandaloneApp();
@@ -555,7 +539,7 @@ void GuiStageWave::resized()
 	{
 		x += groupGap;
 		place(c->label, c == &intervalControls ? 80 : 36);
-		place(c->division, 90);
+		place(c->division, 100);
 		place(c->triplet, 56);
 		place(c->dotted, 56);
 	}
@@ -860,9 +844,41 @@ void GuiStageWave::clearResult()
 	repaint();
 }
 
+juce::String GuiStageWave::divisionName(int division)
+{
+	// 全音符の何倍か (4.4.1)
+	if (division < 0) return juce::String(EditorGuiText::StageWave::whole) + juce::String(EditorGuiText::StageWave::times) + juce::String(-division);
+
+	if (division <= 1) return EditorGuiText::StageWave::whole;
+
+	return juce::String(division) + juce::String(EditorGuiText::StageWave::fraction);
+}
+
+int GuiStageWave::divisionIndex(int division)
+{
+	const auto& list = StageWaveRender::divisions;
+
+	for (int i = 0; i < (int)list.size(); ++i) {
+		if (list[(size_t)i] == division) return i;
+	}
+
+	for (int i = 0; i < (int)list.size(); ++i) {
+		if (list[(size_t)i] == 4) return i;
+	}
+
+	return 0;
+}
+
 void GuiStageWave::timerCallback()
 {
 	checkAutoGenerate();
+
+	// SETTINGS の「必ず最前面」を、開いている窓にもすぐ当てる (4.4.1)
+	if (auto* window = findParentComponentOfClass<juce::DocumentWindow>(); window != nullptr
+		&& window->isAlwaysOnTop() != ctx.audioProcessor.stageAlwaysOnTop)
+	{
+		window->setAlwaysOnTop(ctx.audioProcessor.stageAlwaysOnTop);
+	}
 
 	if (++m_idleTicks >= infoRefreshTicks) {
 		m_idleTicks = 0;
@@ -969,7 +985,7 @@ void GuiStageWave::mouseWheelMove(const juce::MouseEvent& event, const juce::Mou
 	// 倍率の欄と枠の上のホイールは縦の倍率 (全部の枠で同じ)
 	if ((zoomBox().contains(event.getPosition()) || event.getPosition().y >= rowArea(0).getY()) && wheel.deltaY != 0.0f)
 	{
-		m_player.setZoom(m_player.zoom() + (wheel.deltaY > 0.0f ? 1 : -1));
+		m_player.setZoom(GenWavePlayer::stepZoom(m_player.zoom(), wheel.deltaY > 0.0f ? 1 : -1));
 		repaint();
 		return;
 	}
@@ -1299,8 +1315,8 @@ GuiStageWaveWindow::GuiStageWaveWindow(const GuiContext& context, std::function<
 	setResizeLimits(GuiStageWave::minWindowWidth, GuiStageWave::minWindowHeight,
 		GuiStageWave::maxContentWidth, GuiStageWave::maxContentHeight);
 
-	// DAW の窓の後ろへ隠れないように
-	setAlwaysOnTop(true);
+	// 最前面にするかは SETTINGS で選ぶ (4.4.1。既定は切)
+	setAlwaysOnTop(context.audioProcessor.stageAlwaysOnTop);
 
 	centreWithSize(getWidth(), getHeight());
 }

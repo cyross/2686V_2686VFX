@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <array>
 #include <functional>
 
 #include <JuceHeader.h>
@@ -25,9 +26,16 @@
 class GenWavePlayer
 {
 public:
-    // 縦の拡大率。x1〜x8。
+    // 縦の拡大率。x1〜x32 (4.4.1 で x8 から広げた)。選べるのは zoomChoices の値
     static constexpr int zoomMin = 1;
-    static constexpr int zoomMax = 8;
+    static constexpr int zoomMax = 32;
+    static constexpr std::array<int, 12> zoomChoices{ 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 24, 32 };
+
+    // いちばん近い選択肢へ寄せる (同じ近さなら小さいほう)
+    static int snapZoom(int value);
+
+    // 選択肢を 1 つ送る (direction は +1 / -1)。端では止まる
+    static int stepZoom(int current, int direction);
 
     // 操作の段の高さ
     static constexpr int height = 20;
@@ -71,7 +79,7 @@ public:
     void showFrame(const GenWaveRender::Wave& wave, int target, double nowMs);
 
     int zoom() const { return m_zoom; }
-    void setZoom(int value) { m_zoom = juce::jlimit(zoomMin, zoomMax, value); }
+    void setZoom(int value) { m_zoom = snapZoom(value); }
 
     // 拡大率の欄を段の右端に置くか (既定は置く)。置かないときは、持ち主が
     // 好きな場所へ drawZoom で描き、押されたら showZoomMenuAt で選択肢を出す。

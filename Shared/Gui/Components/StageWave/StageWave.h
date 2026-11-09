@@ -72,6 +72,11 @@ public:
 	// 窓の幅の選択肢 (周期数)。RHYTHM は 1 周期を 10ms とみなす
 	static constexpr std::array<int, 4> cycleChoices{ 1, 2, 5, 10 };
 
+	// 音符の名前 (全音符 × 8・全音符・4 分音符…) と、StageWaveRender::divisions の何番目か。
+	// 選択肢に無い値は 4 分音符の番号。ファイルブラウザーと共通 (4.4.1)
+	static juce::String divisionName(int division);
+	static int divisionIndex(int division);
+
 	static constexpr std::array<int, 13> tempoPresets{ 60, 80, 90, 100, 110, 120, 130, 140, 150, 160, 174, 180, 200 };
 
 	// 再生の 1 秒あたりのコマ数の選択肢

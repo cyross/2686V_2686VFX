@@ -157,31 +157,9 @@ namespace
         return juce::MidiMessage::getMidiNoteName(note, true, true, 3);
     }
 
-    juce::String divisionName(int division)
-    {
-        // 全音符の何倍か (4.4.1)
-        if (division < 0) return juce::String(EditorGuiText::StageWave::whole) + juce::String(EditorGuiText::StageWave::times) + juce::String(-division);
-
-        if (division <= 1) return EditorGuiText::StageWave::whole;
-
-        return juce::String(division) + juce::String(EditorGuiText::StageWave::fraction);
-    }
-
-    // 選択肢の何番目か。設定ファイルの値が選択肢に無ければ 4 分音符
-    int divisionIndex(int division)
-    {
-        const auto& list = StageWaveRender::browserDivisions;
-
-        for (int i = 0; i < (int)list.size(); ++i) {
-            if (list[(size_t)i] == division) return i;
-        }
-
-        for (int i = 0; i < (int)list.size(); ++i) {
-            if (list[(size_t)i] == 4) return i;
-        }
-
-        return 0;
-    }
+    // 音符の名前と番号は生成過程プレビューと共通
+    juce::String divisionName(int division) { return GuiStageWave::divisionName(division); }
+    int divisionIndex(int division) { return GuiStageWave::divisionIndex(division); }
 
     constexpr std::array<int, 4> browserFpsChoices{ 15, 30, 60, 120 };
 
@@ -280,7 +258,7 @@ void GuiParamBrowser::setupCustomControls()
     styleLabel(zoomLabel, EditorGuiText::ParamBrowser::customZoom);
     addAndMakeVisible(zoomLabel);
 
-    for (int z = GenWavePlayer::zoomMin; z <= GenWavePlayer::zoomMax; ++z) zoomBox.addItem("x" + juce::String(z), z);
+    for (int z : GenWavePlayer::zoomChoices) zoomBox.addItem("x" + juce::String(z), z);
 
     zoomBox.onChange = [this] {
         if (zoomBox.getSelectedId() > 0) ctx.audioProcessor.browserZoom = zoomBox.getSelectedId();
@@ -311,14 +289,14 @@ void GuiParamBrowser::setupNoteControls(NoteControls& c, const juce::String& tit
     styleLabel(c.label, title);
     addAndMakeVisible(c.label);
 
-    for (int i = 0; i < (int)StageWaveRender::browserDivisions.size(); ++i) {
-        c.division.addItem(divisionName(StageWaveRender::browserDivisions[(size_t)i]), i + 1);
+    for (int i = 0; i < (int)StageWaveRender::divisions.size(); ++i) {
+        c.division.addItem(divisionName(StageWaveRender::divisions[(size_t)i]), i + 1);
     }
 
     c.division.onChange = [this, &c, &division] {
         const int index = c.division.getSelectedItemIndex();
 
-        if (index >= 0) division = StageWaveRender::browserDivisions[(size_t)index];
+        if (index >= 0) division = StageWaveRender::divisions[(size_t)index];
 
         patternChanged();
     };
@@ -347,9 +325,9 @@ void GuiParamBrowser::syncCustomFromHost()
     host.browserBars = juce::jlimit(1, 16, host.browserBars);
     host.browserMidiNote = juce::jlimit(0, 127, host.browserMidiNote);
     host.browserCycles = juce::jlimit(0, (int)GuiStageWave::cycleChoices.size() - 1, host.browserCycles);
-    host.browserZoom = juce::jlimit(GenWavePlayer::zoomMin, GenWavePlayer::zoomMax, host.browserZoom);
-    host.browserIntervalDiv = StageWaveRender::browserDivisions[(size_t)divisionIndex(host.browserIntervalDiv)];
-    host.browserLengthDiv = StageWaveRender::browserDivisions[(size_t)divisionIndex(host.browserLengthDiv)];
+    host.browserZoom = GenWavePlayer::snapZoom(host.browserZoom);
+    host.browserIntervalDiv = StageWaveRender::divisions[(size_t)divisionIndex(host.browserIntervalDiv)];
+    host.browserLengthDiv = StageWaveRender::divisions[(size_t)divisionIndex(host.browserLengthDiv)];
 
     if (std::find(browserFpsChoices.begin(), browserFpsChoices.end(), host.browserFps) == browserFpsChoices.end()) host.browserFps = 30;
 

@@ -684,6 +684,7 @@ public:
         visit(SettingsKey::stageBeatCount, stageBeatCount);
         visit(SettingsKey::stageAutoGenerate, stageAutoGenerate);
         visit(SettingsKey::stageAutoInterval, stageAutoInterval);
+        visit(SettingsKey::stageAlwaysOnTop, stageAlwaysOnTop);
         visit(SettingsKey::browserBpm, browserBpm);
         visit(SettingsKey::browserFollowDaw, browserFollowDaw);
         visit(SettingsKey::browserBars, browserBars);

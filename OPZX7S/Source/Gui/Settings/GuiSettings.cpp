@@ -868,6 +868,13 @@ void GuiSettings::setup()
     browserAutoToggle.setExplicitFocusOrder(++tabOrder);
     browserAutoToggle.onClick = [this] { pluginOf(ctx).browserAutoGenerate = browserAutoToggle.getToggleState(); };
 
+    // 生成過程プレビューの窓を必ず最前面にする (4.4.1)。既定は切。開いている窓にもすぐ当たる
+    stageOnTopToggle.setup({ .parent = *this, .title = SettingsGuiText::stageAlwaysOnTop, .font = toggleFont, .isReset = false });
+    stageOnTopToggle.setToggleState(pluginOf(ctx).stageAlwaysOnTop, juce::dontSendNotification);
+    stageOnTopToggle.setWantsKeyboardFocus(true);
+    stageOnTopToggle.setExplicitFocusOrder(++tabOrder);
+    stageOnTopToggle.onClick = [this] { pluginOf(ctx).stageAlwaysOnTop = stageOnTopToggle.getToggleState(); };
+
     separator5.setupComponent(*this);
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
@@ -1418,6 +1425,13 @@ void GuiSettings::layout(juce::Rectangle<int> content)
         browserAutoToggle.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::BrowserAutoToggleWidth));
     }
 
+    // 生成過程プレビューの窓を必ず最前面にする (4.4.1)
+    {
+        auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+        stageOnTopToggle.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::BrowserAutoToggleWidth));
+    }
+
     separator5.layoutComponent(sRect);
 
     // 22. Virtual Keyboard Row
@@ -1525,6 +1539,7 @@ void GuiSettings::setSettings()
     stageAutoIntervalSlider.setValue(pluginOf(ctx).stageAutoInterval, juce::dontSendNotification);
     stageAutoIntervalSlider.setEnabledWithLabel(pluginOf(ctx).stageAutoGenerate);
     browserAutoToggle.setToggleState(pluginOf(ctx).browserAutoGenerate, juce::dontSendNotification);
+    stageOnTopToggle.setToggleState(pluginOf(ctx).stageAlwaysOnTop, juce::dontSendNotification);
 
     // 設定を読み込み直したときも、つまみの見せ方を合わせる
     if (auto* editor = dynamic_cast<juce::Component*>(&ctx.editor)) GuiSlider::refreshN88Display(*editor);

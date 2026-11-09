@@ -199,8 +199,9 @@ std::vector<StageWaveRender::Event> StageWaveRender::buildEvents(const Pattern& 
 
 		double offSeconds = starts[k] + length;
 
-		// 上限で切ったときは、そこで離す
-		if (truncated) offSeconds = juce::jmin(offSeconds, maxPatternSeconds);
+		// 並びの上限 (maxPatternSeconds) を越えて押し続けない。並びを切ったときや、
+		// 長い音符 (全音符 × 8 など) を遅いテンポで押したときに、作る長さが伸びすぎないように
+		offSeconds = juce::jmin(offSeconds, maxPatternSeconds);
 
 		const int off = (int)std::lround(offSeconds * sampleRate);
 

@@ -77,6 +77,7 @@ namespace SettingsKey
 	// 生成過程プレビューの自動生成 (4.4.1)
 	static inline const juce::String stageAutoGenerate = "stageAutoGenerate";
 	static inline const juce::String stageAutoInterval = "stageAutoInterval";
+	static inline const juce::String stageAlwaysOnTop = "stageAlwaysOnTop";
 
 	// ファイルブラウザーの行のプレビューの作り方・見せ方と自動生成 (4.4.1)。全フォルダ共通
 	static inline const juce::String browserBpm = "browserBpm";

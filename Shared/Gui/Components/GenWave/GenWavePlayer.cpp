@@ -533,7 +533,7 @@ bool GenWavePlayer::mouseWheel(juce::Rectangle<int> area, juce::Point<int> at,
 
     if (parts.zoom.contains(at))
     {
-        setZoom(m_zoom + step);
+        setZoom(stepZoom(m_zoom, step));
 
         return true;
     }
@@ -553,6 +553,29 @@ bool GenWavePlayer::mouseWheel(juce::Rectangle<int> area, juce::Point<int> at,
     return true;
 }
 
+int GenWavePlayer::snapZoom(int value)
+{
+    int best = zoomChoices.front();
+
+    for (int z : zoomChoices)
+        if (std::abs(z - value) < std::abs(best - value)) best = z;
+
+    return best;
+}
+
+int GenWavePlayer::stepZoom(int current, int direction)
+{
+    const int snapped = snapZoom(current);
+    int index = 0;
+
+    for (int i = 0; i < (int)zoomChoices.size(); ++i)
+        if (zoomChoices[(size_t)i] == snapped) index = i;
+
+    index = juce::jlimit(0, (int)zoomChoices.size() - 1, index + (direction > 0 ? 1 : direction < 0 ? -1 : 0));
+
+    return zoomChoices[(size_t)index];
+}
+
 void GenWavePlayer::showZoomMenu(juce::Component& owner, juce::Rectangle<int> area,
     int current, std::function<void(int)> apply)
 {
@@ -564,7 +587,7 @@ void GenWavePlayer::showZoomMenuAt(juce::Component& owner, juce::Rectangle<int> 
 {
     juce::PopupMenu menu;
 
-    for (int value = zoomMin; value <= zoomMax; ++value)
+    for (int value : zoomChoices)
     {
         menu.addItem(value, EditorGuiText::GenWave::zoomPrefix + juce::String(value), true, value == current);
     }

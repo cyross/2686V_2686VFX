@@ -65,10 +65,9 @@ namespace StageWaveRender
 		}
 	};
 
-	inline constexpr std::array<int, 6> divisions{ 1, 2, 4, 8, 16, 32 };
-
-	// ファイルブラウザーで選べる長さ。全音符 × 8・× 4・× 2 を前に足す (4.4.1)
-	inline constexpr std::array<int, 9> browserDivisions{ -8, -4, -2, 1, 2, 4, 8, 16, 32 };
+	// キーオン周期・音符長で選べる長さ。全音符 × 8・× 4・× 2 を前に足した (4.4.1)。
+	// 生成過程プレビューとファイルブラウザーで共通
+	inline constexpr std::array<int, 9> divisions{ -8, -4, -2, 1, 2, 4, 8, 16, 32 };
 
 	struct Pattern
 	{

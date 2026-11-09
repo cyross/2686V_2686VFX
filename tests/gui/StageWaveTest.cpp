@@ -973,7 +973,7 @@ TEST_CASE("ファイルブラウザー: 作り方・見せ方の行は「フォ�
 	host.browserAutoGenerate = false;
 
 	// 行の部品: テンポ・DAW 同期・小節・キーオン周期・音符長・キー・生成周期・表示倍率・FPS
-	auto zooms = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == 8 && b.getItemText(0) == "x1"; });
+	auto zooms = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == (int)GenWavePlayer::zoomChoices.size() && b.getItemText(0) == "x1"; });
 	auto fpss = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == 4 && b.getItemText(0) == "15" && b.getItemText(3) == "120"; });
 	auto cycles = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == 4 && b.getItemText(0) == "1" && b.getItemText(3) == "10"; });
 	auto folders = findAll<juce::TextButton>(browser, [](juce::TextButton& b) { return b.getButtonText() == EditorGuiText::ParamBrowser::folder.get(); });
@@ -1197,4 +1197,142 @@ TEST_CASE("生成過程プレビュー: 開くボタンの見出しの上に横�
 	}
 
 	editor.reset();
+}
+
+TEST_CASE("生成過程プレビュー: キーオン周期・音符長に全音符 × 2・× 4・× 8 がある (4.4.1)")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	processor->stageAutoGenerate = false;
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	auto* launcher = findFirst<GuiGenWave>(*editor);
+
+	REQUIRE(launcher != nullptr);
+
+	launcher->setWindowOpen(true);
+
+	auto& stage = *launcher->stageWave();
+
+	// キーオン周期・音符長の 2 つ。全音符 × 8 から 32 分音符まで 9 つで、初期値は 4 分音符
+	auto notes = findAll<juce::ComboBox>(stage, [](juce::ComboBox& b) { return b.getNumItems() == (int)StageWaveRender::divisions.size(); });
+
+	REQUIRE(notes.size() == 2);
+
+	for (auto* box : notes)
+	{
+		CHECK(box->getItemText(0) == GuiStageWave::divisionName(-8));
+		CHECK(box->getItemText(2) == GuiStageWave::divisionName(-2));
+		CHECK(box->getText() == GuiStageWave::divisionName(4));
+	}
+
+	// 全音符 × 4 を選ぶと、プロセッサの値は -4
+	notes[0]->setSelectedItemIndex(1, juce::sendNotificationSync);
+
+	CHECK((processor->stageIntervalDiv == -4 || processor->stageLengthDiv == -4));
+
+	// 選択肢に無い値は 4 分音符として出す
+	CHECK(StageWaveRender::divisions[(size_t)GuiStageWave::divisionIndex(3)] == 4);
+
+	launcher->setWindowOpen(false);
+
+	editor.reset();
+}
+
+TEST_CASE("表示倍率: x32 まで選べ、ホイールは選択肢を 1 つずつ送る (4.4.1)")
+{
+	CHECK(GenWavePlayer::zoomMax == 32);
+	CHECK(GenWavePlayer::zoomChoices.front() == 1);
+	CHECK(GenWavePlayer::zoomChoices.back() == 32);
+
+	CHECK(GenWavePlayer::snapZoom(32) == 32);
+	CHECK(GenWavePlayer::snapZoom(100) == 32);
+	CHECK(GenWavePlayer::snapZoom(0) == 1);
+	CHECK(GenWavePlayer::snapZoom(9) == 8);
+	CHECK(GenWavePlayer::snapZoom(15) == 16);
+
+	CHECK(GenWavePlayer::stepZoom(8, 1) == 12);
+	CHECK(GenWavePlayer::stepZoom(12, -1) == 8);
+	CHECK(GenWavePlayer::stepZoom(32, 1) == 32);
+	CHECK(GenWavePlayer::stepZoom(1, -1) == 1);
+
+	GenWavePlayer player;
+
+	player.setZoom(24);
+	CHECK(player.zoom() == 24);
+
+	player.setZoom(40);
+	CHECK(player.zoom() == 32);
+}
+
+TEST_CASE("生成過程プレビュー: 窓は既定では最前面にせず、SETTINGS の「必ず最前面」で切り替わる (4.4.1)")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	processor->stageAutoGenerate = false;
+
+	CHECK_FALSE(processor->stageAlwaysOnTop);
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+
+	auto* launcher = findFirst<GuiGenWave>(*editor);
+
+	REQUIRE(launcher != nullptr);
+
+	launcher->setWindowOpen(true);
+
+	auto* window = launcher->stageWave()->findParentComponentOfClass<juce::DocumentWindow>();
+
+	REQUIRE(window != nullptr);
+	CHECK_FALSE(window->isAlwaysOnTop());
+
+	launcher->setWindowOpen(false);
+
+	// SETTINGS のトグル (既定は切)。押すとプロセッサの値が変わる
+	auto toggles = findAll<GuiToggleButton>(*editor, [](GuiToggleButton& t) { return t.getButtonText() == SettingsGuiText::stageAlwaysOnTop.get(); });
+
+	REQUIRE(toggles.size() == 1);
+	CHECK_FALSE(toggles[0]->getToggleState());
+
+	toggles[0]->setToggleState(true, juce::dontSendNotification);
+	toggles[0]->onClick();
+
+	CHECK(processor->stageAlwaysOnTop);
+
+	// 入れて開けば最前面
+	launcher->setWindowOpen(true);
+
+	window = launcher->stageWave()->findParentComponentOfClass<juce::DocumentWindow>();
+
+	REQUIRE(window != nullptr);
+	CHECK(window->isAlwaysOnTop());
+
+	launcher->setWindowOpen(false);
+
+	editor.reset();
+}
+
+TEST_CASE("打鍵の並び: 長い音符を遅いテンポで押しても、並びの上限 (30 秒) で離す (4.4.1)")
+{
+	StageWaveRender::Pattern pattern;
+
+	pattern.bpm = 20.0;
+	pattern.bars = 1;
+	pattern.interval = { -8, false, false };
+	pattern.length = { -8, false, false };
+
+	bool truncated = false;
+
+	const double rate = 1000.0;
+	const auto events = StageWaveRender::buildEvents(pattern, { 60 }, rate, truncated);
+
+	REQUIRE(events.size() == 2);
+	CHECK(events[0].on);
+	CHECK_FALSE(events[1].on);
+
+	// 全音符 × 8 は 4 分音符 32 個ぶん (20 BPM なら 96 秒) だが、30 秒で離す
+	CHECK(events[1].at == (int)std::lround(StageWaveRender::maxPatternSeconds * rate));
 }

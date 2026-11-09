@@ -188,6 +188,9 @@ class GuiSettings : public GuiBase
     // ファイルブラウザーのプレビューの自動生成 (4.4.1)。既定は切
     GuiToggleButton browserAutoToggle;
 
+    // 生成過程プレビューの窓を必ず最前面にする (4.4.1)。既定は切
+    GuiToggleButton stageOnTopToggle;
+
     NormalSeparator separator5;
 
     // 仮想MIDIキーボード表示制御
@@ -318,6 +321,7 @@ public:
         stageAutoToggle(context),
         stageAutoIntervalSlider(context),
         browserAutoToggle(context),
+        stageOnTopToggle(context),
         separator5(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),

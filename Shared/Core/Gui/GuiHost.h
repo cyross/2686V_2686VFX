@@ -205,6 +205,9 @@ public:
     bool stageAutoGenerate = true;
     float stageAutoInterval = 1.0f;   // 秒 (0.1〜5.0)
 
+    // 生成過程プレビューの窓を必ず最前面にする (SETTINGS。4.4.1。既定は切)
+    bool stageAlwaysOnTop = false;
+
     // パラメータを触った履歴。自動生成が見る (ParamTouchWatch が書く)
     ParamTouchLog paramTouches;
 
@@ -225,7 +228,7 @@ public:
     bool browserLengthDotted = false;
     int browserMidiNote = 60;         // C3
     int browserCycles = 1;            // 生成周期 (枠に何周期ぶんを出すか。GuiStageWave::cycleChoices の番号)
-    int browserZoom = 1;              // 表示倍率 (x1〜x8)
+    int browserZoom = 1;              // 表示倍率 (x1〜x32。GenWavePlayer::zoomChoices の値)
     int browserFps = 30;              // 再生の 1 秒あたりのコマ数 (15 / 30 / 60 / 120)
 
     // フォルダを開いたとき、プレビューが揃っていなければ全部を作る (SETTINGS)。既定は切
