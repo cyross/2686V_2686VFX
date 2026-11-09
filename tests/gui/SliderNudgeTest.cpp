@@ -321,8 +321,8 @@ TEST_CASE("グラフの拡大率: 帯のドラッグも Shift / Ctrl で刻み�
 	CHECK(snapWith(MK::ctrlModifier, 3.37) == doctest::Approx(3.0));
 	CHECK(snapWith(MK::ctrlModifier | MK::shiftModifier, 13.7) == doctest::Approx(10.0));
 
-	// 範囲 (1〜32) へ収める
-	CHECK(snapWith(MK::ctrlModifier | MK::shiftModifier, 2.0) == doctest::Approx(1.0));
+	// 範囲 (0.1〜32) へ収める
+	CHECK(snapWith(MK::ctrlModifier | MK::shiftModifier, 2.0) == doctest::Approx(GuiEnvelopeGraph::zoomMin));
 
 	// ドラッグでないとき (数字の打ち込みなど) は、そろえない
 	MK::currentModifiers = MK(MK::ctrlModifier);
@@ -331,8 +331,11 @@ TEST_CASE("グラフの拡大率: 帯のドラッグも Shift / Ctrl で刻み�
 	MK::currentModifiers = saved;
 }
 
-TEST_CASE("グラフの拡大率: 狭い枠でも x1〜x32 のボタンの文字が省略されない")
+TEST_CASE("グラフの拡大率: x0.1〜x32 を選択肢から選べ、初期値は x1 (4.4.1)")
 {
+	CHECK(GuiEnvelopeGraph::zoomMin == doctest::Approx(0.1f));
+	CHECK(GuiEnvelopeGraph::zoomMax == doctest::Approx(32.0f));
+
 	for (int width : { 270, 400, 900 })
 	{
 		INFO("幅 " << width);
@@ -341,25 +344,88 @@ TEST_CASE("グラフの拡大率: 狭い枠でも x1〜x32 のボタンの文字
 		graph.setZoomable(true);
 		graph.setBounds(0, 0, width, 200);
 
-		int checked = 0;
+		// ボタンの列は無く、選択肢の欄が 1 つ
+		juce::ComboBox* box = nullptr;
+		int buttons = 0;
 
 		for (auto* child : graph.getChildren())
 		{
-			auto* b = dynamic_cast<juce::TextButton*>(child);
-
-			if (b == nullptr || !b->getButtonText().startsWith("x")) continue;
-
-			// JUCE は文字の左右に、文字の高さの 6 割ほどを空けて描く
-			const auto font = b->getLookAndFeel().getTextButtonFont(*b, b->getHeight());
-			const float text = juce::GlyphArrangement::getStringWidth(font, b->getButtonText());
-			const int indent = juce::roundToInt(font.getHeight() * 0.6f);
-
-			INFO(b->getButtonText());
-			CHECK((float)b->getWidth() >= text + (float)indent * 2.0f);
-
-			++checked;
+			if (auto* c = dynamic_cast<juce::ComboBox*>(child)) box = c;
+			if (auto* b = dynamic_cast<juce::TextButton*>(child); b != nullptr && b->getButtonText().startsWith("x")) ++buttons;
 		}
 
-		CHECK(checked == 6);
+		CHECK(buttons == 0);
+		REQUIRE(box != nullptr);
+
+		CHECK(box->getNumItems() == (int)GuiZoom::choices.size());
+		CHECK(box->getItemText(0) == "x0.1");
+		CHECK(box->getItemText(1) == "x0.125");
+		CHECK(box->getItemText(2) == "x0.167");
+		CHECK(box->getItemText(box->getNumItems() - 1) == "x32");
+		CHECK(box->getText() == "x1");
+		CHECK(graph.getZoom() == doctest::Approx(1.0f));
+
+		// 欄の中に収まり、枠からはみ出さない
+		CHECK(box->getRight() <= graph.getWidth());
+		CHECK(box->getWidth() >= 50);
+
+		// 選ぶと倍率が変わる。x1 未満も選べる
+		box->setSelectedItemIndex(0, juce::sendNotificationSync);
+		CHECK(graph.getZoom() == doctest::Approx(0.1f));
+
+		box->setSelectedItemIndex(box->getNumItems() - 1, juce::sendNotificationSync);
+		CHECK(graph.getZoom() == doctest::Approx(32.0f));
+
+		// 選択肢に無い値 (つまみで決めた値) は、その値を字で出す
+		graph.setZoom(1.5f);
+		CHECK(box->getText() == "x1.5");
+
+		graph.setZoom(0.05f);
+		CHECK(graph.getZoom() == doctest::Approx(0.1f));
+
+		// 見た目を確かめたいときは、置き場を環境変数で渡すと PNG に書き出す
+		if (const auto dir = juce::SystemStats::getEnvironmentVariable("STAGE_WAVE_SNAPSHOT_DIR", {}); dir.isNotEmpty())
+		{
+			graph.setZoom(1.0f);
+
+			juce::Image image(juce::Image::ARGB, graph.getWidth(), graph.getHeight(), true);
+			{
+				juce::Graphics g(image);
+				g.fillAll(juce::Colour(0xff202020));
+				graph.paintEntireComponent(g, true);
+			}
+
+			auto file = juce::File(dir).getChildFile("graph_zoom_" + juce::String(width) + ".png");
+
+			file.deleteFile();
+
+			juce::FileOutputStream out(file);
+			juce::PNGImageFormat().writeImageToStream(image, out);
+		}
 	}
+}
+
+TEST_CASE("表示倍率の選択肢: 寄せ・送り・字 (4.4.1)")
+{
+	CHECK(GuiZoom::choices.size() == 30);
+	CHECK(GuiZoom::choices.front() == doctest::Approx(0.1f));
+	CHECK(GuiZoom::choices.back() == doctest::Approx(32.0f));
+
+	CHECK(GuiZoom::snap(1.0f) == doctest::Approx(1.0f));
+	CHECK(GuiZoom::snap(0.12f) == doctest::Approx(0.125f));
+	CHECK(GuiZoom::snap(0.92f) == doctest::Approx(0.9f));
+	CHECK(GuiZoom::snap(0.96f) == doctest::Approx(1.0f));
+	CHECK(GuiZoom::snap(100.0f) == doctest::Approx(32.0f));
+	CHECK(GuiZoom::snap(0.0f) == doctest::Approx(1.0f));
+
+	CHECK(GuiZoom::step(1.0f, -1) == doctest::Approx(0.9f));
+	CHECK(GuiZoom::step(0.9f, 1) == doctest::Approx(1.0f));
+	CHECK(GuiZoom::step(0.1f, -1) == doctest::Approx(0.1f));
+	CHECK(GuiZoom::step(32.0f, 1) == doctest::Approx(32.0f));
+
+	CHECK(GuiZoom::label(0.1f) == "x0.1");
+	CHECK(GuiZoom::label(0.333f) == "x0.333");
+	CHECK(GuiZoom::label(0.5f) == "x0.5");
+	CHECK(GuiZoom::label(1.0f) == "x1");
+	CHECK(GuiZoom::label(24.0f) == "x24");
 }

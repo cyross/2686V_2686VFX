@@ -36,6 +36,19 @@ namespace EditorGuiText
 		static inline const I18n::Text bulkDelete{ u8"プレビューを消す", u8"Delete all previews" };
 		static inline const I18n::Text working{ u8"波形を作っています", u8"Building the waveform" };
 		static inline const I18n::Text noPreview{ u8"未生成", u8"Not built" };
+
+		// 行のプレビューの作り方と見せ方 (4.4.1)。全フォルダ共通
+		static inline const I18n::Text customTempo{ u8"テンポ", u8"Tempo" };
+		static inline const I18n::Text customFollowDaw{ u8"DAW同期", u8"DAW sync" };
+		static inline const I18n::Text customFollowDawTooltip{ u8"作るときの DAW のテンポと拍子を使います。スタンドアロンでは使えません。", u8"Uses the DAW's tempo and time signature when building. Not available in the standalone app." };
+		static inline const I18n::Text customBars{ u8"小節", u8"Bars" };
+		static inline const I18n::Text customInterval{ u8"キーオン周期", u8"Key-on interval" };
+		static inline const I18n::Text customLength{ u8"音符長", u8"Note length" };
+		static inline const I18n::Text customKey{ u8"キー", u8"Key" };
+		static inline const I18n::Text customCycles{ u8"生成周期", u8"Cycles" };
+		static inline const I18n::Text customZoom{ u8"表示倍率", u8"Zoom" };
+		static inline const I18n::Text customFps{ u8"FPS", u8"FPS" };
+		static inline const I18n::Text customTooltip{ u8"行のプレビューの作り方 (テンポ〜キー) と見せ方 (生成周期〜FPS)。全フォルダで共通です。作り方を変えると、その作り方で作ったプレビューに切り替わります (無ければ未生成)。", u8"How row previews are built (Tempo to Key) and shown (Cycles to FPS). Shared by every folder. Changing how they are built switches to previews built that way (Not built if there are none)." };
 		static inline const I18n::Text empty{ u8"見つかりませんでした", u8"Nothing found" };
 		static inline const I18n::Text folderTitle{ u8"パラメータファイルのフォルダを選ぶ", u8"Choose a folder for parameter files" };
 
@@ -59,8 +72,15 @@ namespace EditorGuiText
 		static inline const I18n::Text search{ u8"検索", u8"Search" };
 
 		// 一覧のプレビューをまとめて止める・動かす
+		// ボタンは記号 (4.4.1)。言葉は吹き出しに出す
 		static inline const I18n::Text pauseAll{ u8"すべて停止", u8"Pause all" };
 		static inline const I18n::Text playAll{ u8"すべて再生", u8"Play all" };
+		static inline const I18n::Text pauseAllIcon{ u8"■", u8"■" };
+		static inline const I18n::Text playAllIcon{ u8"▶", u8"▶" };
+
+		// 全部のプレビューを頭へ戻す (4.4.1)
+		static inline const I18n::Text rewindAllIcon{ u8"<<", u8"<<" };
+		static inline const I18n::Text rewindAll{ u8"すべて先頭へ", u8"Rewind all" };
 
 		static inline const I18n::Text saveName{ u8"名前", u8"Name" };
 		static inline const I18n::Text save{ u8"保存", u8"Save" };

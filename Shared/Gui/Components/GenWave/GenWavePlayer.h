@@ -1,10 +1,12 @@
 ﻿#pragma once
 
+#include <array>
 #include <functional>
 
 #include <JuceHeader.h>
 
 #include "./GenWaveRender.h"
+#include "Shared/Core/Gui/GuiZoom.h"
 
 // ============================================================================
 // 生成波形の再生の操作
@@ -25,15 +27,13 @@
 class GenWavePlayer
 {
 public:
-    // 縦の拡大率。x1〜x8。
-    static constexpr int zoomMin = 1;
-    static constexpr int zoomMax = 8;
+    // 縦の拡大率は x0.1〜x32 (4.4.1)。選べるのは GuiZoom::choices の値
 
     // 操作の段の高さ
     static constexpr int height = 20;
 
     // 拡大率の欄の幅
-    static constexpr int zoomBoxWidth = 44;
+    static constexpr int zoomBoxWidth = 58;
 
     // 押された先
     enum class Hit { none = 0, handled = 1, zoomMenu = 2, frameInput = 3 };
@@ -70,8 +70,8 @@ public:
     // そのコマで止める。番号は 0 から。打ち込んだ番号を当てるときに使う。
     void showFrame(const GenWaveRender::Wave& wave, int target, double nowMs);
 
-    int zoom() const { return m_zoom; }
-    void setZoom(int value) { m_zoom = juce::jlimit(zoomMin, zoomMax, value); }
+    float zoom() const { return m_zoom; }
+    void setZoom(float value) { m_zoom = GuiZoom::snap(value); }
 
     // 拡大率の欄を段の右端に置くか (既定は置く)。置かないときは、持ち主が
     // 好きな場所へ drawZoom で描き、押されたら showZoomMenuAt で選択肢を出す。
@@ -117,11 +117,11 @@ public:
     // この再生の持ち主が消えていることがある。値を当てる先は呼ぶ側が
     // 探し直すこと。
     static void showZoomMenu(juce::Component& owner, juce::Rectangle<int> area,
-        int current, std::function<void(int)> apply);
+        float current, std::function<void(float)> apply);
 
     // 拡大率の欄そのもの (box) の下へ選択肢を出す
     static void showZoomMenuAt(juce::Component& owner, juce::Rectangle<int> box,
-        int current, std::function<void(int)> apply);
+        float current, std::function<void(float)> apply);
 
     // コマの番号を打ち込む欄を、シークバーの下へ出す。横に全コマ数を添える。
     //
@@ -137,7 +137,7 @@ private:
     double m_startMs = 0.0;
     bool m_paused = false;
     int m_pausedFrame = 0;
-    int m_zoom = zoomMin;
+    float m_zoom = GuiZoom::initial;
     bool m_dragging = false;
     bool m_zoomInRow = true;
     bool m_loopInRow = false;

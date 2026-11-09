@@ -140,16 +140,8 @@ namespace
     constexpr int zoomBarHeight = 8;
     constexpr int zoomRowHeight = 16;
 
-    constexpr std::array<float, 6> zoomPresets = { 1.0f, 2.0f, 4.0f, 8.0f, 16.0f, 32.0f };
-
-    // x1〜x32 のボタン 1 個の幅。広い枠ではこの幅、狭い枠では文字が収まる幅まで詰める
-    constexpr int zoomButtonWidth = 30;
-
-    // 文字の左右に要る余白 (JUCE がボタンの文字の左右へ空けるぶんと、並べるときの隙間)
-    constexpr int zoomButtonTextPadding = 16;
-
-    // 拡大率のつまみに残す幅の下限 (数値の枠と帯)
-    constexpr int zoomSliderMinWidth = 100;
+    // 選択肢の欄の幅 (「x0.125」と ▼ が収まる幅)
+    constexpr int zoomBoxWidth = 74;
 }
 
 double GuiZoomSlider::align(double value, double step, double lo, double hi)
@@ -178,31 +170,33 @@ void GuiEnvelopeGraph::setZoomable(bool z)
         scrollBar.addListener(this);
         addAndMakeVisible(scrollBar);
 
-        zoomSlider.setRange(zoomMin, zoomMax, 0.01);
-        zoomSlider.setSkewFactorFromMidPoint(4.0);
-        zoomSlider.setNumDecimalPlacesToDisplay(2);
-        zoomSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 44, zoomRowHeight);
+        // x1 がつまみの真ん中に来るように
+        zoomSlider.setRange(zoomMin, zoomMax, 0.001);
+        zoomSlider.setSkewFactorFromMidPoint(1.0);
+        zoomSlider.setNumDecimalPlacesToDisplay(3);
+        zoomSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 48, zoomRowHeight);
         zoomSlider.setValue(zoom, juce::dontSendNotification);
         zoomSlider.onValueChange = [this] { setZoom((float)zoomSlider.getValue()); };
         addAndMakeVisible(zoomSlider);
 
-        for (size_t i = 0; i < zoomButtons.size(); ++i) {
-            auto& b = zoomButtons[i];
-            const float value = zoomPresets[i];
-
-            b.setButtonText("x" + juce::String((int)value));
-            b.onClick = [this, value] { setZoom(value); };
-            addAndMakeVisible(b);
+        // 選択肢 (4.4.1 でボタンの列から変えた)。項目の番号は選択肢の番号 + 1
+        if (zoomBox.getNumItems() == 0) {
+            for (int i = 0; i < (int)GuiZoom::choices.size(); ++i) zoomBox.addItem(GuiZoom::label(GuiZoom::choices[(size_t)i]), i + 1);
         }
+
+        zoomBox.onChange = [this] {
+            if (zoomBox.getSelectedId() > 0) setZoom(GuiZoom::choices[(size_t)(zoomBox.getSelectedId() - 1)]);
+        };
+        addAndMakeVisible(zoomBox);
+        syncZoomBox();
     }
     else {
         scrollBar.removeListener(this);
         removeChildComponent(&scrollBar);
         removeChildComponent(&zoomSlider);
+        removeChildComponent(&zoomBox);
 
-        for (auto& b : zoomButtons) removeChildComponent(&b);
-
-        zoom = 1.0f;
+        zoom = GuiZoom::initial;
         scroll = 0.0f;
     }
 
@@ -227,8 +221,18 @@ void GuiEnvelopeGraph::setZoom(float z)
     scroll = newOverflow > 0.0f ? juce::jlimit(0.0f, 1.0f, (centre * view * zoom - view * 0.5f) / newOverflow) : 0.0f;
 
     zoomSlider.setValue(zoom, juce::dontSendNotification);
+    syncZoomBox();
 
     repaint();
+}
+
+void GuiEnvelopeGraph::syncZoomBox()
+{
+    const int index = GuiZoom::nearestIndex(zoom);
+
+    // 選択肢と同じ値なら選んだ形に、つまみで半端な値にしたときはその値を字で出す
+    if (std::abs(GuiZoom::choices[(size_t)index] - zoom) < 1.0e-4f) zoomBox.setSelectedId(index + 1, juce::dontSendNotification);
+    else zoomBox.setText(GuiZoom::label(zoom), juce::dontSendNotification);
 }
 
 juce::Rectangle<int> GuiEnvelopeGraph::graphBounds() const
@@ -249,44 +253,9 @@ void GuiEnvelopeGraph::resized()
 
     scrollBar.setBounds(r.removeFromBottom(zoomBarHeight).reduced(5, 0));
 
-    // 左に拡大率のつまみ、右に x1〜x32 のボタン。
-    //
-    // ボタンは文字が収まる幅を取る。行の半分を等分していたころは、狭い枠
-    // (グローバルのグラフ) で x16 / x32 が「x...」と省略されていた。
-    std::array<int, std::tuple_size_v<decltype(zoomButtons)>> widths{};
-
-    int needed = 0;
-    int preferred = 0;
-
-    for (size_t i = 0; i < zoomButtons.size(); ++i) {
-        auto& b = zoomButtons[i];
-        const auto font = b.getLookAndFeel().getTextButtonFont(b, zoomRowHeight);
-
-        widths[i] = (int)std::ceil(juce::GlyphArrangement::getStringWidth(font, b.getButtonText())) + zoomButtonTextPadding;
-
-        needed += widths[i];
-        preferred += juce::jmax(widths[i], zoomButtonWidth);
-    }
-
-    const int room = juce::jmax(0, row.getWidth() - zoomSliderMinWidth);
-
-    // 場所があれば揃いの幅にする。無ければ文字が収まる幅、それでも足りなければ縮める
-    if (preferred <= room) {
-        for (auto& w : widths) w = juce::jmax(w, zoomButtonWidth);
-    }
-    else if (needed > room && needed > 0) {
-        for (auto& w : widths) w = w * room / needed;
-    }
-
-    int total = 0;
-
-    for (auto w : widths) total += w;
-
-    auto buttons = row.removeFromRight(total);
-
+    // 左に拡大率のつまみ、右に選択肢の欄
+    zoomBox.setBounds(row.removeFromRight(juce::jmin(zoomBoxWidth, row.getWidth() / 2)).reduced(1, 0));
     zoomSlider.setBounds(row.reduced(4, 0));
-
-    for (size_t i = 0; i < zoomButtons.size(); ++i) zoomButtons[i].setBounds(buttons.removeFromLeft(widths[i]).reduced(1, 0));
 }
 
 void GuiEnvelopeGraph::syncScrollBar()
@@ -296,7 +265,8 @@ void GuiEnvelopeGraph::syncScrollBar()
     const juce::ScopedValueSetter<bool> guard(isSyncingScrollBar, true);
 
     const double view = juce::jmax(1.0f, lastViewW);
-    const double total = view * zoom;
+    // x1 より小さいときは送るものが無い
+    const double total = view * juce::jmax(1.0f, zoom);
 
     scrollBar.setRangeLimits(0.0, total, juce::dontSendNotification);
     scrollBar.setCurrentRange((total - view) * scroll, view, juce::dontSendNotification);

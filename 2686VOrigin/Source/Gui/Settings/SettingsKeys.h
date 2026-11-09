@@ -73,6 +73,27 @@ namespace SettingsKey
 	static inline const juce::String stageReleaseTail = "stageReleaseTail";
 	static inline const juce::String stageBeatDiv = "stageBeatDiv";
 	static inline const juce::String stageBeatCount = "stageBeatCount";
+
+	// 生成過程プレビューの自動生成 (4.4.1)
+	static inline const juce::String stageAutoGenerate = "stageAutoGenerate";
+	static inline const juce::String stageAutoInterval = "stageAutoInterval";
+	static inline const juce::String stageAlwaysOnTop = "stageAlwaysOnTop";
+
+	// ファイルブラウザーの行のプレビューの作り方・見せ方と自動生成 (4.4.1)。全フォルダ共通
+	static inline const juce::String browserBpm = "browserBpm";
+	static inline const juce::String browserFollowDaw = "browserFollowDaw";
+	static inline const juce::String browserBars = "browserBars";
+	static inline const juce::String browserIntervalDiv = "browserIntervalDiv";
+	static inline const juce::String browserIntervalTriplet = "browserIntervalTriplet";
+	static inline const juce::String browserIntervalDotted = "browserIntervalDotted";
+	static inline const juce::String browserLengthDiv = "browserLengthDiv";
+	static inline const juce::String browserLengthTriplet = "browserLengthTriplet";
+	static inline const juce::String browserLengthDotted = "browserLengthDotted";
+	static inline const juce::String browserMidiNote = "browserMidiNote";
+	static inline const juce::String browserCycles = "browserCycles";
+	static inline const juce::String browserZoom = "browserZoom";
+	static inline const juce::String browserFps = "browserFps";
+	static inline const juce::String browserAutoGenerate = "browserAutoGenerate";
 	static inline const juce::String showVirtualKeyboard = "showVirtualKeyboard";
 	static inline const juce::String fmParameterCopyType = "fmParameterCopyType";
 	static inline const juce::String fxOrder = "fxOrder";

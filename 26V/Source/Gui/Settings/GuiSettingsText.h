@@ -49,6 +49,11 @@ namespace SettingsGuiText
 	static inline const I18n::Text levelMeterStyle{ u8"表示", u8"Style" };
 	static inline const I18n::Text levelMeterBands{ u8"帯の数", u8"Bands" };
 	static inline const I18n::Text levelMeterPeakHold{ u8"ピークホールド", u8"Peak hold" };
+	static inline const I18n::Text stageAutoGenerate{ u8"生成過程プレビューを自動で作る (窓を開いているとき)", u8"Auto-generate the build process preview (while its window is open)" };
+	static inline const I18n::Text stageAutoInterval{ u8"待ち時間", u8"Wait" };
+	static inline const I18n::Text stageAutoIntervalUnit{ u8" 秒", u8" s" };
+	static inline const I18n::Text stageAlwaysOnTop{ u8"生成過程プレビューの窓を必ず最前面にする", u8"Keep the build process preview window always on top" };
+	static inline const I18n::Text browserAutoGenerate{ u8"ファイルブラウザーでフォルダを開いたとき、プレビューが揃っていなければ全部を自動で作る", u8"When the file browser opens a folder, build all previews if any are missing" };
 	static inline const I18n::Text liveGraphFps{ u8"速さ", u8"Rate" };
 	static inline const I18n::Text liveDetune{ u8"MUL/DET・FIX を鳴らしながら反映", u8"Apply MUL/DET and FIX while notes play" };
 	static inline const I18n::Text showVirtualKeyboard{ u8"仮想MIDIキーボード表示", u8"Show the virtual MIDI keyboard" };

@@ -9,6 +9,7 @@
 
 #include "./GuiToggleAlign.h"
 #include "./GuiLiveGraph.h"
+#include "./GuiParamTouch.h"
 #include "../Synth/WtModWave.h"
 #include "../Synth/StepTable.h"
 #include "../Synth/StepTableUndo.h"
@@ -196,6 +197,42 @@ public:
     bool stageReleaseTail = true;     // 最後に離したあとの余韻 (リリース) まで作るか。切ると打鍵の並びの長さで切る
     int stageBeatDiv = 4;             // 1 小節の拍の音符 (4 = 4 分音符, 8 = 8 分音符)
     int stageBeatCount = 4;           // 1 小節の拍の数 (1〜12)
+
+    // ---- 生成過程プレビューの自動生成 (4.4.1)。窓が開いているあいだ、パラメータを触り終えて
+    // stageAutoInterval 秒たったら作る。窓を開いたときは、触った履歴があればすぐ作る
+    static constexpr float stageAutoIntervalMin = 0.1f;
+    static constexpr float stageAutoIntervalMax = 5.0f;
+    bool stageAutoGenerate = true;
+    float stageAutoInterval = 1.0f;   // 秒 (0.1〜5.0)
+
+    // 生成過程プレビューの窓を必ず最前面にする (SETTINGS。4.4.1。既定は切)
+    bool stageAlwaysOnTop = false;
+
+    // パラメータを触った履歴。自動生成が見る (ParamTouchWatch が書く)
+    ParamTouchLog paramTouches;
+
+    // 起動してから、生成過程プレビューの窓を自動生成で開いたか。保存しない。
+    // 起動して最初に開いたときは、触った履歴が無くても (初期値のままでも) 作る
+    bool stageOpenedOnce = false;
+
+    // ---- ファイルブラウザーの行のプレビュー (4.4.1。GuiParamBrowser)。全フォルダ共通で、設定ファイルへ保存する。
+    // 作り方 (打鍵の並び) は生成過程プレビューと同じ形で、値は別に持つ。拍子は 4/4 (DAW 同期なら DAW の拍子)
+    float browserBpm = 120.0f;
+    bool browserFollowDaw = false;    // 作るときの DAW のテンポ・拍子を使う
+    int browserBars = 1;              // 1〜16 小節
+    int browserIntervalDiv = 4;       // キーオン周期 (押す間隔)。既定は 4 分音符
+    bool browserIntervalTriplet = false;
+    bool browserIntervalDotted = false;
+    int browserLengthDiv = 4;         // 音符長 (押している長さ)。既定は 4 分音符
+    bool browserLengthTriplet = false;
+    bool browserLengthDotted = false;
+    int browserMidiNote = 60;         // C3
+    int browserCycles = 1;            // 生成周期 (枠に何周期ぶんを出すか。GuiStageWave::cycleChoices の番号)
+    float browserZoom = 1.0f;         // 表示倍率 (x0.1〜x32。GuiZoom::choices の値)
+    int browserFps = 30;              // 再生の 1 秒あたりのコマ数 (15 / 30 / 60 / 120)
+
+    // フォルダを開いたとき、プレビューが揃っていなければ全部を作る (SETTINGS)。既定は切
+    bool browserAutoGenerate = false;
 
     // DAW のテンポと拍子。音の側が書き、「生成」を押したときに画面が読む。0 なら分からない
     std::atomic<double> hostBpm{ 0.0 };

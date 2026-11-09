@@ -1,12 +1,15 @@
 ﻿#include "./ParamBrowser.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <memory>
 #include <vector>
 
 #include "../StageWave/StageWave.h"
+#include "../StageWave/StageWaveRender.h"
+#include "Shared/Core/Editor/EditorStageWaveText.h"
 #include "Shared/Core/Editor/EditorParamBrowserText.h"
 #include "Shared/Core/Editor/EditorGenWaveText.h"
 #include "Shared/Core/Gui/GuiColor.h"
@@ -140,6 +143,344 @@ GuiParamBrowser::GuiParamBrowser(const GuiContext& context) : ctx(context)
 {
     setInterceptsMouseClicks(true, true);
     setVisible(false);
+
+    setupCustomControls();
+}
+
+// ----------------------------------------------------------------------------
+// 作り方・見せ方の行 (4.4.1)
+// ----------------------------------------------------------------------------
+namespace
+{
+    juce::String noteName(int note)
+    {
+        return juce::MidiMessage::getMidiNoteName(note, true, true, 3);
+    }
+
+    // 音符の名前と番号は生成過程プレビューと共通
+    juce::String divisionName(int division) { return GuiStageWave::divisionName(division); }
+    int divisionIndex(int division) { return GuiStageWave::divisionIndex(division); }
+
+    constexpr std::array<int, 4> browserFpsChoices{ 15, 30, 60, 120 };
+
+    void styleLabel(juce::Label& label, const juce::String& text)
+    {
+        label.setText(text, juce::dontSendNotification);
+        label.setFont(juce::FontOptions(12.0f));
+        label.setJustificationType(juce::Justification::centredLeft);
+        label.setMinimumHorizontalScale(1.0f);
+    }
+}
+
+void GuiParamBrowser::setupCustomControls()
+{
+    auto& host = ctx.audioProcessor;
+
+    // ---- テンポ (DAW 同期も可)
+    styleLabel(tempoLabel, EditorGuiText::ParamBrowser::customTempo);
+    addAndMakeVisible(tempoLabel);
+
+    tempoSlider.setSliderStyle(juce::Slider::IncDecButtons);
+    tempoSlider.setTextBoxStyle(juce::Slider::TextBoxLeft, false, 52, 18);
+    tempoSlider.setRange(20.0, 300.0, 0.1);
+    tempoSlider.setNumDecimalPlacesToDisplay(1);
+    tempoSlider.onValueChange = [this] {
+        ctx.audioProcessor.browserBpm = (float)tempoSlider.getValue();
+        patternChanged();
+    };
+    addAndMakeVisible(tempoSlider);
+
+    followDawToggle.setButtonText(EditorGuiText::ParamBrowser::customFollowDaw);
+    followDawToggle.setTooltip(EditorGuiText::ParamBrowser::customFollowDawTooltip);
+    followDawToggle.setEnabled(!juce::JUCEApplicationBase::isStandaloneApp());
+    followDawToggle.onClick = [this] {
+        ctx.audioProcessor.browserFollowDaw = followDawToggle.getToggleState();
+        tempoSlider.setEnabled(!ctx.audioProcessor.browserFollowDaw || juce::JUCEApplicationBase::isStandaloneApp());
+        patternChanged();
+    };
+    addAndMakeVisible(followDawToggle);
+
+    // ---- 小節
+    styleLabel(barsLabel, EditorGuiText::ParamBrowser::customBars);
+    addAndMakeVisible(barsLabel);
+
+    for (int i = 1; i <= 16; ++i) barsBox.addItem(juce::String(i), i);
+
+    barsBox.onChange = [this] {
+        ctx.audioProcessor.browserBars = juce::jlimit(1, 16, barsBox.getSelectedId());
+        patternChanged();
+    };
+    addAndMakeVisible(barsBox);
+
+    // ---- キーオン周期と音符長 (3 連符・付点は既定で切)
+    setupNoteControls(intervalControls, EditorGuiText::ParamBrowser::customInterval,
+        host.browserIntervalDiv, host.browserIntervalTriplet, host.browserIntervalDotted);
+    setupNoteControls(lengthControls, EditorGuiText::ParamBrowser::customLength,
+        host.browserLengthDiv, host.browserLengthTriplet, host.browserLengthDotted);
+
+    // ---- キー (既定は C3)
+    styleLabel(keyLabel, EditorGuiText::ParamBrowser::customKey);
+    addAndMakeVisible(keyLabel);
+
+    keySlider.setSliderStyle(juce::Slider::LinearHorizontal);
+    keySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 48, 18);
+    keySlider.setRange(0.0, 127.0, 1.0);
+    keySlider.textFromValueFunction = [](double v) { return noteName((int)v); };
+    keySlider.valueFromTextFunction = [](const juce::String& text) {
+        for (int n = 0; n < 128; ++n) {
+            if (noteName(n).equalsIgnoreCase(text.trim())) return (double)n;
+        }
+
+        return (double)text.getIntValue();
+    };
+    keySlider.setDoubleClickReturnValue(true, 60.0);
+    keySlider.onValueChange = [this] {
+        ctx.audioProcessor.browserMidiNote = (int)keySlider.getValue();
+        patternChanged();
+    };
+    addAndMakeVisible(keySlider);
+
+    // ---- 生成周期 (枠に何周期ぶんを出すか)
+    styleLabel(cyclesLabel, EditorGuiText::ParamBrowser::customCycles);
+    addAndMakeVisible(cyclesLabel);
+
+    for (int i = 0; i < (int)GuiStageWave::cycleChoices.size(); ++i)
+        cyclesBox.addItem(juce::String(GuiStageWave::cycleChoices[(size_t)i]), i + 1);
+
+    cyclesBox.onChange = [this] {
+        if (cyclesBox.getSelectedId() > 0) ctx.audioProcessor.browserCycles = cyclesBox.getSelectedId() - 1;
+
+        repaint(listArea());
+    };
+    addAndMakeVisible(cyclesBox);
+
+    // ---- 表示倍率 (全部の行へ当てる。行ごとの欄でも変えられる)
+    styleLabel(zoomLabel, EditorGuiText::ParamBrowser::customZoom);
+    addAndMakeVisible(zoomLabel);
+
+    // 項目の番号は選択肢の番号 + 1
+    for (int i = 0; i < (int)GuiZoom::choices.size(); ++i) zoomBox.addItem(GuiZoom::label(GuiZoom::choices[(size_t)i]), i + 1);
+
+    zoomBox.onChange = [this] {
+        if (zoomBox.getSelectedId() > 0) ctx.audioProcessor.browserZoom = GuiZoom::choices[(size_t)(zoomBox.getSelectedId() - 1)];
+
+        applyPlayerSettingsToAll(false);
+    };
+    addAndMakeVisible(zoomBox);
+
+    // ---- FPS
+    styleLabel(fpsLabel, EditorGuiText::ParamBrowser::customFps);
+    addAndMakeVisible(fpsLabel);
+
+    for (int f : browserFpsChoices) fpsBox.addItem(juce::String(f), f);
+
+    fpsBox.onChange = [this] {
+        if (fpsBox.getSelectedId() > 0) ctx.audioProcessor.browserFps = fpsBox.getSelectedId();
+
+        applyPlayerSettingsToAll(true);
+    };
+    addAndMakeVisible(fpsBox);
+
+    for (auto* label : { &tempoLabel, &barsLabel, &intervalControls.label, &lengthControls.label, &keyLabel, &cyclesLabel, &zoomLabel, &fpsLabel })
+        label->setTooltip(EditorGuiText::ParamBrowser::customTooltip);
+}
+
+void GuiParamBrowser::setupNoteControls(NoteControls& c, const juce::String& title, int& division, bool& triplet, bool& dotted)
+{
+    styleLabel(c.label, title);
+    addAndMakeVisible(c.label);
+
+    for (int i = 0; i < (int)StageWaveRender::divisions.size(); ++i) {
+        c.division.addItem(divisionName(StageWaveRender::divisions[(size_t)i]), i + 1);
+    }
+
+    c.division.onChange = [this, &c, &division] {
+        const int index = c.division.getSelectedItemIndex();
+
+        if (index >= 0) division = StageWaveRender::divisions[(size_t)index];
+
+        patternChanged();
+    };
+    addAndMakeVisible(c.division);
+
+    c.triplet.setButtonText(EditorGuiText::StageWave::triplet);
+    c.triplet.onClick = [this, &c, &triplet] {
+        triplet = c.triplet.getToggleState();
+        patternChanged();
+    };
+    addAndMakeVisible(c.triplet);
+
+    c.dotted.setButtonText(EditorGuiText::StageWave::dotted);
+    c.dotted.onClick = [this, &c, &dotted] {
+        dotted = c.dotted.getToggleState();
+        patternChanged();
+    };
+    addAndMakeVisible(c.dotted);
+}
+
+// 設定ファイルの値を画面へ映す (開くたび)
+void GuiParamBrowser::syncCustomFromHost()
+{
+    auto& host = ctx.audioProcessor;
+
+    host.browserBars = juce::jlimit(1, 16, host.browserBars);
+    host.browserMidiNote = juce::jlimit(0, 127, host.browserMidiNote);
+    host.browserCycles = juce::jlimit(0, (int)GuiStageWave::cycleChoices.size() - 1, host.browserCycles);
+    host.browserZoom = GuiZoom::snap(host.browserZoom);
+    host.browserIntervalDiv = StageWaveRender::divisions[(size_t)divisionIndex(host.browserIntervalDiv)];
+    host.browserLengthDiv = StageWaveRender::divisions[(size_t)divisionIndex(host.browserLengthDiv)];
+
+    if (std::find(browserFpsChoices.begin(), browserFpsChoices.end(), host.browserFps) == browserFpsChoices.end()) host.browserFps = 30;
+
+    const bool standalone = juce::JUCEApplicationBase::isStandaloneApp();
+
+    tempoSlider.setValue(juce::jlimit(20.0, 300.0, (double)host.browserBpm), juce::dontSendNotification);
+    followDawToggle.setToggleState(host.browserFollowDaw && !standalone, juce::dontSendNotification);
+    tempoSlider.setEnabled(!(host.browserFollowDaw && !standalone));
+    barsBox.setSelectedId(host.browserBars, juce::dontSendNotification);
+
+    intervalControls.division.setSelectedItemIndex(divisionIndex(host.browserIntervalDiv), juce::dontSendNotification);
+    intervalControls.triplet.setToggleState(host.browserIntervalTriplet, juce::dontSendNotification);
+    intervalControls.dotted.setToggleState(host.browserIntervalDotted, juce::dontSendNotification);
+
+    lengthControls.division.setSelectedItemIndex(divisionIndex(host.browserLengthDiv), juce::dontSendNotification);
+    lengthControls.triplet.setToggleState(host.browserLengthTriplet, juce::dontSendNotification);
+    lengthControls.dotted.setToggleState(host.browserLengthDotted, juce::dontSendNotification);
+
+    keySlider.setValue(host.browserMidiNote, juce::dontSendNotification);
+    cyclesBox.setSelectedId(host.browserCycles + 1, juce::dontSendNotification);
+    zoomBox.setSelectedId(GuiZoom::nearestIndex(host.browserZoom) + 1, juce::dontSendNotification);
+    fpsBox.setSelectedId(host.browserFps, juce::dontSendNotification);
+}
+
+// 色を部品へ写す。COLORS で変えたあとも、次に開いたときに映る
+void GuiParamBrowser::applyCustomColours()
+{
+    for (auto* label : { &tempoLabel, &barsLabel, &intervalControls.label, &lengthControls.label, &keyLabel, &cyclesLabel, &zoomLabel, &fpsLabel })
+        label->setColour(juce::Label::textColourId, GuiColor::ParamBrowser::LabelText);
+
+    for (auto* box : { &barsBox, &intervalControls.division, &lengthControls.division, &cyclesBox, &zoomBox, &fpsBox })
+    {
+        box->setColour(juce::ComboBox::backgroundColourId, GuiColor::ParamBrowser::FieldBg);
+        box->setColour(juce::ComboBox::textColourId, GuiColor::ParamBrowser::Text);
+        box->setColour(juce::ComboBox::outlineColourId, GuiColor::ParamBrowser::Border);
+        box->setColour(juce::ComboBox::arrowColourId, GuiColor::ParamBrowser::Text);
+    }
+
+    for (auto* slider : { &tempoSlider, &keySlider })
+    {
+        slider->setColour(juce::Slider::textBoxBackgroundColourId, GuiColor::ParamBrowser::FieldBg);
+        slider->setColour(juce::Slider::textBoxTextColourId, GuiColor::ParamBrowser::Text);
+        slider->setColour(juce::Slider::textBoxOutlineColourId, GuiColor::ParamBrowser::Border);
+        slider->setColour(juce::Slider::backgroundColourId, GuiColor::ParamBrowser::FieldBg);
+        slider->setColour(juce::Slider::trackColourId, GuiColor::GenWave::WindowControlAccent);
+        slider->setColour(juce::Slider::thumbColourId, GuiColor::GenWave::WindowControlAccent);
+    }
+
+    for (auto* t : { &followDawToggle, &intervalControls.triplet, &intervalControls.dotted, &lengthControls.triplet, &lengthControls.dotted })
+    {
+        t->setColour(juce::ToggleButton::textColourId, GuiColor::ParamBrowser::Text);
+        t->setColour(juce::ToggleButton::tickColourId, GuiColor::GenWave::WindowControlAccent);
+        t->setColour(juce::ToggleButton::tickDisabledColourId, GuiColor::ParamBrowser::Border);
+    }
+}
+
+juce::String GuiParamBrowser::currentPatternKey() const
+{
+    return StageWaveRender::patternKey(StageWaveRender::browserPattern(ctx.audioProcessor));
+}
+
+juce::File GuiParamBrowser::cacheFileOf(const Item& item) const
+{
+    return GenWaveRender::cacheFileFor(GenWaveRender::cacheDirectory(ctx.audioProcessor), item.file, currentPatternKey());
+}
+
+void GuiParamBrowser::patternChanged()
+{
+    // 作りかけのものは、作り始めたときの作り方で貯まる。終わってから読み直す
+    if (m_busy) return;
+
+    m_previewOrder.clear();
+
+    for (auto& item : m_items)
+    {
+        if (item.isFolder || item.kind != Kind::param) continue;
+
+        item.wave = {};
+        item.hasWave = false;
+        item.previewLoaded = false;
+    }
+
+    repaint();
+}
+
+void GuiParamBrowser::applyPlayerSettings(Item& item, double nowMs, bool fpsChanged)
+{
+    const auto& host = ctx.audioProcessor;
+
+    item.player.setZoom(host.browserZoom);
+
+    if (!fpsChanged) return;
+
+    const bool paused = item.player.isPaused();
+
+    item.player.setFramesPerSecond(host.browserFps);
+
+    // コマの番号が変わるので、頭から数え直す
+    item.player.restart(nowMs);
+
+    if (paused || m_allPaused) item.player.pause(timelineOf(item), nowMs);
+}
+
+void GuiParamBrowser::applyPlayerSettingsToAll(bool fpsChanged)
+{
+    const double nowMs = juce::Time::getMillisecondCounterHiRes();
+
+    for (auto& item : m_items)
+        if (!item.isFolder) applyPlayerSettings(item, nowMs, fpsChanged);
+
+    repaint(listArea());
+}
+
+bool GuiParamBrowser::needsAutoGenerate() const
+{
+    if (!ctx.audioProcessor.browserAutoGenerate) return false;
+
+    const auto dir = GenWaveRender::cacheDirectory(ctx.audioProcessor);
+    const auto key = currentPatternKey();
+
+    for (const auto& item : m_items)
+    {
+        if (item.isFolder || item.kind != Kind::param) continue;
+
+        if (!GenWaveRender::cacheFileFor(dir, item.file, key).existsAsFile()) return true;
+    }
+
+    return false;
+}
+
+void GuiParamBrowser::autoGenerateIfNeeded()
+{
+    if (m_busy || !needsAutoGenerate()) return;
+
+    // 一覧を出してから作り始める
+    juce::Component::SafePointer<GuiParamBrowser> safe(this);
+
+    juce::MessageManager::callAsync([safe] {
+        if (safe == nullptr || !safe->isVisible() || safe->m_busy || !safe->needsAutoGenerate()) return;
+
+        // 一部だけ出来ていても、このフォルダの全部を作り直す
+        std::vector<int> targets;
+
+        for (int i = 0; i < (int)safe->m_items.size(); ++i)
+        {
+            const auto& item = safe->m_items[(size_t)i];
+
+            if (!item.isFolder && item.kind == Kind::param) targets.push_back(i);
+        }
+
+        safe->startGenerate(targets);
+    });
 }
 
 GuiParamBrowser::~GuiParamBrowser()
@@ -249,6 +590,15 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     updatePlayAllText();
     addAndMakeVisible(playAllBtn);
 
+    // 全部のプレビューを頭へ戻す。止めているものは止めたまま頭のコマを出す
+    rewindAllBtn.setButtonText(EditorGuiText::ParamBrowser::rewindAllIcon);
+    rewindAllBtn.setTooltip(EditorGuiText::ParamBrowser::rewindAll);
+    rewindAllBtn.setColour(juce::TextButton::buttonColourId, GuiColor::GenWave::GenerateBg);
+    rewindAllBtn.setColour(juce::TextButton::textColourOffId, GuiColor::GenWave::GenerateText);
+    rewindAllBtn.setColour(juce::TextButton::textColourOnId, GuiColor::GenWave::GenerateText);
+    rewindAllBtn.onClick = [this] { rewindAllPlayback(); };
+    addAndMakeVisible(rewindAllBtn);
+
     bulkGenerateBtn.setButtonText(EditorGuiText::ParamBrowser::bulkGenerate);
     bulkGenerateBtn.setColour(juce::TextButton::buttonColourId, GuiColor::GenWave::GenerateBg);
     bulkGenerateBtn.setColour(juce::TextButton::textColourOffId, GuiColor::GenWave::GenerateText);
@@ -281,6 +631,9 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     saveBtn.setVisible(m_mode == Mode::save);
     addChildComponent(saveBtn);
 
+    syncCustomFromHost();
+    applyCustomColours();
+
     rebuildView();
 
     parent.addAndMakeVisible(*this);
@@ -297,6 +650,8 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     m_dragView = -1;
 
     startTimer(frameMs);
+
+    autoGenerateIfNeeded();
 }
 
 void GuiParamBrowser::close()
@@ -389,6 +744,8 @@ void GuiParamBrowser::collect()
         const int at = file.getFileName().toLowerCase().lastIndexOf(paramMark);
 
         item.name = (at > 0) ? file.getFileName().substring(0, at) : file.getFileNameWithoutExtension();
+        item.player.setZoom(ctx.audioProcessor.browserZoom);
+        item.player.setFramesPerSecond(ctx.audioProcessor.browserFps);
         item.player.restart(nowMs);
 
         if (m_allPaused) item.player.pause(nullptr, nowMs);
@@ -549,10 +906,7 @@ void GuiParamBrowser::loadPreview(int itemIndex)
     default: break;
     }
 
-    const auto cache = GenWaveRender::cacheFileFor(
-        GenWaveRender::cacheDirectory(ctx.audioProcessor), item.file);
-
-    item.wave = GenWaveRender::read(cache);
+    item.wave = GenWaveRender::read(cacheFileOf(item));
     item.hasWave = !item.wave.isEmpty();
 }
 
@@ -711,6 +1065,8 @@ void GuiParamBrowser::goTo(const juce::File& dir)
     refillCategoryFilter();
     rebuildView();
     repaint();
+
+    autoGenerateIfNeeded();
 }
 
 void GuiParamBrowser::goHome()
@@ -744,11 +1100,34 @@ void GuiParamBrowser::toggleAllPlayback()
     repaint(listArea());
 }
 
-// ボタンには、押したら何が起きるかを出す
+// 一覧のプレビューを全部、頭へ戻す (4.4.1)。動いているものは頭から続けて動き、
+// 止めているものは止めたまま頭のコマを出す。見えていない行もそろえる。
+void GuiParamBrowser::rewindAllPlayback()
+{
+    const double nowMs = juce::Time::getMillisecondCounterHiRes();
+
+    for (auto& item : m_items)
+    {
+        if (item.isFolder) continue;
+
+        const auto* wave = timelineOf(item);
+
+        if (wave == nullptr) continue;
+
+        if (item.player.isPaused()) item.player.showFrame(*wave, 0, nowMs);
+        else item.player.restart(nowMs);
+    }
+
+    repaint(listArea());
+}
+
+// ボタンには、押したら何が起きるかを記号で出す (■ = 止める、▶ = 動かす)。言葉は吹き出しに
 void GuiParamBrowser::updatePlayAllText()
 {
-    playAllBtn.setButtonText(m_allPaused ? EditorGuiText::ParamBrowser::playAll
-                                         : EditorGuiText::ParamBrowser::pauseAll);
+    playAllBtn.setButtonText(m_allPaused ? EditorGuiText::ParamBrowser::playAllIcon
+                                         : EditorGuiText::ParamBrowser::pauseAllIcon);
+    playAllBtn.setTooltip(m_allPaused ? EditorGuiText::ParamBrowser::playAll
+                                      : EditorGuiText::ParamBrowser::pauseAll);
 }
 
 void GuiParamBrowser::chooseAt(int viewIndex)
@@ -976,8 +1355,7 @@ void GuiParamBrowser::startBulkGenerate()
 {
     if (m_busy || m_view.empty()) return;
 
-    m_queue.clear();
-    m_cancelled = false;
+    std::vector<int> targets;
 
     for (int index : m_view)
     {
@@ -985,11 +1363,18 @@ void GuiParamBrowser::startBulkGenerate()
 
         if (item.isFolder || item.kind != Kind::param) continue;
 
-        m_queue.push_back(index);
+        targets.push_back(index);
     }
 
-    if (m_queue.empty()) return;
+    startGenerate(targets);
+}
 
+void GuiParamBrowser::startGenerate(const std::vector<int>& targets)
+{
+    if (m_busy || targets.empty()) return;
+
+    m_queue = targets;
+    m_cancelled = false;
     m_queueAt = 0;
     m_busy = true;
 
@@ -1055,13 +1440,15 @@ void GuiParamBrowser::generateNext()
 
     std::shared_ptr<GuiRenderRig> rig = ctx.audioProcessor.createRenderRig(GenWaveRender::renderRate);
 
+    // 作り方 (打鍵の並び) は全フォルダ共通の設定から
+    const auto pattern = StageWaveRender::browserPattern(ctx.audioProcessor);
     const auto cacheFile = GenWaveRender::cacheFileFor(
-        GenWaveRender::cacheDirectory(ctx.audioProcessor), item.file);
+        GenWaveRender::cacheDirectory(ctx.audioProcessor), item.file, StageWaveRender::patternKey(pattern));
 
     juce::Component::SafePointer<GuiParamBrowser> safe(this);
 
-    m_pool.addJob([safe, rig, cacheFile, index] {
-        auto wave = std::make_shared<GenWaveRender::Wave>(GenWaveRender::render(*rig));
+    m_pool.addJob([safe, rig, cacheFile, index, pattern] {
+        auto wave = std::make_shared<GenWaveRender::Wave>(StageWaveRender::renderPattern(*rig, pattern));
 
         GenWaveRender::write(cacheFile, *wave);
 
@@ -1077,6 +1464,8 @@ void GuiParamBrowser::generateNext()
             done.player.restart(nowMs);
 
             if (safe->m_allPaused) done.player.pause(&done.wave, nowMs);
+
+            // 再生の位置を頭へ戻したので、作り終えた行から順に動き出す
 
             ++safe->m_queueAt;
 
@@ -1119,7 +1508,7 @@ void GuiParamBrowser::deleteAllPreviews()
 
         if (item.isFolder) continue;
 
-        GenWaveRender::cacheFileFor(cacheDir, item.file).deleteFile();
+        GenWaveRender::cacheFileFor(cacheDir, item.file, currentPatternKey()).deleteFile();
 
         item.wave = {};
         item.hasWave = false;
@@ -1144,10 +1533,13 @@ juce::Rectangle<int> GuiParamBrowser::innerArea() const
 
 int GuiParamBrowser::topRowsHeight() const
 {
-    // 検索の枠 → ボタンの行 → (書き出す名前の札) → 今いるフォルダ
-    int height = frameRowHeight() + padding + searchRowHeight + padding;
+    // 検索の枠 → ボタンの行 → (書き出す名前の札) → 横線 → 作り方・見せ方の行 → 横線 → 今いるフォルダ。
+    // 横線の上下は separatorPad だけ空ける
+    int height = frameRowHeight() + padding + searchRowHeight;
 
-    if (m_mode == Mode::save) height += frameRowHeight() + padding;
+    if (m_mode == Mode::save) height += padding + frameRowHeight();
+
+    height += separatorGap + customRowHeight + separatorGap;
 
     return height + pathRowHeight;
 }
@@ -1173,6 +1565,15 @@ juce::Rectangle<int> GuiParamBrowser::saveFrameArea() const
     area.removeFromTop(frameRowHeight() + padding + searchRowHeight + padding);
 
     return area.removeFromTop(frameRowHeight());
+}
+
+juce::Rectangle<int> GuiParamBrowser::customRowArea() const
+{
+    auto area = innerArea();
+
+    area.removeFromTop(topRowsHeight() - pathRowHeight - separatorGap - customRowHeight);
+
+    return area.removeFromTop(customRowHeight);
 }
 
 juce::Rectangle<int> GuiParamBrowser::pathArea() const
@@ -1308,18 +1709,6 @@ juce::Rectangle<int> GuiParamBrowser::actionArea(juce::Rectangle<int> row) const
     return { row.getRight() - actionWidth, row.getY(), actionWidth, row.getHeight() };
 }
 
-juce::Rectangle<int> GuiParamBrowser::cycleCell(int index) const
-{
-    auto row = buttonRowArea();
-    auto cells = row.removeFromRight((int)GuiStageWave::cycleChoices.size() * 34);
-
-    const int count = (int)GuiStageWave::cycleChoices.size();
-    const int left = cells.getX() + cells.getWidth() * index / count;
-    const int right = cells.getX() + cells.getWidth() * (index + 1) / count;
-
-    return { left, cells.getY(), right - left, cells.getHeight() };
-}
-
 void GuiParamBrowser::resized()
 {
     // 検索の区画。枠の内側に「検索」の見出し・キーワード・絞り込み 2 つを並べる。
@@ -1336,9 +1725,9 @@ void GuiParamBrowser::resized()
 
     auto row2 = buttonRowArea();
 
-    row2.removeFromRight((int)GuiStageWave::cycleChoices.size() * 34 + padding);
-
     playAllBtn.setBounds(row2.removeFromRight(playAllButtonWidth));
+    row2.removeFromRight(padding);
+    rewindAllBtn.setBounds(row2.removeFromRight(rewindAllButtonWidth));
     row2.removeFromRight(padding);
 
     folderBtn.setBounds(row2.removeFromLeft(folderButtonWidth));
@@ -1353,6 +1742,8 @@ void GuiParamBrowser::resized()
     row2.removeFromLeft(padding);
     bulkDeleteBtn.setBounds(row2.removeFromLeft(deleteButtonWidth));
 
+    layoutCustomRow();
+
     if (m_mode != Mode::save) return;
 
     // 書き出す名前の札。見出し・名前の欄・保存ボタンを 1 枚に載せる。
@@ -1362,6 +1753,62 @@ void GuiParamBrowser::resized()
     saveBtn.setBounds(row3.removeFromRight(saveButtonWidth));
     row3.removeFromRight(padding);
     nameEditor.setBounds(row3);
+}
+
+// 作り方・見せ方の行。テンポ | 小節 | キーオン周期 | 音符長 | キー | 生成周期 | 表示倍率 | FPS
+void GuiParamBrowser::layoutCustomRow()
+{
+    const auto row = customRowArea();
+
+    int x = row.getX();
+    const int y = row.getY();
+
+    m_dividers.clear();
+
+    const auto place = [&](juce::Component& c, int width) {
+        c.setBounds(x, y, juce::jmax(0, juce::jmin(width, row.getRight() - x)), customRowHeight);
+        x += width + customItemGap;
+    };
+
+    // 区分の切れ目。前の区分の右端と次の区分の左端のあいだに縦線を引く
+    const auto group = [&] {
+        const int left = x - customItemGap;
+
+        x += customGroupGap;
+
+        const int centre = (left + x) / 2;
+
+        if (centre < row.getRight()) m_dividers.push_back({ centre - dividerWidth / 2, y, dividerWidth, customRowHeight });
+    };
+
+    place(tempoLabel, 44);
+    place(tempoSlider, 104);
+    place(followDawToggle, 84);
+    group();
+    place(barsLabel, 34);
+    place(barsBox, 56);
+
+    for (auto* c : { &intervalControls, &lengthControls })
+    {
+        group();
+        place(c->label, c == &intervalControls ? 78 : 50);
+        place(c->division, 100);
+        place(c->triplet, 52);
+        place(c->dotted, 52);
+    }
+
+    group();
+    place(keyLabel, 30);
+    place(keySlider, 150);
+    group();
+    place(cyclesLabel, 56);
+    place(cyclesBox, 56);
+    group();
+    place(zoomLabel, 56);
+    place(zoomBox, 72);
+    group();
+    place(fpsLabel, 30);
+    place(fpsBox, 64);
 }
 
 // ----------------------------------------------------------------------------
@@ -1380,17 +1827,6 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
     }
 
     if (m_busy) return;
-
-    for (int i = 0; i < (int)GuiStageWave::cycleChoices.size(); ++i)
-    {
-        if (!cycleCell(i).contains(at)) continue;
-
-        m_cycleIndex = i;
-
-        repaint();
-
-        return;
-    }
 
     auto header = headerArea();
 
@@ -1477,7 +1913,7 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
             juce::Component::SafePointer<GuiParamBrowser> safe(this);
             const auto file = item.file;
 
-            GenWavePlayer::showZoomMenu(*this, box, item.player.zoom(), [safe, file](int zoom) {
+            GenWavePlayer::showZoomMenu(*this, box, item.player.zoom(), [safe, file](float zoom) {
                 if (safe == nullptr) return;
 
                 for (auto& each : safe->m_items)
@@ -1669,7 +2105,16 @@ void GuiParamBrowser::paint(juce::Graphics& g)
 
     if (m_mode == Mode::save) drawSaveFrame(g);
 
-    drawCycles(g);
+    // 作り方・見せ方の行の上 (「フォルダ…」の行、書き出すときは名前の行とのあいだ) と下の横線、
+    // 区分のあいだの縦線 (オフホワイト)
+    const auto custom = customRowArea();
+
+    g.setColour(GuiColor::GenWave::GroupDivider);
+    g.fillRect(custom.getX(), custom.getY() - separatorPad - separatorHeight, custom.getWidth(), separatorHeight);
+    g.fillRect(custom.getX(), custom.getBottom() + separatorPad, custom.getWidth(), separatorHeight);
+
+    for (const auto& d : m_dividers) g.fillRect(d);
+
     drawPath(g);
     drawHeader(g);
     drawRows(g);
@@ -1717,27 +2162,6 @@ void GuiParamBrowser::drawPath(juce::Graphics& g)
     g.setColour(GuiColor::ParamBrowser::PathText);
     g.setFont(juce::FontOptions(12.0f));
     g.drawText(m_root.getFullPathName(), area.reduced(6, 0), juce::Justification::centredLeft, true);
-}
-
-void GuiParamBrowser::drawCycles(juce::Graphics& g)
-{
-    g.setFont(juce::FontOptions(12.0f));
-
-    for (int i = 0; i < (int)GuiStageWave::cycleChoices.size(); ++i)
-    {
-        const auto cell = cycleCell(i).reduced(1);
-        const bool on = (i == m_cycleIndex);
-
-        g.setColour(on ? GuiColor::GenWave::CycleBgOn : GuiColor::GenWave::CycleBg);
-        g.fillRect(cell);
-
-        g.setColour(GuiColor::GenWave::Border);
-        g.drawRect(cell, 1);
-
-        g.setColour(on ? GuiColor::GenWave::CycleTextOn : GuiColor::GenWave::CycleText);
-        g.drawText(juce::String(GuiStageWave::cycleChoices[(size_t)i]), cell,
-            juce::Justification::centred, false);
-    }
 }
 
 void GuiParamBrowser::drawHeader(juce::Graphics& g)
@@ -1905,12 +2329,14 @@ void GuiParamBrowser::drawWave(juce::Graphics& g, juce::Rectangle<int> area, con
         return;
     }
 
-    // 見せ方は「生成波形のプレビュー」と同じ。10 秒ぶんの上を窓が動き、
+    // 見せ方は「生成波形のプレビュー」と同じ。作った波形の上を窓が動き、
     // L / M / R を 3 段で出す。窓の位置は行ごとの再生の操作が決める。
+    // 枠に何周期ぶんを出すかは「生成周期」で選ぶ (全フォルダ共通)。
+    const int cycleIndex = juce::jlimit(0, (int)GuiStageWave::cycleChoices.size() - 1, ctx.audioProcessor.browserCycles);
     const double perCycle = item.wave.samplesPerCycle();
     const int total = (int)item.wave.size();
-    const int window = juce::jlimit(2, total,
-        (int)std::lround(perCycle * GuiStageWave::cycleChoices[(size_t)m_cycleIndex]));
+    const int window = juce::jlimit(2, juce::jmax(2, total),
+        (int)std::lround(perCycle * GuiStageWave::cycleChoices[(size_t)cycleIndex]));
 
     const int start = item.player.windowStart(item.wave, window, juce::Time::getMillisecondCounterHiRes());
 

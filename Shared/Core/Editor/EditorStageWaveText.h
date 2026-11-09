@@ -21,7 +21,7 @@ namespace EditorGuiText
 		static inline const I18n::Text generate{ u8"生成", u8"Generate" };
 		static inline const I18n::Text regenerate{ u8"再生成", u8"Regenerate" };
 		static inline const I18n::Text remove{ u8"削除", u8"Delete" };
-		static inline const I18n::Text generateTooltip{ u8"今の設定と打鍵の並びで波形を作ります。音は出しません。値を変えたら押し直してください。", u8"Builds the waveform from the current settings and the note pattern. No sound is played. Press it again after changing a value." };
+		static inline const I18n::Text generateTooltip{ u8"今の設定と打鍵の並びで波形を作ります。音は出しません。値を変えたら押し直してください (SETTINGS の自動生成が入っていれば、触り終えてしばらくすると作り直します)。", u8"Builds the waveform from the current settings and the note pattern. No sound is played. Press it again after changing a value (with auto-generate on in SETTINGS, it rebuilds a moment after you stop editing)." };
 		static inline const I18n::Text working{ u8"波形を作っています…", u8"Building the waveform…" };
 		static inline const I18n::Text empty{ u8"「生成」で作ります", u8"Press Generate to build it" };
 		static inline const I18n::Text truncated{ u8"30 秒で打ち切りました", u8"Cut off at 30 seconds" };
@@ -29,6 +29,7 @@ namespace EditorGuiText
 
 		static inline const I18n::Text key{ u8"キー", u8"Key" };
 		static inline const I18n::Text cycles{ u8"表示周期", u8"View cycles" };
+		static inline const I18n::Text zoom{ u8"表示倍率", u8"View zoom" };
 		static inline const I18n::Text fps{ u8"FPS", u8"FPS" };
 		static inline const I18n::Text fpsTooltip{ u8"再生の 1 秒あたりのコマ数。上げるほどコマが細かくなり、コマの数 (長さ × FPS) も増えます。", u8"Frames per second for playback. Higher values give finer frames and more of them (length × FPS)." };
 		static inline const I18n::Text tempo{ u8"テンポ", u8"Tempo" };
@@ -39,7 +40,7 @@ namespace EditorGuiText
 		static inline const I18n::Text beat{ u8"拍", u8"Beat" };
 		static inline const I18n::Text beatTooltip{ u8"1 小節の拍。音符と、その数 (1〜12)。4 分音符なら 4、8 分音符なら 6 が既定です。DAW 追従のときは DAW の拍子を使います。", u8"Beats per bar: the note and how many (1-12). The default is 4 for quarter notes and 6 for eighth notes. With Follow DAW on, the DAW's time signature is used." };
 		static inline const I18n::Text bars{ u8"小節", u8"Bars" };
-		static inline const I18n::Text interval{ u8"間隔", u8"Interval" };
+		static inline const I18n::Text interval{ u8"キーオン周期", u8"Key-on interval" };
 		static inline const I18n::Text length{ u8"音符", u8"Note" };
 		static inline const I18n::Text triplet{ u8"3連", u8"Triplet" };
 		static inline const I18n::Text dotted{ u8"付点", u8"Dotted" };
@@ -49,6 +50,7 @@ namespace EditorGuiText
 
 		// 音符の長さの名前 (1 = 全音符 … 32 = 32 分音符)
 		static inline const I18n::Text whole{ u8"全音符", u8"Whole" };
+		static inline const I18n::Text times{ u8"×", u8"×" };
 		static inline const I18n::Text fraction{ u8"分音符", u8"th" };
 
 		// 段の見出し

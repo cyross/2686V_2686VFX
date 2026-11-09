@@ -5,6 +5,7 @@
 #include <JuceHeader.h>
 
 #include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiParamTouch.h"
 #include "Shared/Gui/Components/StageWave/StageWave.h"
 
 // ============================================================================
@@ -15,6 +16,9 @@
 // ここに残るのは、その窓を開け閉めするボタンだけ。
 //
 // 窓はこの部品が持つ。エディタを閉じる・作り直すときは窓も一緒に閉じる。
+//
+// 窓の自動生成 (4.4.1) のために、エディタが開いているあいだパラメータを触った履歴を取る
+// (ParamTouchWatch)。履歴はプロセッサ (paramTouches) に残るので、窓を閉じていても溜まる。
 class GuiGenWave : public juce::Component
 {
 public:
@@ -22,8 +26,13 @@ public:
     static constexpr int buttonHeight = 26;
     static constexpr int gap = 6;
 
+    // 見出しの上の横の区切り線 (4.4.1)。太さと、上下に空ける余裕
+    static constexpr int separatorHeight = 2;
+    static constexpr int separatorPad = 3;
+    static constexpr int separatorGap = separatorPad * 2 + separatorHeight;
+
     // 置き場に要る高さ。エディタ側はこれを見て区画を取る。
-    static constexpr int totalHeight = labelHeight + gap + buttonHeight;
+    static constexpr int totalHeight = separatorGap + labelHeight + gap + buttonHeight;
 
     explicit GuiGenWave(const GuiContext& context);
     ~GuiGenWave() override;
@@ -34,6 +43,7 @@ public:
     void layout(int x, int y, int width);
 
     void resized() override;
+    void paint(juce::Graphics& g) override;
 
     // ショートカットキー (Ctrl+M) から。窓を開いて作る
     void requestGenerate();
@@ -51,6 +61,9 @@ private:
     juce::TextButton openBtn;
 
     std::unique_ptr<GuiStageWaveWindow> m_window;
+
+    // パラメータを触った履歴を取る (エディタが開いているあいだ)
+    ParamTouchWatch m_touchWatch;
 
     void updateButton();
 };

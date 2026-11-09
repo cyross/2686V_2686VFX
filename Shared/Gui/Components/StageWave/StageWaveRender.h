@@ -44,7 +44,8 @@ namespace StageWaveRender
 	// 第 3 段の段
 	enum Stage { stageRaw = 0, stageCore, stageUnison, stageDac, stageFx, stageCount };
 
-	// 音符の長さ。division は 1 = 全音符, 2, 4, 8, 16, 32
+	// 音符の長さ。division は 1 = 全音符, 2, 4, 8, 16, 32。
+	// 負の値は全音符の何倍か (-2 = 全音符 × 2。4.4.1 でファイルブラウザーに足した長い音符)
 	struct NoteValue
 	{
 		int division = 4;
@@ -54,7 +55,8 @@ namespace StageWaveRender
 		// 4 分音符を 1 とした長さ
 		double quarters() const
 		{
-			double q = 4.0 / (double)juce::jmax(1, division);
+			double q = division < 0 ? 4.0 * (double)juce::jmin(8, -division)
+				: 4.0 / (double)juce::jmax(1, division);
 
 			if (triplet) q *= 2.0 / 3.0;
 			if (dotted) q *= 1.5;
@@ -63,7 +65,9 @@ namespace StageWaveRender
 		}
 	};
 
-	inline constexpr std::array<int, 6> divisions{ 1, 2, 4, 8, 16, 32 };
+	// キーオン周期・音符長で選べる長さ。全音符 × 8・× 4・× 2 を前に足した (4.4.1)。
+	// 生成過程プレビューとファイルブラウザーで共通
+	inline constexpr std::array<int, 9> divisions{ -8, -4, -2, 1, 2, 4, 8, 16, 32 };
 
 	struct Pattern
 	{
@@ -150,4 +154,17 @@ namespace StageWaveRender
 
 	// 設定から打鍵の並びを作る。followDaw なら DAW のテンポ・拍子を使う (分からなければ設定の値)
 	Pattern patternFrom(const GuiProcessorHost& host, bool followDaw);
+
+	// ---- ファイルブラウザーの行のプレビュー (4.4.1)
+	// ブラウザーの設定 (browserBpm など) から打鍵の並びを作る。拍子は 4/4。
+	// DAW 同期なら DAW のテンポ・拍子を使う (分からなければ設定の値)
+	Pattern browserPattern(const GuiProcessorHost& host);
+
+	// 打鍵の並びの符号。貯めておくファイルの名前に付け、並びが違えば別物として扱う
+	juce::String patternKey(const Pattern& pattern);
+
+	// 打鍵の並びどおりに鳴らした出来上がり (L / R) を、GenWaveRender::storeRate へ間引いて返す。
+	// 最後に離したあとは、音が消えて tailSeconds たつまで (長くても maxTailSeconds) 見届ける。
+	// 時間が掛かるので、メッセージスレッドから直に呼ばないこと
+	GenWaveRender::Wave renderPattern(GuiRenderRig& rig, const Pattern& pattern);
 }

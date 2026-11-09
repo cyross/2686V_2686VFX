@@ -429,10 +429,11 @@ void GenWavePlayer::drawZoom(juce::Graphics& g, juce::Rectangle<int> box) const
     g.setColour(GuiColor::GenWave::Border);
     g.drawRect(box, 1);
 
-    g.setColour(m_zoom > zoomMin ? GuiColor::GenWave::Progress.get()
-                                 : GuiColor::GenWave::ControlIcon.get());
+    // x1 以外なら目立たせる
+    g.setColour(GuiZoom::nearestIndex(m_zoom) != GuiZoom::nearestIndex(GuiZoom::initial) ? GuiColor::GenWave::Progress.get()
+                                                                                         : GuiColor::GenWave::ControlIcon.get());
     g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
-    g.drawText(EditorGuiText::GenWave::zoomPrefix + juce::String(m_zoom),
+    g.drawText(GuiZoom::label(m_zoom),
         box.withTrimmedRight(10), juce::Justification::centred, false);
 
     // 選択肢があることを示す小さな ▼
@@ -533,7 +534,7 @@ bool GenWavePlayer::mouseWheel(juce::Rectangle<int> area, juce::Point<int> at,
 
     if (parts.zoom.contains(at))
     {
-        setZoom(m_zoom + step);
+        setZoom(GuiZoom::step(m_zoom, step));
 
         return true;
     }
@@ -554,26 +555,29 @@ bool GenWavePlayer::mouseWheel(juce::Rectangle<int> area, juce::Point<int> at,
 }
 
 void GenWavePlayer::showZoomMenu(juce::Component& owner, juce::Rectangle<int> area,
-    int current, std::function<void(int)> apply)
+    float current, std::function<void(float)> apply)
 {
     showZoomMenuAt(owner, zoomArea(area), current, std::move(apply));
 }
 
 void GenWavePlayer::showZoomMenuAt(juce::Component& owner, juce::Rectangle<int> box,
-    int current, std::function<void(int)> apply)
+    float current, std::function<void(float)> apply)
 {
     juce::PopupMenu menu;
 
-    for (int value = zoomMin; value <= zoomMax; ++value)
+    // 項目の番号は選択肢の番号 + 1 (0 は「選ばずに閉じた」)
+    const int currentIndex = GuiZoom::nearestIndex(current);
+
+    for (int i = 0; i < (int)GuiZoom::choices.size(); ++i)
     {
-        menu.addItem(value, EditorGuiText::GenWave::zoomPrefix + juce::String(value), true, value == current);
+        menu.addItem(i + 1, GuiZoom::label(GuiZoom::choices[(size_t)i]), true, i == currentIndex);
     }
 
     menu.showMenuAsync(juce::PopupMenu::Options()
         .withTargetComponent(&owner)
         .withTargetScreenArea(owner.localAreaToGlobal(box)),
         [apply = std::move(apply)](int chosen) {
-            if (chosen >= zoomMin && chosen <= zoomMax && apply) apply(chosen);
+            if (chosen >= 1 && chosen <= (int)GuiZoom::choices.size() && apply) apply(GuiZoom::choices[(size_t)(chosen - 1)]);
         });
 }
 

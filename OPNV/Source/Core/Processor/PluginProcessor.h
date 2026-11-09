@@ -682,6 +682,23 @@ public:
         visit(SettingsKey::stageReleaseTail, stageReleaseTail);
         visit(SettingsKey::stageBeatDiv, stageBeatDiv);
         visit(SettingsKey::stageBeatCount, stageBeatCount);
+        visit(SettingsKey::stageAutoGenerate, stageAutoGenerate);
+        visit(SettingsKey::stageAutoInterval, stageAutoInterval);
+        visit(SettingsKey::stageAlwaysOnTop, stageAlwaysOnTop);
+        visit(SettingsKey::browserBpm, browserBpm);
+        visit(SettingsKey::browserFollowDaw, browserFollowDaw);
+        visit(SettingsKey::browserBars, browserBars);
+        visit(SettingsKey::browserIntervalDiv, browserIntervalDiv);
+        visit(SettingsKey::browserIntervalTriplet, browserIntervalTriplet);
+        visit(SettingsKey::browserIntervalDotted, browserIntervalDotted);
+        visit(SettingsKey::browserLengthDiv, browserLengthDiv);
+        visit(SettingsKey::browserLengthTriplet, browserLengthTriplet);
+        visit(SettingsKey::browserLengthDotted, browserLengthDotted);
+        visit(SettingsKey::browserMidiNote, browserMidiNote);
+        visit(SettingsKey::browserCycles, browserCycles);
+        visit(SettingsKey::browserZoom, browserZoom);
+        visit(SettingsKey::browserFps, browserFps);
+        visit(SettingsKey::browserAutoGenerate, browserAutoGenerate);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop

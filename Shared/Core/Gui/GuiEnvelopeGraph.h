@@ -11,6 +11,7 @@
 #include "Shared/Core/Synth/StepRate.h"
 #include "Shared/Core/Synth/LivePosition.h"
 #include "./GuiLiveGraph.h"
+#include "./GuiZoom.h"
 
 // 拡大率のつまみ。帯をドラッグしているあいだ、押しているキーで刻みへそろえる
 // (Shift で 0.1、Ctrl で 1、Ctrl + Shift で 10。つまみのラベルのドラッグと同じ決まり)
@@ -40,13 +41,14 @@ public:
 
     // ---- 横方向の拡大 (4.0.0) ----
     //
-    // 入れると、絵の下に横の送り棒と、拡大率のつまみ・ボタン (x1〜x32) を置く。
+    // 入れると、絵の下に横の送り棒と、拡大率のつまみ・選択肢 (x0.1〜x32。4.4.1 で x1 未満も) を置く。
+    // x1 より小さいと、絵は枠の左へ縮めて描き、送り棒は動かない。
     // 絵の中でホイールを回すと拡大率が変わり、右ボタンで引きずると横へ送る。
     // 小さな枠の絵には入れない。
     void setZoomable(bool zoomable);
 
-    static constexpr float zoomMin = 1.0f;
-    static constexpr float zoomMax = 32.0f;
+    static constexpr float zoomMin = GuiZoom::minimum;
+    static constexpr float zoomMax = GuiZoom::maximum;
 
     void setZoom(float zoom);
     float getZoom() const { return zoom; }
@@ -286,13 +288,17 @@ private:
 
     juce::ScrollBar scrollBar{ false };
     GuiZoomSlider zoomSlider;
-    std::array<juce::TextButton, 6> zoomButtons;
+    // 選択肢 (GuiZoom::choices)。つまみで選択肢に無い値にしたときは、その値を字で出す
+    juce::ComboBox zoomBox;
 
     // 絵を描く場所 (拡大のつまみの分を除いたもの)
     juce::Rectangle<int> graphBounds() const;
 
     // 見えている幅からはみ出した分 (送れる長さ)
-    float overflow() const { return lastViewW * (zoom - 1.0f); }
+    float overflow() const { return lastViewW * juce::jmax(0.0f, zoom - 1.0f); }
+
+    // 選択肢の欄を今の倍率に合わせる
+    void syncZoomBox();
 
     void syncScrollBar();
     void scrollBarMoved(juce::ScrollBar* bar, double newRangeStart) override;

@@ -6,6 +6,7 @@
 #include "Shared/Core/Editor/EditorStageWaveText.h"
 #include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiValues.h"
+#include "Shared/Gui/Components/Loading/GuiLoading.h"
 
 namespace
 {
@@ -21,22 +22,6 @@ namespace
 	juce::String noteName(int note)
 	{
 		return juce::MidiMessage::getMidiNoteName(note, true, true, 3);
-	}
-
-	juce::String divisionName(int division)
-	{
-		if (division <= 1) return EditorGuiText::StageWave::whole;
-
-		return juce::String(division) + juce::String(EditorGuiText::StageWave::fraction);
-	}
-
-	int divisionIndex(int division)
-	{
-		for (int i = 0; i < (int)StageWaveRender::divisions.size(); ++i) {
-			if (StageWaveRender::divisions[(size_t)i] == division) return i;
-		}
-
-		return 0;
 	}
 
 	bool dawFollowAvailable()
@@ -85,7 +70,10 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 		return (double)text.getIntValue();
 	};
 	keySlider.setDoubleClickReturnValue(true, 60.0);
-	keySlider.onValueChange = [this] { ctx.audioProcessor.stageMidiNote = (int)keySlider.getValue(); };
+	keySlider.onValueChange = [this] {
+		ctx.audioProcessor.stageMidiNote = (int)keySlider.getValue();
+		touch();
+	};
 	addAndMakeVisible(keySlider);
 
 	// ---- 再生の FPS
@@ -111,7 +99,10 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	tempoSlider.setTextBoxStyle(juce::Slider::TextBoxLeft, false, 56, 18);
 	tempoSlider.setRange(20.0, 300.0, 0.1);
 	tempoSlider.setNumDecimalPlacesToDisplay(1);
-	tempoSlider.onValueChange = [this] { ctx.audioProcessor.stageBpm = (float)tempoSlider.getValue(); };
+	tempoSlider.onValueChange = [this] {
+		ctx.audioProcessor.stageBpm = (float)tempoSlider.getValue();
+		touch();
+	};
 	addAndMakeVisible(tempoSlider);
 
 	for (int i = 0; i < (int)tempoPresets.size(); ++i) tempoPresetBox.addItem(juce::String(tempoPresets[(size_t)i]), i + 1);
@@ -130,6 +121,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	followDawToggle.onClick = [this] {
 		ctx.audioProcessor.stageFollowDaw = followDawToggle.getToggleState();
 		updateFollowDawState();
+		touch();
 	};
 	addAndMakeVisible(followDawToggle);
 
@@ -150,6 +142,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 		ctx.audioProcessor.stageBeatDiv = note;
 		ctx.audioProcessor.stageBeatCount = defaultBeatCount(note);
 		beatCountSlider.setValue(ctx.audioProcessor.stageBeatCount, juce::dontSendNotification);
+		touch();
 	};
 	addAndMakeVisible(beatNoteBox);
 
@@ -159,6 +152,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	beatCountSlider.setTooltip(EditorGuiText::StageWave::beatTooltip);
 	beatCountSlider.onValueChange = [this] {
 		ctx.audioProcessor.stageBeatCount = juce::jlimit(1, beatCountMax, (int)beatCountSlider.getValue());
+		touch();
 	};
 	addAndMakeVisible(beatCountSlider);
 
@@ -168,7 +162,10 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 
 	for (int i = 1; i <= 16; ++i) barsBox.addItem(juce::String(i), i);
 
-	barsBox.onChange = [this] { ctx.audioProcessor.stageBars = juce::jlimit(1, 16, barsBox.getSelectedId()); };
+	barsBox.onChange = [this] {
+		ctx.audioProcessor.stageBars = juce::jlimit(1, 16, barsBox.getSelectedId());
+		touch();
+	};
 	addAndMakeVisible(barsBox);
 
 	// ---- 間隔と音符
@@ -180,7 +177,10 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	// ---- 最後のリリースを反映するか
 	releaseTailToggle.setButtonText(EditorGuiText::StageWave::releaseTail);
 	releaseTailToggle.setTooltip(EditorGuiText::StageWave::releaseTailTooltip);
-	releaseTailToggle.onClick = [this] { ctx.audioProcessor.stageReleaseTail = releaseTailToggle.getToggleState(); };
+	releaseTailToggle.onClick = [this] {
+		ctx.audioProcessor.stageReleaseTail = releaseTailToggle.getToggleState();
+		touch();
+	};
 	addAndMakeVisible(releaseTailToggle);
 
 	// ---- 入れ切り
@@ -195,6 +195,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 		t.setButtonText(EditorGuiText::StageWave::moduleNames[m]);
 		t.setTooltip(EditorGuiText::StageWave::switchesTooltip);
 		t.setToggleState(true, juce::dontSendNotification);
+		t.onClick = [this] { touch(); };
 		addChildComponent(t);
 	}
 
@@ -208,6 +209,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 
 		t.setButtonText("PAD" + juce::String(i + 1));
 		t.setToggleState(true, juce::dontSendNotification);
+		t.onClick = [this] { touch(); };
 		addChildComponent(t);
 	}
 
@@ -250,19 +252,27 @@ void GuiStageWave::setupNoteControls(NoteControls& c, const juce::String& title,
 		c.division.addItem(divisionName(StageWaveRender::divisions[(size_t)i]), i + 1);
 	}
 
-	c.division.onChange = [&c, &division] {
+	c.division.onChange = [this, &c, &division] {
 		const int index = c.division.getSelectedItemIndex();
 
 		if (index >= 0) division = StageWaveRender::divisions[(size_t)index];
+
+		touch();
 	};
 	addAndMakeVisible(c.division);
 
 	c.triplet.setButtonText(EditorGuiText::StageWave::triplet);
-	c.triplet.onClick = [&c, &triplet] { triplet = c.triplet.getToggleState(); };
+	c.triplet.onClick = [this, &c, &triplet] {
+		triplet = c.triplet.getToggleState();
+		touch();
+	};
 	addAndMakeVisible(c.triplet);
 
 	c.dotted.setButtonText(EditorGuiText::StageWave::dotted);
-	c.dotted.onClick = [&c, &dotted] { dotted = c.dotted.getToggleState(); };
+	c.dotted.onClick = [this, &c, &dotted] {
+		dotted = c.dotted.getToggleState();
+		touch();
+	};
 	addAndMakeVisible(c.dotted);
 }
 
@@ -482,7 +492,7 @@ void GuiStageWave::resized()
 	place(keyLabel, 34);
 	place(keySlider, 260);
 
-	// 周期の欄は cycleArea、倍率の欄は zoomBox で描く。その右に FPS
+	// 周期の欄は cycleArea、倍率の見出しは zoomLabelArea、倍率の欄は zoomBox で描く。その右に FPS
 	{
 		const auto zoom = zoomBox();
 
@@ -502,12 +512,16 @@ void GuiStageWave::resized()
 			addDivider(deleteBtn.getRight(), cycleArea().getX(), margin);
 		}
 
+		addDivider(cycleArea().getRight(), zoomLabelArea().getX(), margin);
 		addDivider(zoom.getRight(), fpsLabel.getX(), margin);
 	}
 
-	// ---- その下に再生の段 (playerArea で描く)。2 段目: テンポ・小節・間隔・音符
+	// ---- 2 段目: テンポ・小節・間隔・音符。1 段目との間に横線を引く
+	m_separators.clear();
+	m_separators.push_back({ 0, margin + controlHeight + separatorPad, getWidth(), separatorHeight });
+
 	x = margin;
-	y = playerArea().getBottom() + viewGap;
+	y = margin + controlHeight + separatorGap;
 
 	place(tempoLabel, 48);
 	place(tempoSlider, 110);
@@ -524,8 +538,8 @@ void GuiStageWave::resized()
 	for (auto* c : { &intervalControls, &lengthControls })
 	{
 		x += groupGap;
-		place(c->label, 36);
-		place(c->division, 90);
+		place(c->label, c == &intervalControls ? 80 : 36);
+		place(c->division, 100);
 		place(c->triplet, 56);
 		place(c->dotted, 56);
 	}
@@ -533,7 +547,7 @@ void GuiStageWave::resized()
 	x += groupGap;
 	place(releaseTailToggle, 150);
 
-	// 区分のあいだの縦線: テンポ | 拍 | 小節 | 間隔 | 音符 | リリース
+	// 区分のあいだの縦線: テンポ | 拍 | 小節 | キーオン周期 | 音符 | リリース
 	addDivider(lengthControls.dotted.getRight(), releaseTailToggle.getX(), y);
 	addDivider(followDawToggle.getRight(), beatLabel.getX(), y);
 	addDivider(beatCountSlider.getRight(), barsLabel.getX(), y);
@@ -570,6 +584,11 @@ void GuiStageWave::resized()
 		m_controlScrollBar.setBounds(0, y + controlHeight + viewGap / 2, getWidth(), controlScrollHeight);
 		m_controlScrollBar.setRangeLimits(0.0, (double)m_controlsWidth, juce::dontSendNotification);
 		m_controlScrollBar.setCurrentRange((double)m_controlScroll, (double)getWidth(), juce::dontSendNotification);
+	}
+
+	// 「加工」の段 (とスクロールバー) と、その下の再生の段のあいだに横線を引く
+	{
+		m_separators.push_back({ 0, controlsBottom(scrollShown) + separatorPad, getWidth(), separatorHeight });
 	}
 
 	// ---- RHYTHM の混ぜるパッドは、第 3 段の見出しの右に置く。狭ければ 1 つの幅を詰める
@@ -639,10 +658,17 @@ int GuiStageWave::currentViewHeight() const
 	return juce::jmax(minViewHeight, rows / 3 - rowLabelHeight - rowGap);
 }
 
+int GuiStageWave::controlsBottom(bool controlScrollShown) const
+{
+	// 1 段目・(横線)・2 段目・3 段目 (「加工」)・(スクロールバー)
+	return margin + controlHeight * 3 + separatorGap + viewGap
+		+ (controlScrollShown ? viewGap / 2 + controlScrollHeight : 0);
+}
+
 int GuiStageWave::viewsTop(bool controlScrollShown) const
 {
-	return margin + (controlHeight + viewGap) * 3 + GenWavePlayer::height + viewGap + rowGap
-		+ (controlScrollShown ? controlScrollHeight + viewGap : 0);
+	// 操作の段・(横線)・再生の段の下
+	return controlsBottom(controlScrollShown) + separatorGap + GenWavePlayer::height + viewGap + rowGap;
 }
 
 int GuiStageWave::minimumWidth() const
@@ -681,16 +707,24 @@ juce::Rectangle<int> GuiStageWave::cycleCell(int index) const
 	return { area.getX() + index * cycleCellWidth, area.getY(), cycleCellWidth, area.getHeight() };
 }
 
+juce::Rectangle<int> GuiStageWave::zoomLabelArea() const
+{
+	// 周期のボタンの右に「表示倍率」の見出し。あいだに縦線を引く
+	return { cycleArea().getRight() + groupGap, margin, zoomLabelWidth, controlHeight };
+}
+
 juce::Rectangle<int> GuiStageWave::zoomBox() const
 {
-	// 周期のボタンの右
-	return { cycleArea().getRight() + itemGap * 2, margin + 2, GenWavePlayer::zoomBoxWidth, controlHeight - 4 };
+	// 「表示倍率」の見出しの右
+	return { zoomLabelArea().getRight() + itemGap, margin + 2, GenWavePlayer::zoomBoxWidth, controlHeight - 4 };
 }
 
 juce::Rectangle<int> GuiStageWave::playerArea() const
 {
-	// 1 段目 (生成・削除・キー・周期) のすぐ下
-	return { margin, margin + controlHeight + viewGap, getWidth() - margin * 2, GenWavePlayer::height };
+	// 操作の 3 段 (と、出ていれば横のスクロールバー) の下
+	const int top = controlsBottom(m_controlScrollBar.isVisible()) + separatorGap;
+
+	return { margin, top, getWidth() - margin * 2, GenWavePlayer::height };
 }
 
 // ============================================================================
@@ -704,7 +738,10 @@ void GuiStageWave::startGenerate()
 
 	if (job == nullptr) return;
 
-	m_busy = true;
+	// 作り始めた時点までに触ったぶんは、この結果に入る
+	m_generatedTouches = ctx.audioProcessor.paramTouches.count();
+
+	setBusy(true);
 	m_info = job->info;
 
 	updateVisibility();
@@ -730,7 +767,7 @@ void GuiStageWave::finishGenerate(const StageWaveRender::Result& result)
 {
 	m_result = result;
 	m_info = result.info;
-	m_busy = false;
+	setBusy(false);
 
 	m_player.restart(juce::Time::getMillisecondCounterHiRes());
 
@@ -743,6 +780,60 @@ void GuiStageWave::finishGenerate(const StageWaveRender::Result& result)
 	repaint();
 }
 
+void GuiStageWave::setBusy(bool busy)
+{
+	m_busy = busy;
+
+	if (onBusyChanged) onBusyChanged(busy);
+}
+
+// ----------------------------------------------------------------------------
+// 自動生成 (4.4.1)
+// ----------------------------------------------------------------------------
+bool GuiStageWave::autoGenerateDue(double nowMs, bool immediate) const
+{
+	const auto& host = ctx.audioProcessor;
+
+	if (!host.stageAutoGenerate || m_busy) return false;
+
+	// 一度も触っていない・作ったあとに触っていない
+	const auto touches = host.paramTouches.count();
+
+	if (touches == 0 || touches == m_generatedTouches) return false;
+
+	if (immediate) return true;
+
+	// つまみを掴んだまま止めているあいだは、まだ触っている最中とみなす
+	if (juce::ModifierKeys::currentModifiers.isAnyMouseButtonDown()) return false;
+
+	const double interval = juce::jlimit((double)GuiProcessorHost::stageAutoIntervalMin,
+		(double)GuiProcessorHost::stageAutoIntervalMax, (double)host.stageAutoInterval);
+
+	return nowMs - host.paramTouches.lastMs() >= interval * 1000.0;
+}
+
+void GuiStageWave::generateOnOpen()
+{
+	auto& host = ctx.audioProcessor;
+
+	if (!host.stageAutoGenerate) return;
+
+	// 起動して最初に開いたときは、初期値のままの音がどうなるかを見せるため、無条件に作る
+	if (!host.stageOpenedOnce)
+	{
+		host.stageOpenedOnce = true;
+		startGenerate();
+		return;
+	}
+
+	if (autoGenerateDue(juce::Time::getMillisecondCounterHiRes(), true)) startGenerate();
+}
+
+void GuiStageWave::checkAutoGenerate()
+{
+	if (autoGenerateDue(juce::Time::getMillisecondCounterHiRes(), false)) startGenerate();
+}
+
 void GuiStageWave::clearResult()
 {
 	m_result = {};
@@ -753,8 +844,42 @@ void GuiStageWave::clearResult()
 	repaint();
 }
 
+juce::String GuiStageWave::divisionName(int division)
+{
+	// 全音符の何倍か (4.4.1)
+	if (division < 0) return juce::String(EditorGuiText::StageWave::whole) + juce::String(EditorGuiText::StageWave::times) + juce::String(-division);
+
+	if (division <= 1) return EditorGuiText::StageWave::whole;
+
+	return juce::String(division) + juce::String(EditorGuiText::StageWave::fraction);
+}
+
+int GuiStageWave::divisionIndex(int division)
+{
+	const auto& list = StageWaveRender::divisions;
+
+	for (int i = 0; i < (int)list.size(); ++i) {
+		if (list[(size_t)i] == division) return i;
+	}
+
+	for (int i = 0; i < (int)list.size(); ++i) {
+		if (list[(size_t)i] == 4) return i;
+	}
+
+	return 0;
+}
+
 void GuiStageWave::timerCallback()
 {
+	checkAutoGenerate();
+
+	// SETTINGS の「必ず最前面」を、開いている窓にもすぐ当てる (4.4.1)
+	if (auto* window = findParentComponentOfClass<juce::DocumentWindow>(); window != nullptr
+		&& window->isAlwaysOnTop() != ctx.audioProcessor.stageAlwaysOnTop)
+	{
+		window->setAlwaysOnTop(ctx.audioProcessor.stageAlwaysOnTop);
+	}
+
 	if (++m_idleTicks >= infoRefreshTicks) {
 		m_idleTicks = 0;
 
@@ -808,7 +933,7 @@ void GuiStageWave::mouseDown(const juce::MouseEvent& event)
 	{
 		juce::Component::SafePointer<GuiStageWave> safe(this);
 
-		GenWavePlayer::showZoomMenuAt(*this, zoomBox(), m_player.zoom(), [safe](int zoom) {
+		GenWavePlayer::showZoomMenuAt(*this, zoomBox(), m_player.zoom(), [safe](float zoom) {
 			if (safe == nullptr) return;
 
 			safe->m_player.setZoom(zoom);
@@ -860,7 +985,7 @@ void GuiStageWave::mouseWheelMove(const juce::MouseEvent& event, const juce::Mou
 	// 倍率の欄と枠の上のホイールは縦の倍率 (全部の枠で同じ)
 	if ((zoomBox().contains(event.getPosition()) || event.getPosition().y >= rowArea(0).getY()) && wheel.deltaY != 0.0f)
 	{
-		m_player.setZoom(m_player.zoom() + (wheel.deltaY > 0.0f ? 1 : -1));
+		m_player.setZoom(GuiZoom::step(m_player.zoom(), wheel.deltaY > 0.0f ? 1 : -1));
 		repaint();
 		return;
 	}
@@ -942,6 +1067,7 @@ void GuiStageWave::paint(juce::Graphics& g)
 	g.setColour(GuiColor::GenWave::GroupDivider);
 
 	for (const auto& d : m_dividers) g.fillRect(d);
+	for (const auto& s : m_separators) g.fillRect(s);
 
 	// ---- 周期の欄
 	{
@@ -961,6 +1087,9 @@ void GuiStageWave::paint(juce::Graphics& g)
 			g.setColour(on ? GuiColor::GenWave::CycleTextOn : GuiColor::GenWave::CycleText);
 			g.drawText(juce::String(cycleChoices[(size_t)i]), cell, juce::Justification::centred, false);
 		}
+
+		g.setColour(GuiColor::GenWave::RowText);
+		g.drawText(EditorGuiText::StageWave::zoom, zoomLabelArea(), juce::Justification::centredLeft, false);
 
 		m_player.drawZoom(g, zoomBox());
 
@@ -1115,6 +1244,13 @@ namespace
 			applyColours();
 		}
 
+		// 作っているあいだは、見えているところ全体をローディング画面で覆う
+		void setBusy(bool busy)
+		{
+			if (busy) m_loading.show(*this, EditorGuiText::StageWave::working);
+			else m_loading.hide();
+		}
+
 		void resized() override
 		{
 			// 縦横のスクロールバーが出ると、見える幅・高さがそのぶん減る
@@ -1137,10 +1273,15 @@ namespace
 			m_stage.setSize(width, juce::jmax(h, m_stage.minimumHeight(width)));
 
 			juce::Viewport::resized();
+
+			// 窓の大きさを変えても、覆いは見えているところいっぱいに
+			if (m_loading.isVisible()) m_loading.setBounds(getLocalBounds());
 		}
 
 	private:
 		GuiStageWave& m_stage;
+
+		GuiLoading m_loading;
 
 		void applyColours()
 		{
@@ -1162,6 +1303,8 @@ GuiStageWaveWindow::GuiStageWaveWindow(const GuiContext& context, std::function<
 
 	auto scroller = std::make_unique<StageWaveScroller>(*content.release());
 
+	m_content->onBusyChanged = [s = scroller.get()](bool busy) { s->setBusy(busy); };
+
 	scroller->setSize(GuiStageWave::contentWidth, GuiStageWave::contentHeight);
 
 	setUsingNativeTitleBar(true);
@@ -1172,8 +1315,8 @@ GuiStageWaveWindow::GuiStageWaveWindow(const GuiContext& context, std::function<
 	setResizeLimits(GuiStageWave::minWindowWidth, GuiStageWave::minWindowHeight,
 		GuiStageWave::maxContentWidth, GuiStageWave::maxContentHeight);
 
-	// DAW の窓の後ろへ隠れないように
-	setAlwaysOnTop(true);
+	// 最前面にするかは SETTINGS で選ぶ (4.4.1。既定は切)
+	setAlwaysOnTop(context.audioProcessor.stageAlwaysOnTop);
 
 	centreWithSize(getWidth(), getHeight());
 }
