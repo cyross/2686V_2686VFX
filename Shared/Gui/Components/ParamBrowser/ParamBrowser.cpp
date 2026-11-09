@@ -258,10 +258,11 @@ void GuiParamBrowser::setupCustomControls()
     styleLabel(zoomLabel, EditorGuiText::ParamBrowser::customZoom);
     addAndMakeVisible(zoomLabel);
 
-    for (int z : GenWavePlayer::zoomChoices) zoomBox.addItem("x" + juce::String(z), z);
+    // 項目の番号は選択肢の番号 + 1
+    for (int i = 0; i < (int)GuiZoom::choices.size(); ++i) zoomBox.addItem(GuiZoom::label(GuiZoom::choices[(size_t)i]), i + 1);
 
     zoomBox.onChange = [this] {
-        if (zoomBox.getSelectedId() > 0) ctx.audioProcessor.browserZoom = zoomBox.getSelectedId();
+        if (zoomBox.getSelectedId() > 0) ctx.audioProcessor.browserZoom = GuiZoom::choices[(size_t)(zoomBox.getSelectedId() - 1)];
 
         applyPlayerSettingsToAll(false);
     };
@@ -325,7 +326,7 @@ void GuiParamBrowser::syncCustomFromHost()
     host.browserBars = juce::jlimit(1, 16, host.browserBars);
     host.browserMidiNote = juce::jlimit(0, 127, host.browserMidiNote);
     host.browserCycles = juce::jlimit(0, (int)GuiStageWave::cycleChoices.size() - 1, host.browserCycles);
-    host.browserZoom = GenWavePlayer::snapZoom(host.browserZoom);
+    host.browserZoom = GuiZoom::snap(host.browserZoom);
     host.browserIntervalDiv = StageWaveRender::divisions[(size_t)divisionIndex(host.browserIntervalDiv)];
     host.browserLengthDiv = StageWaveRender::divisions[(size_t)divisionIndex(host.browserLengthDiv)];
 
@@ -348,7 +349,7 @@ void GuiParamBrowser::syncCustomFromHost()
 
     keySlider.setValue(host.browserMidiNote, juce::dontSendNotification);
     cyclesBox.setSelectedId(host.browserCycles + 1, juce::dontSendNotification);
-    zoomBox.setSelectedId(host.browserZoom, juce::dontSendNotification);
+    zoomBox.setSelectedId(GuiZoom::nearestIndex(host.browserZoom) + 1, juce::dontSendNotification);
     fpsBox.setSelectedId(host.browserFps, juce::dontSendNotification);
 }
 
@@ -1804,7 +1805,7 @@ void GuiParamBrowser::layoutCustomRow()
     place(cyclesBox, 56);
     group();
     place(zoomLabel, 56);
-    place(zoomBox, 56);
+    place(zoomBox, 72);
     group();
     place(fpsLabel, 30);
     place(fpsBox, 64);
@@ -1912,7 +1913,7 @@ void GuiParamBrowser::mouseDown(const juce::MouseEvent& event)
             juce::Component::SafePointer<GuiParamBrowser> safe(this);
             const auto file = item.file;
 
-            GenWavePlayer::showZoomMenu(*this, box, item.player.zoom(), [safe, file](int zoom) {
+            GenWavePlayer::showZoomMenu(*this, box, item.player.zoom(), [safe, file](float zoom) {
                 if (safe == nullptr) return;
 
                 for (auto& each : safe->m_items)

@@ -16,9 +16,6 @@ namespace EditorGuiText
 		static inline const I18n::Text generate{ u8"生成", u8"Generate" };
 		static inline const I18n::Text regenerate{ u8"再生成", u8"Regenerate" };
 
-		// 縦の拡大率の頭に付ける印 (x1〜x8)
-		static inline const juce::String zoomPrefix = "x";
-
 		// シークバーを右クリックしたときの、コマの番号を打ち込む欄の見出し
 		static inline const I18n::Text frame{ u8"フレーム", u8"Frame" };
 	}

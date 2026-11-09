@@ -46,7 +46,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The vertical zoom box (x1 and so on) now has a "View zoom" heading, with a vertical divider to its left
   - The "Interval" heading on the second row is now "Key-on interval" (the same name as in the file browser)
   - Key-on interval and note (length) now also offer 8, 4 and 2 whole notes, as in the file browser. Keys are released after 30 seconds at most (the pattern limit)
-  - The vertical zoom (view zoom) now goes up to x32 (x1 to x8, x12, x16, x24 and x32; the mouse wheel steps through them one at a time). The same applies to the file browser's view zoom and each row's box
+  - The vertical zoom (view zoom) can now be chosen from x0.1 to x32: below x1, x0.1, x0.125, x0.167, x0.2, x0.25, x0.3, x0.333, x0.4, x0.5, x0.6, x0.625, x0.667, x0.7, x0.75, x0.8, x0.833, x0.875, x0.9; from x1, x1 to x8, x12, x16, x24 and x32. It starts at x1, and the mouse wheel steps through the choices one at a time. The same applies to the file browser's view zoom and each row's box
   - The window is no longer always on top. SETTINGS has a new "Keep the build process preview window always on top" toggle (off by default; applies straight away to an open window; saved to the settings file as `stageAlwaysOnTop`)
   - A horizontal divider (off-white, with 3px above and below) runs above the "Build process preview" heading in the editor's right-hand column
 - **The file browser's row previews can now be set up**
@@ -55,10 +55,14 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
     - This replaces the fixed "one A2 note for 10 seconds" (by default: 120 BPM, one bar of four quarter notes)
     - The sample rate after thinning is now recorded correctly (the waveform was 44.1 kHz taken every third sample, 14.7 kHz, but recorded as 16 kHz, so it looked about 8% too short and its cycles were slightly off)
     - Previews are kept separately for each way of building them. Changing it switches to the previews built that way (Not built if there are none). Previews kept by earlier versions are not used, so build them again
-  - How they are shown: cycles (how many cycles each box shows: 1, 2, 5 or 10; the buttons that sat to the right of "Pause all" have moved into this row), zoom (x1 to x8, x12, x16, x24 or x32, applied to every row; each row's own box still works) and FPS (15, 30, 60 or 120; 30 by default)
+  - How they are shown: cycles (how many cycles each box shows: 1, 2, 5 or 10; the buttons that sat to the right of "Pause all" have moved into this row), zoom (x0.1 to x32, the same choices as the build process preview, applied to every row; each row's own box still works) and FPS (15, 30, 60 or 120; 30 by default)
   - The "Pause all" button is now a symbol (■, or ▶ while paused), with the words in its tooltip. A new "<<" button to its left rewinds every preview to the start (paused ones stay paused, showing the first frame)
   - Shared by every folder and saved to the settings file (`browserBpm`, `browserBars`, `browserMidiNote`, `browserCycles`, `browserZoom`, `browserFps` and so on)
   - Every plugin with a sound source (not 2686VFX)
+- **The parameter graphs' horizontal zoom now starts at x0.1**
+  - Below x1, x0.1, x0.125, x0.167, x0.2, x0.25, x0.3, x0.333, x0.4, x0.5, x0.6, x0.625, x0.667, x0.7, x0.75, x0.8, x0.833, x0.875, x0.9 have been added to the existing x1 to x32. Below x1 the graph is drawn squeezed towards the left of the frame (the scroll bar does not move)
+  - The row of x1 to x32 buttons is now a drop-down list with the same choices as the build process preview's view zoom. It starts at x1
+  - The slider on the left runs from x0.1 to x32 with x1 in the middle. A value set with the slider that is not one of the choices is shown in the list box as it is
 - **The file browser can build previews automatically when a folder is opened**
   - When a folder is opened and any of its parameter files has no preview, it builds all of them (even if some already exist)
   - SETTINGS has a new "When the file browser opens a folder, build all previews if any are missing" toggle, off by default and saved to the settings file (`browserAutoGenerate`)

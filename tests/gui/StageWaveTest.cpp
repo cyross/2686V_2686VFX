@@ -890,7 +890,7 @@ TEST_CASE("ファイルブラウザー: 行のプレビューは打鍵の並び�
 	CHECK_FALSE(host.browserLengthTriplet);
 	CHECK_FALSE(host.browserLengthDotted);
 	CHECK(host.browserMidiNote == 60);
-	CHECK(host.browserZoom == 1);
+	CHECK(host.browserZoom == doctest::Approx(1.0f));
 	CHECK(host.browserFps == 30);
 	CHECK_FALSE(host.browserAutoGenerate);
 
@@ -973,7 +973,7 @@ TEST_CASE("ファイルブラウザー: 作り方・見せ方の行は「フォ�
 	host.browserAutoGenerate = false;
 
 	// 行の部品: テンポ・DAW 同期・小節・キーオン周期・音符長・キー・生成周期・表示倍率・FPS
-	auto zooms = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == (int)GenWavePlayer::zoomChoices.size() && b.getItemText(0) == "x1"; });
+	auto zooms = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == (int)GuiZoom::choices.size() && b.getItemText(0) == "x0.1"; });
 	auto fpss = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == 4 && b.getItemText(0) == "15" && b.getItemText(3) == "120"; });
 	auto cycles = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == 4 && b.getItemText(0) == "1" && b.getItemText(3) == "10"; });
 	auto folders = findAll<juce::TextButton>(browser, [](juce::TextButton& b) { return b.getButtonText() == EditorGuiText::ParamBrowser::folder.get(); });
@@ -998,10 +998,10 @@ TEST_CASE("ファイルブラウザー: 作り方・見せ方の行は「フォ�
 	CHECK(fpss[0]->getText() == "30");
 
 	// 選ぶとプロセッサの値が変わる
-	zooms[0]->setSelectedId(3, juce::sendNotificationSync);
+	zooms[0]->setSelectedItemIndex(GuiZoom::nearestIndex(3.0f), juce::sendNotificationSync);
 	fpss[0]->setSelectedId(60, juce::sendNotificationSync);
 
-	CHECK(host.browserZoom == 3);
+	CHECK(host.browserZoom == doctest::Approx(3.0f));
 	CHECK(host.browserFps == 60);
 
 	// 見た目を確かめたいときは、置き場を環境変数で渡すと PNG に書き出す
@@ -1240,30 +1240,23 @@ TEST_CASE("生成過程プレビュー: キーオン周期・音符長に全音�
 	editor.reset();
 }
 
-TEST_CASE("表示倍率: x32 まで選べ、ホイールは選択肢を 1 つずつ送る (4.4.1)")
+TEST_CASE("表示倍率: x0.1〜x32 を選べ、ホイールは選択肢を 1 つずつ送る (4.4.1)")
 {
-	CHECK(GenWavePlayer::zoomMax == 32);
-	CHECK(GenWavePlayer::zoomChoices.front() == 1);
-	CHECK(GenWavePlayer::zoomChoices.back() == 32);
-
-	CHECK(GenWavePlayer::snapZoom(32) == 32);
-	CHECK(GenWavePlayer::snapZoom(100) == 32);
-	CHECK(GenWavePlayer::snapZoom(0) == 1);
-	CHECK(GenWavePlayer::snapZoom(9) == 8);
-	CHECK(GenWavePlayer::snapZoom(15) == 16);
-
-	CHECK(GenWavePlayer::stepZoom(8, 1) == 12);
-	CHECK(GenWavePlayer::stepZoom(12, -1) == 8);
-	CHECK(GenWavePlayer::stepZoom(32, 1) == 32);
-	CHECK(GenWavePlayer::stepZoom(1, -1) == 1);
-
 	GenWavePlayer player;
 
-	player.setZoom(24);
-	CHECK(player.zoom() == 24);
+	CHECK(player.zoom() == doctest::Approx(1.0f));
 
-	player.setZoom(40);
-	CHECK(player.zoom() == 32);
+	player.setZoom(24.0f);
+	CHECK(player.zoom() == doctest::Approx(24.0f));
+
+	player.setZoom(40.0f);
+	CHECK(player.zoom() == doctest::Approx(32.0f));
+
+	player.setZoom(0.125f);
+	CHECK(player.zoom() == doctest::Approx(0.125f));
+
+	player.setZoom(0.01f);
+	CHECK(player.zoom() == doctest::Approx(0.1f));
 }
 
 TEST_CASE("生成過程プレビュー: 窓は既定では最前面にせず、SETTINGS の「必ず最前面」で切り替わる (4.4.1)")

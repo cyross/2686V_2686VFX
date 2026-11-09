@@ -933,7 +933,7 @@ void GuiStageWave::mouseDown(const juce::MouseEvent& event)
 	{
 		juce::Component::SafePointer<GuiStageWave> safe(this);
 
-		GenWavePlayer::showZoomMenuAt(*this, zoomBox(), m_player.zoom(), [safe](int zoom) {
+		GenWavePlayer::showZoomMenuAt(*this, zoomBox(), m_player.zoom(), [safe](float zoom) {
 			if (safe == nullptr) return;
 
 			safe->m_player.setZoom(zoom);
@@ -985,7 +985,7 @@ void GuiStageWave::mouseWheelMove(const juce::MouseEvent& event, const juce::Mou
 	// 倍率の欄と枠の上のホイールは縦の倍率 (全部の枠で同じ)
 	if ((zoomBox().contains(event.getPosition()) || event.getPosition().y >= rowArea(0).getY()) && wheel.deltaY != 0.0f)
 	{
-		m_player.setZoom(GenWavePlayer::stepZoom(m_player.zoom(), wheel.deltaY > 0.0f ? 1 : -1));
+		m_player.setZoom(GuiZoom::step(m_player.zoom(), wheel.deltaY > 0.0f ? 1 : -1));
 		repaint();
 		return;
 	}
