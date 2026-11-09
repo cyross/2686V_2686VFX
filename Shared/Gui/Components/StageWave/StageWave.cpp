@@ -554,7 +554,7 @@ void GuiStageWave::resized()
 	for (auto* c : { &intervalControls, &lengthControls })
 	{
 		x += groupGap;
-		place(c->label, 36);
+		place(c->label, c == &intervalControls ? 80 : 36);
 		place(c->division, 90);
 		place(c->triplet, 56);
 		place(c->dotted, 56);
@@ -563,7 +563,7 @@ void GuiStageWave::resized()
 	x += groupGap;
 	place(releaseTailToggle, 150);
 
-	// 区分のあいだの縦線: テンポ | 拍 | 小節 | 間隔 | 音符 | リリース
+	// 区分のあいだの縦線: テンポ | 拍 | 小節 | キーオン周期 | 音符 | リリース
 	addDivider(lengthControls.dotted.getRight(), releaseTailToggle.getX(), y);
 	addDivider(followDawToggle.getRight(), beatLabel.getX(), y);
 	addDivider(beatCountSlider.getRight(), barsLabel.getX(), y);

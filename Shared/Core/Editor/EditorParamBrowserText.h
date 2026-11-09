@@ -72,8 +72,15 @@ namespace EditorGuiText
 		static inline const I18n::Text search{ u8"検索", u8"Search" };
 
 		// 一覧のプレビューをまとめて止める・動かす
+		// ボタンは記号 (4.4.1)。言葉は吹き出しに出す
 		static inline const I18n::Text pauseAll{ u8"すべて停止", u8"Pause all" };
 		static inline const I18n::Text playAll{ u8"すべて再生", u8"Play all" };
+		static inline const I18n::Text pauseAllIcon{ u8"■", u8"■" };
+		static inline const I18n::Text playAllIcon{ u8"▶", u8"▶" };
+
+		// 全部のプレビューを頭へ戻す (4.4.1)
+		static inline const I18n::Text rewindAllIcon{ u8"<<", u8"<<" };
+		static inline const I18n::Text rewindAll{ u8"すべて先頭へ", u8"Rewind all" };
 
 		static inline const I18n::Text saveName{ u8"名前", u8"Name" };
 		static inline const I18n::Text save{ u8"保存", u8"Save" };

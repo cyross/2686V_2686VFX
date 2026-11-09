@@ -39,8 +39,15 @@ void GuiGenWave::layout(int x, int y, int width)
 
 void GuiGenWave::resized()
 {
-    title.setBounds(0, 0, getWidth(), labelHeight);
-    openBtn.setBounds(0, labelHeight + gap, getWidth(), buttonHeight);
+    title.setBounds(0, separatorGap, getWidth(), labelHeight);
+    openBtn.setBounds(0, separatorGap + labelHeight + gap, getWidth(), buttonHeight);
+}
+
+// 見出しの上に横の区切り線 (オフホワイト) を引く。上下に separatorPad の余裕
+void GuiGenWave::paint(juce::Graphics& g)
+{
+    g.setColour(GuiColor::GenWave::GroupDivider);
+    g.fillRect(0, separatorPad, getWidth(), separatorHeight);
 }
 
 void GuiGenWave::setWindowOpen(bool open)

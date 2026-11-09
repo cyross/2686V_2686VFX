@@ -22,6 +22,8 @@
 #include "Shared/Gui/Components/StageWave/StageWaveRender.h"
 #include "Shared/Gui/Components/Loading/GuiLoading.h"
 #include "Shared/Gui/Components/ParamBrowser/ParamBrowser.h"
+#include "Shared/Core/Editor/EditorStageWaveText.h"
+#include "Shared/Core/Editor/EditorParamBrowserText.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Gui/Settings/GuiSettingsText.h"
@@ -1017,6 +1019,182 @@ TEST_CASE("ファイルブラウザー: 作り方・見せ方の行は「フォ�
 	browser.close();
 
 	root.deleteRecursively();
+
+	editor.reset();
+}
+
+TEST_CASE("ファイルブラウザー: キーオン周期・音符長に全音符 × 2・× 4・× 8 があり、3 連符・付点は切 (4.4.1)")
+{
+	// 負の値は全音符の何倍か
+	CHECK(StageWaveRender::NoteValue{ -2, false, false }.quarters() == doctest::Approx(8.0));
+	CHECK(StageWaveRender::NoteValue{ -4, false, false }.quarters() == doctest::Approx(16.0));
+	CHECK(StageWaveRender::NoteValue{ -8, false, false }.quarters() == doctest::Approx(32.0));
+	CHECK(StageWaveRender::NoteValue{ 1, false, false }.quarters() == doctest::Approx(4.0));
+
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	auto& host = *processor;
+
+	CHECK_FALSE(host.browserIntervalTriplet);
+	CHECK_FALSE(host.browserIntervalDotted);
+	CHECK_FALSE(host.browserLengthTriplet);
+	CHECK_FALSE(host.browserLengthDotted);
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	auto* editorHost = dynamic_cast<GuiEditorHost*>(editor.get());
+
+	REQUIRE(editorHost != nullptr);
+
+	GuiContext context(host, *editorHost, host.apvts);
+
+	juce::TemporaryFile tempDir;
+	const auto root = tempDir.getFile();
+
+	root.createDirectory();
+
+	GuiParamBrowser browser(context);
+	GuiParamBrowser::Request request;
+
+	request.root = root;
+	browser.open(*editor, request);
+
+	// 音符の選択肢は 2 つ (キーオン周期・音符長)。どちらも全音符 × 8 から 32 分音符まで 9 つ
+	auto notes = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == 9; });
+
+	REQUIRE(notes.size() == 2);
+
+	for (auto* box : notes)
+	{
+		CHECK(box->getItemText(0).endsWith("8"));
+		CHECK(box->getItemText(1).endsWith("4"));
+		CHECK(box->getItemText(2).endsWith("2"));
+		CHECK(box->getItemText(3) == EditorGuiText::StageWave::whole.get());
+		CHECK(box->getSelectedItemIndex() == 5);	// 4 分音符
+	}
+
+	// 全音符 × 8 を選ぶと、プロセッサの値は -8
+	notes[0]->setSelectedItemIndex(0, juce::sendNotificationSync);
+
+	CHECK((host.browserIntervalDiv == -8 || host.browserLengthDiv == -8));
+
+	// 3 連符・付点のトグルは切
+	int checked = 0;
+
+	for (auto* t : findAll<juce::ToggleButton>(browser, [](juce::ToggleButton& b) {
+		return b.getButtonText() == EditorGuiText::StageWave::triplet.get() || b.getButtonText() == EditorGuiText::StageWave::dotted.get(); }))
+	{
+		CHECK_FALSE(t->getToggleState());
+		++checked;
+	}
+
+	CHECK(checked == 4);
+
+	browser.close();
+	root.deleteRecursively();
+	editor.reset();
+}
+
+TEST_CASE("ファイルブラウザー: 「すべて停止」は ■ / ▶ の記号で、その左に「すべて先頭へ」(<<) がある (4.4.1)")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	auto& host = *processor;
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	auto* editorHost = dynamic_cast<GuiEditorHost*>(editor.get());
+
+	REQUIRE(editorHost != nullptr);
+
+	GuiContext context(host, *editorHost, host.apvts);
+
+	juce::TemporaryFile tempDir;
+	const auto root = tempDir.getFile();
+
+	root.createDirectory();
+
+	GuiParamBrowser browser(context);
+	GuiParamBrowser::Request request;
+
+	request.root = root;
+	browser.open(*editor, request);
+
+	auto pauses = findAll<juce::TextButton>(browser, [](juce::TextButton& b) { return b.getButtonText() == EditorGuiText::ParamBrowser::pauseAllIcon.get(); });
+	auto rewinds = findAll<juce::TextButton>(browser, [](juce::TextButton& b) { return b.getButtonText() == EditorGuiText::ParamBrowser::rewindAllIcon.get(); });
+
+	REQUIRE(pauses.size() == 1);
+	REQUIRE(rewinds.size() == 1);
+
+	// 言葉は吹き出しに
+	CHECK(pauses[0]->getTooltip() == EditorGuiText::ParamBrowser::pauseAll.get());
+	CHECK(rewinds[0]->getTooltip() == EditorGuiText::ParamBrowser::rewindAll.get());
+
+	// 同じ行で、<< が ■ の左
+	CHECK(rewinds[0]->getY() == pauses[0]->getY());
+	CHECK(rewinds[0]->getRight() < pauses[0]->getX());
+
+	// 押すと ▶ に変わり、もう一度で ■ に戻る
+	pauses[0]->onClick();
+
+	CHECK(pauses[0]->getButtonText() == EditorGuiText::ParamBrowser::playAllIcon.get());
+
+	pauses[0]->onClick();
+
+	CHECK(pauses[0]->getButtonText() == EditorGuiText::ParamBrowser::pauseAllIcon.get());
+
+	// 行が無くても押せる
+	rewinds[0]->onClick();
+
+	browser.close();
+	root.deleteRecursively();
+	editor.reset();
+}
+
+TEST_CASE("生成過程プレビュー: 開くボタンの見出しの上に横の区切り線の余裕がある (4.4.1)")
+{
+	CHECK(GuiGenWave::separatorGap == GuiGenWave::separatorPad * 2 + GuiGenWave::separatorHeight);
+	CHECK(GuiGenWave::totalHeight == GuiGenWave::separatorGap + GuiGenWave::labelHeight + GuiGenWave::gap + GuiGenWave::buttonHeight);
+
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	processor->stageAutoGenerate = false;
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	auto* launcher = findFirst<GuiGenWave>(*editor);
+
+	REQUIRE(launcher != nullptr);
+
+	launcher->setBounds(0, 0, 300, GuiGenWave::totalHeight);
+
+	// 見出し (と開くボタン) は区切り線の下
+	for (auto* child : launcher->getChildren())
+		CHECK(child->getY() >= GuiGenWave::separatorGap);
+
+	// 窓のキーオン周期の見出し
+	launcher->setWindowOpen(true);
+
+	auto labels = findAll<juce::Label>(*launcher->stageWave(), [](juce::Label& l) { return l.getText() == EditorGuiText::StageWave::interval.get(); });
+
+	REQUIRE(labels.size() == 1);
+
+	launcher->setWindowOpen(false);
+
+	if (const auto dir = juce::SystemStats::getEnvironmentVariable("STAGE_WAVE_SNAPSHOT_DIR", {}); dir.isNotEmpty())
+	{
+		// 部品は背景を描かないので、エディタの地の色の上に描く
+		juce::Image image(juce::Image::ARGB, launcher->getWidth(), launcher->getHeight(), true);
+		{
+			juce::Graphics g(image);
+			g.fillAll(juce::Colour(0xff202020));
+			launcher->paintEntireComponent(g, true);
+		}
+		auto file = juce::File(dir).getChildFile("launcher_441.png");
+
+		file.deleteFile();
+
+		juce::FileOutputStream out(file);
+		juce::PNGImageFormat().writeImageToStream(image, out);
+	}
 
 	editor.reset();
 }

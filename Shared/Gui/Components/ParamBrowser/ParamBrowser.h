@@ -64,7 +64,9 @@ public:
     static constexpr int newFolderButtonWidth = 120;
     static constexpr int deleteFolderButtonWidth = 120;
     static constexpr int homeButtonWidth = 120;
-    static constexpr int playAllButtonWidth = 110;
+    // 「すべて停止」(■ / ▶) と「すべて先頭へ」(<<) は記号のボタン (4.4.1)
+    static constexpr int playAllButtonWidth = 40;
+    static constexpr int rewindAllButtonWidth = 40;
     static constexpr int bulkButtonWidth = 220;
     static constexpr int deleteButtonWidth = 130;
     static constexpr int saveButtonWidth = 110;
@@ -229,6 +231,7 @@ private:
 
     // 一覧のプレビューをまとめて止める・動かす。周期の切り替えの左に置く。
     juce::TextButton playAllBtn;
+    juce::TextButton rewindAllBtn;
     juce::TextButton bulkGenerateBtn;
     juce::TextButton bulkDeleteBtn;
 
@@ -370,6 +373,7 @@ private:
     void deleteSelectedFolder();
     void goHome();
     void toggleAllPlayback();
+    void rewindAllPlayback();
     void updatePlayAllText();
     void commitSave();
 

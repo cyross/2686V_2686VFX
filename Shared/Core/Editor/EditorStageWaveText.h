@@ -40,7 +40,7 @@ namespace EditorGuiText
 		static inline const I18n::Text beat{ u8"拍", u8"Beat" };
 		static inline const I18n::Text beatTooltip{ u8"1 小節の拍。音符と、その数 (1〜12)。4 分音符なら 4、8 分音符なら 6 が既定です。DAW 追従のときは DAW の拍子を使います。", u8"Beats per bar: the note and how many (1-12). The default is 4 for quarter notes and 6 for eighth notes. With Follow DAW on, the DAW's time signature is used." };
 		static inline const I18n::Text bars{ u8"小節", u8"Bars" };
-		static inline const I18n::Text interval{ u8"間隔", u8"Interval" };
+		static inline const I18n::Text interval{ u8"キーオン周期", u8"Key-on interval" };
 		static inline const I18n::Text length{ u8"音符", u8"Note" };
 		static inline const I18n::Text triplet{ u8"3連", u8"Triplet" };
 		static inline const I18n::Text dotted{ u8"付点", u8"Dotted" };
@@ -50,6 +50,7 @@ namespace EditorGuiText
 
 		// 音符の長さの名前 (1 = 全音符 … 32 = 32 分音符)
 		static inline const I18n::Text whole{ u8"全音符", u8"Whole" };
+		static inline const I18n::Text times{ u8"×", u8"×" };
 		static inline const I18n::Text fraction{ u8"分音符", u8"th" };
 
 		// 段の見出し

@@ -311,7 +311,12 @@ GenWaveRender::Wave StageWaveRender::renderPattern(GuiRenderRig& rig, const Patt
 
 	for (const auto& e : events) patternEnd = juce::jmax(patternEnd, e.at);
 
-	const int limit = patternEnd + (int)std::lround(maxTailSeconds * rate);
+	// 長い音符 (全音符 × 8 など) を遅いテンポで押すと長くなりすぎるので、貯められる長さで切る
+	const int maxTotal = (int)std::lround(GenWaveRender::maxSeconds * rate);
+
+	patternEnd = juce::jmin(patternEnd, maxTotal);
+
+	const int limit = juce::jmin(maxTotal, patternEnd + (int)std::lround(maxTailSeconds * rate));
 	const int silentLimit = (int)std::lround(tailSeconds * rate);
 
 	// 間引きの間隔。割り切れる値にしてあるので位相はずれない

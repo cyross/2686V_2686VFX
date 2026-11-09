@@ -44,7 +44,8 @@ namespace StageWaveRender
 	// 第 3 段の段
 	enum Stage { stageRaw = 0, stageCore, stageUnison, stageDac, stageFx, stageCount };
 
-	// 音符の長さ。division は 1 = 全音符, 2, 4, 8, 16, 32
+	// 音符の長さ。division は 1 = 全音符, 2, 4, 8, 16, 32。
+	// 負の値は全音符の何倍か (-2 = 全音符 × 2。4.4.1 でファイルブラウザーに足した長い音符)
 	struct NoteValue
 	{
 		int division = 4;
@@ -54,7 +55,8 @@ namespace StageWaveRender
 		// 4 分音符を 1 とした長さ
 		double quarters() const
 		{
-			double q = 4.0 / (double)juce::jmax(1, division);
+			double q = division < 0 ? 4.0 * (double)juce::jmin(8, -division)
+				: 4.0 / (double)juce::jmax(1, division);
 
 			if (triplet) q *= 2.0 / 3.0;
 			if (dotted) q *= 1.5;
@@ -64,6 +66,9 @@ namespace StageWaveRender
 	};
 
 	inline constexpr std::array<int, 6> divisions{ 1, 2, 4, 8, 16, 32 };
+
+	// ファイルブラウザーで選べる長さ。全音符 × 8・× 4・× 2 を前に足す (4.4.1)
+	inline constexpr std::array<int, 9> browserDivisions{ -8, -4, -2, 1, 2, 4, 8, 16, 32 };
 
 	struct Pattern
 	{
