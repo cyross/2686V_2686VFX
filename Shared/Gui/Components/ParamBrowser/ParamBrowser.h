@@ -25,10 +25,15 @@
 // 一番上の「上へ」で親フォルダへ戻る。キーワードを打っている間だけは、
 // 下のフォルダまで潜って探す。
 //
-// 波形プレビューは「生成波形のプレビュー」と同じ見せ方で、10 秒ぶんの上を
+// 波形プレビューは「生成波形のプレビュー」と同じ見せ方で、作った波形の上を
 // 窓が動く。作るのは押したときだけで、作ったものはファイルへ貯めるので、
 // 次に開いたときは作り直さない。プレビューの下には、行ごとに一時停止・
 // コマ送り・縦の拡大率を置く (GenWavePlayer)。
+//
+// 4.4.1 から、作り方 (テンポ・小節・キーオン周期・音符長・キー) と見せ方 (生成周期・
+// 表示倍率・FPS) を「フォルダ…」の行 (書き出すときは名前の行) の下の 1 行で選ぶ。
+// 全フォルダ共通で、設定ファイルへ保存する。SETTINGS で自動生成を入れておくと、
+// フォルダを開いたときにプレビューが揃っていなければ全部を作る。
 class GuiParamBrowser : public juce::Component, private juce::Timer
 {
 public:
@@ -73,6 +78,17 @@ public:
     static constexpr int actionButtonHeight = 28;
 
     static constexpr int frameMs = 33;
+
+    // 作り方・見せ方の行 (4.4.1)
+    static constexpr int customRowHeight = 24;
+    static constexpr int customItemGap = 4;
+    static constexpr int customGroupGap = 14;
+    static constexpr int dividerWidth = 2;
+    static constexpr int separatorHeight = 2;
+
+    // 横の区切り線の上下に空ける余裕
+    static constexpr int separatorPad = 3;
+    static constexpr int separatorGap = separatorPad * 2 + separatorHeight;
 
     // プレビューを持っておく行数。
     //
@@ -168,6 +184,12 @@ public:
     explicit GuiParamBrowser(const GuiContext& context);
     ~GuiParamBrowser() override;
 
+    // フォルダを開いたときに自動で作るか (SETTINGS で入れていて、プレビューが 1 件でも
+    // 欠けていれば作る。一部だけ出来ていても全部を作り直す)
+    bool needsAutoGenerate() const;
+
+    bool isBusy() const { return m_busy; }
+
     void open(juce::Component& parent, const Request& request);
     void close();
 
@@ -214,6 +236,40 @@ private:
     juce::TextEditor nameEditor;
     juce::TextButton saveBtn;
 
+    // ---- 作り方・見せ方の行 (4.4.1)。値はプロセッサ (browserBpm など) が持つ
+    juce::Label tempoLabel;
+    juce::Slider tempoSlider;
+    juce::ToggleButton followDawToggle;
+
+    juce::Label barsLabel;
+    juce::ComboBox barsBox;
+
+    struct NoteControls
+    {
+        juce::Label label;
+        juce::ComboBox division;
+        juce::ToggleButton triplet;
+        juce::ToggleButton dotted;
+    };
+
+    NoteControls intervalControls;
+    NoteControls lengthControls;
+
+    juce::Label keyLabel;
+    juce::Slider keySlider;
+
+    juce::Label cyclesLabel;
+    juce::ComboBox cyclesBox;
+
+    juce::Label zoomLabel;
+    juce::ComboBox zoomBox;
+
+    juce::Label fpsLabel;
+    juce::ComboBox fpsBox;
+
+    // 区分のあいだの縦線 (resized で決める)
+    std::vector<juce::Rectangle<int>> m_dividers;
+
     std::function<void(const juce::File&)> m_onChoose;
 
     juce::File m_root;
@@ -232,8 +288,6 @@ private:
 
     Column m_sortColumn = Column::name;
     Sort m_sort = Sort::ascending;
-
-    int m_cycleIndex = 1;           // 生成波形のプレビューと同じ選択肢
 
     // 「すべて停止」を押したあとか。フォルダを移っても、新しく並んだ行を
     // 止めた状態で出すために覚えておく。
@@ -269,6 +323,7 @@ private:
     juce::Rectangle<int> searchFrameArea() const;
     juce::Rectangle<int> buttonRowArea() const;
     juce::Rectangle<int> saveFrameArea() const;
+    juce::Rectangle<int> customRowArea() const;
     juce::Rectangle<int> pathArea() const;
     juce::Rectangle<int> listArea() const;
     juce::Rectangle<int> headerArea() const;
@@ -278,7 +333,6 @@ private:
     juce::Rectangle<int> waveBox(juce::Rectangle<int> row) const;
     juce::Rectangle<int> playerBox(juce::Rectangle<int> row) const;
     juce::Rectangle<int> actionArea(juce::Rectangle<int> row) const;
-    juce::Rectangle<int> cycleCell(int index) const;
 
     int visibleRows() const;
 
@@ -326,6 +380,30 @@ private:
     juce::String withoutSaveExtension(const juce::String& name) const;
 
     void startBulkGenerate();
+
+    // targets (m_items の番号) を順に作る
+    void startGenerate(const std::vector<int>& targets);
+
+    // フォルダを開いたとき。自動生成が入っていて、欠けていれば全部を作る
+    void autoGenerateIfNeeded();
+
+    // ---- 作り方・見せ方の行
+    void setupCustomControls();
+    void setupNoteControls(NoteControls& c, const juce::String& title, int& division, bool& triplet, bool& dotted);
+    void syncCustomFromHost();
+    void applyCustomColours();
+    void layoutCustomRow();
+
+    // 作り方を変えた。貯めてあるものは作り方ごとに別なので、読み直す
+    void patternChanged();
+
+    // 見せ方 (表示倍率・FPS) を行の再生の操作へ当てる。FPS を変えたときは頭から数え直す
+    void applyPlayerSettings(Item& item, double nowMs, bool fpsChanged);
+    void applyPlayerSettingsToAll(bool fpsChanged);
+
+    // 今の作り方の符号 (貯めておくファイルの名前に付ける)
+    juce::String currentPatternKey() const;
+    juce::File cacheFileOf(const Item& item) const;
     void generateNext();
     void finishBulk();
     void deleteAllPreviews();
@@ -340,7 +418,6 @@ private:
     void drawRow(juce::Graphics& g, int viewIndex);
     void drawWave(juce::Graphics& g, juce::Rectangle<int> area, const Item& item);
     void drawStill(juce::Graphics& g, juce::Rectangle<int> area, const Item& item);
-    void drawCycles(juce::Graphics& g);
     void drawScrollBar(juce::Graphics& g);
 
     void timerCallback() override { repaint(listArea()); }

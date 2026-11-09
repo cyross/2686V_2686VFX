@@ -4,83 +4,6 @@
 #include <cstring>
 
 #include "../../../Core/Const/ConstFileValues.h"
-#include "../../../Core/Synth/LivePosition.h"
-
-GenWaveRender::Wave GenWaveRender::render(GuiRenderRig& rig)
-{
-    // 計算で鳴らした音は、グラフの鳴っている位置に出さない
-    const LivePosition::Mute mute;
-
-    Wave out;
-
-    out.sampleRate = storeRate;
-    out.noteHz = juce::MidiMessage::getMidiNoteInHertz(midiNote);
-
-    const int total = (int)(seconds * renderRate);
-    const int offAt = (int)(total * noteOffAt);
-
-    // 間引きの間隔。割り切れる値にしてあるので位相はずれない。
-    const int step = juce::jmax(1, (int)std::lround(renderRate / storeRate));
-
-    out.left.reserve((size_t)(total / step) + 1);
-    out.right.reserve((size_t)(total / step) + 1);
-
-    juce::AudioBuffer<float> buffer(2, blockSize);
-    juce::MidiBuffer midi;
-
-    midi.addEvent(juce::MidiMessage::noteOn(1, midiNote, (juce::uint8)100), 0);
-
-    bool released = false;
-
-    // 鳴り終わりを見張る。一度も鳴っていないうちは数えない
-    // (立ち上がりの遅い音を頭で切ってしまわないため)。
-    bool started = false;
-    int silentFor = 0;
-
-    const int silentLimit = (int)(tailSeconds * renderRate);
-
-    for (int done = 0; done < total; done += blockSize)
-    {
-        const int num = juce::jmin(blockSize, total - done);
-
-        if (!released && offAt >= done && offAt < done + num)
-        {
-            midi.addEvent(juce::MidiMessage::noteOff(1, midiNote), offAt - done);
-
-            released = true;
-        }
-
-        buffer.clear();
-        rig.renderNextBlock(buffer, midi, 0, num);
-        midi.clear();
-
-        const float* left = buffer.getReadPointer(0);
-        const float* right = buffer.getNumChannels() > 1 ? buffer.getReadPointer(1) : left;
-
-        for (int i = 0; i < num; ++i)
-        {
-            if (std::abs(left[i]) > silenceLevel || std::abs(right[i]) > silenceLevel)
-            {
-                started = true;
-                silentFor = 0;
-            }
-            else if (started)
-            {
-                ++silentFor;
-            }
-
-            if (((done + i) % step) != 0) continue;
-
-            out.left.push_back(juce::jlimit(-1.0f, 1.0f, left[i]));
-            out.right.push_back(juce::jlimit(-1.0f, 1.0f, right[i]));
-        }
-
-        // 鳴り終わって tailSeconds ぶん経ったら、そこで切り上げる
-        if (started && silentFor >= silentLimit) break;
-    }
-
-    return out;
-}
 
 // ============================================================================
 // 貯めておくファイル
@@ -160,7 +83,7 @@ GenWaveRender::Wave GenWaveRender::read(const juce::File& file)
     const int count = stream.readInt();
     const float hz = stream.readFloat();
 
-    if (rate <= 0 || count <= 0 || count > (int)(seconds * renderRate)) return out;
+    if (rate <= 0 || count <= 0 || count > (int)(maxSeconds * renderRate)) return out;
 
     const int channels = (version == 1) ? 1 : 2;
     const int stored = count * channels;
@@ -192,12 +115,13 @@ juce::File GenWaveRender::cacheDirectory(const GuiProcessorHost& processor)
     return dir;
 }
 
-juce::File GenWaveRender::cacheFileFor(const juce::File& cacheDir, const juce::File& source)
+juce::File GenWaveRender::cacheFileFor(const juce::File& cacheDir, const juce::File& source, const juce::String& patternKey)
 {
     // 元の場所から短い符号を作る。同じ名前が別のフォルダにあっても
     // 混ざらないようにするためで、中身を見分けるためのものではない。
     const juce::String tag =
         juce::String::toHexString((juce::int64)source.getFullPathName().toLowerCase().hashCode64());
 
-    return cacheDir.getChildFile(source.getFileName() + "." + tag + fileExtension);
+    // 打鍵の並びの符号も付ける。並びを変えたら、前に作ったものは別物として扱う
+    return cacheDir.getChildFile(source.getFileName() + "." + tag + "." + patternKey + fileExtension);
 }

@@ -8,7 +8,7 @@
 #include "Shared/Core/Gui/GuiHost.h"
 
 // ============================================================================
-// 生成波形の計算と、貯めておくファイル
+// 生成波形と、貯めておくファイル
 // ============================================================================
 // 「リアルタイムではなく、ボタンを押したときだけ作る」ためのもの。
 //
@@ -17,26 +17,14 @@
 // ない。juce::Synthesiser は音を出す道具ではなくボイスの割り当てを
 // 受け持つだけの部品なので、鳴っている音とは何も繋がっていない。
 //
-// 10 秒ぶん作る。押してから離すまでと、切れ際までが 1 本に入る。
+// 4.4.1 から、ファイルブラウザーの行のプレビューは打鍵の並び (テンポ・小節・
+// キーオン周期・音符長・キー) どおりに作る (StageWaveRender::renderPattern)。
+// ここは波形の入れ物と、貯めておくファイルを受け持つ。
 //
 // 音源一式 (GuiRenderRig) はプラグインごとにボイスとパラメータが違うので、
 // 各プラグインのプロセッサが組み立てる (GuiProcessorHost::createRenderRig)。
-// ここはそれを回すだけ。
 namespace GenWaveRender
 {
-    // 作る長さの上限。ここまで来たら鳴り続けていても打ち切る。
-    inline constexpr double seconds = 10.0;
-
-    // 鳴り終わってからここまで見届けて打ち切る。
-    //
-    // 短いエンベロープの音を 10 秒ぶん作ると、頭の一瞬だけ動いて、
-    // あとは止まった波形が延々と出るだけになる。鳴り終わったところで
-    // 切り上げれば、その音に見合った長さになる。
-    inline constexpr double tailSeconds = 0.5;
-
-    // 「鳴っていない」とみなす大きさ。16 ビットの 1 きざみより下。
-    inline constexpr float silenceLevel = 1.0e-4f;
-
     // 計算するときのサンプリングレート。実際の再生には使わない。
     inline constexpr double renderRate = 44100.0;
 
@@ -45,13 +33,9 @@ namespace GenWaveRender
     // 145 点になり、10 秒ぶんで 160KB ほどに収まる。
     inline constexpr double storeRate = 16000.0;
 
-    // 鳴らす音。低いほうが 1 周期に点を多く取れるので A2 にしてある。
-    inline constexpr int midiNote = 45;
-
-    // 鍵盤を離す位置 (全体に対する割合)。切れ際まで見せる。
-    inline constexpr double noteOffAt = 0.75;
-
-    inline constexpr int blockSize = 512;
+    // 貯めたファイルを読むときの、長さの上限 (壊れたファイルを読まないため)。
+    // 打鍵の並び (最長 30 秒) と余韻 (最長 10 秒) が収まる長さ
+    inline constexpr double maxSeconds = 60.0;
 
     // 貯めるファイルの見出し
     // 2 から L と R を別々に持つ。1 のものは混ざったものしか
@@ -101,10 +85,6 @@ namespace GenWaveRender
         }
     };
 
-    // 10 秒ぶんを計算する。時間が掛かるので、メッセージスレッドから
-    // 直に呼ばないこと。
-    Wave render(GuiRenderRig& rig);
-
     // ---- 貯めておくファイル ----
     bool write(const juce::File& file, const Wave& wave);
     Wave read(const juce::File& file);
@@ -116,5 +96,8 @@ namespace GenWaveRender
     //
     // 名前がぶつからないよう、元の場所から作った短い符号を後ろへ付ける。
     // 同じ名前のファイルが別のフォルダにあっても混ざらない。
-    juce::File cacheFileFor(const juce::File& cacheDir, const juce::File& source);
+    //
+    // patternKey は作ったときの打鍵の並びの符号 (StageWaveRender::patternKey)。
+    // 並びを変えると別の置き場になるので、前の並びで作ったものは「未生成」に見える。
+    juce::File cacheFileFor(const juce::File& cacheDir, const juce::File& source, const juce::String& patternKey);
 }

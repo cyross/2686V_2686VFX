@@ -34,12 +34,28 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
 - **The build process preview can now be built automatically**
   - It only presses "Generate" for you; it does not redraw while notes play (it is not real-time)
   - While the window is open, it builds once you stop editing parameters and the "Wait" time has passed. Nothing is built while the window is closed
-  - When the window opens, it builds straight away if anything has been edited
+  - When the window opens, it builds straight away if anything has been edited. The first time it is opened after start-up (after the DAW is launched), it builds even if every parameter is still at its initial value, so you can see the sound as it starts
   - Edits are taken from parameters (including DAW automation), changes that go on the undo history (such as step tables) and this window's note pattern (key, tempo, beat, bars, interval, length, release, processing and mixed pads). Nothing is built while a control is held with the mouse
   - SETTINGS has a new "Auto-generate the build process preview" row: on / off (on by default) and the wait time (0.1 to 5.0 seconds, 1.0 by default). The wait time cannot be changed while it is off. Both are saved to the settings file (`stageAutoGenerate` / `stageAutoInterval`)
   - Every plugin with a sound source (not 2686VFX)
 - **The build process preview window is covered by a loading screen while it builds**
   - The same loading screen as the parameter browser (bouncing bars and "Building the waveform…"). It covers the visible part of the window and goes away when the build finishes
+- **The build process preview has been rearranged**
+  - The playback row (pause, seek bar and so on) has moved below the "Processing" row (below the scroll bar when one is shown)
+  - Horizontal dividers (off-white, `GenWave.GroupDivider`) run below the first row ("Generate" and so on) and below the "Processing" row, with 3px of space above and below each line
+  - The vertical zoom box (x1 and so on) now has a "View zoom" heading, with a vertical divider to its left
+- **The file browser's row previews can now be set up**
+  - One row below the "Folder…" row (below the "Name" row when saving), with horizontal dividers above and below it (3px of space on each side of the line) and vertical dividers between groups (off-white)
+  - How they are built: tempo (DAW sync is available; not in the standalone app), bars (1 to 16), key-on interval (how often keys are pressed), note length (how long they are held) and key (C3 by default). Key-on interval and note length run from whole notes to 32nd notes and can be triplets or dotted (both are quarter notes, with triplet and dotted off, by default). The time signature is 4/4 (the DAW's with DAW sync)
+    - This replaces the fixed "one A2 note for 10 seconds" (by default: 120 BPM, one bar of four quarter notes)
+    - The sample rate after thinning is now recorded correctly (the waveform was 44.1 kHz taken every third sample, 14.7 kHz, but recorded as 16 kHz, so it looked about 8% too short and its cycles were slightly off)
+    - Previews are kept separately for each way of building them. Changing it switches to the previews built that way (Not built if there are none). Previews kept by earlier versions are not used, so build them again
+  - How they are shown: cycles (how many cycles each box shows: 1, 2, 5 or 10; the buttons that sat to the right of "Pause all" have moved into this row), zoom (x1 to x8, applied to every row; each row's own box still works) and FPS (15, 30, 60 or 120; 30 by default)
+  - Shared by every folder and saved to the settings file (`browserBpm`, `browserBars`, `browserMidiNote`, `browserCycles`, `browserZoom`, `browserFps` and so on)
+  - Every plugin with a sound source (not 2686VFX)
+- **The file browser can build previews automatically when a folder is opened**
+  - When a folder is opened and any of its parameter files has no preview, it builds all of them (even if some already exist)
+  - SETTINGS has a new "When the file browser opens a folder, build all previews if any are missing" toggle, off by default and saved to the settings file (`browserAutoGenerate`)
 
 ### 3-0-2. What v4.4.0 adds and changes
 
@@ -1399,7 +1415,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
     - Searching and filtering have been added to the file list
     - The preview sits at the far right of the browser
     - Built with the generate (regenerate) button
-      - It is never built on its own, to keep the CPU load down
+      - From v4.4.1, with the SETTINGS toggle on, missing previews are built automatically when a folder is opened (off by default)
+      - From v4.4.1, how previews are built (tempo, bars, key-on interval, note length, key) and shown (cycles, zoom, FPS) can be chosen
     - The generated waveform is shown as an animation
       - Wave files and audio files are drawn as a still picture instead
     - Previews are generated (regenerated) and deleted with buttons

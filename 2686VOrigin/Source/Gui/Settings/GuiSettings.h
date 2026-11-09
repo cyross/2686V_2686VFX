@@ -177,6 +177,9 @@ class GuiSettings : public GuiBase
     GuiToggleButton stageAutoToggle;
     GuiSlider stageAutoIntervalSlider;
 
+    // ファイルブラウザーのプレビューの自動生成 (4.4.1)。既定は切
+    GuiToggleButton browserAutoToggle;
+
     NormalSeparator separator5;
 
     // 仮想MIDIキーボード表示制御
@@ -300,6 +303,7 @@ public:
         separatorStageAuto(context),
         stageAutoToggle(context),
         stageAutoIntervalSlider(context),
+        browserAutoToggle(context),
         separator5(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),

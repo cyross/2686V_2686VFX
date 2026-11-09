@@ -21,6 +21,7 @@
 #include "Shared/Gui/Components/GenWave/GenWavePlayer.h"
 #include "Shared/Gui/Components/StageWave/StageWaveRender.h"
 #include "Shared/Gui/Components/Loading/GuiLoading.h"
+#include "Shared/Gui/Components/ParamBrowser/ParamBrowser.h"
 #include "Shared/Core/Gui/GuiBase.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Gui/Settings/GuiSettingsText.h"
@@ -768,6 +769,254 @@ TEST_CASE("SETTINGS: 生成過程プレビューの自動生成は入り切り�
 
 	CHECK_FALSE(processor->stageAutoGenerate);
 	CHECK_FALSE(interval->isEnabled());
+
+	editor.reset();
+}
+
+TEST_CASE("生成中の波形: 起動して最初に開いたときは、パラメータが初期値のままでも作る (4.4.1)")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	auto& host = *processor;
+
+	processor->prepareToPlay(48000.0, 512);
+
+	host.stageBpm = 240.0f;
+	host.stageBars = 1;
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	auto* launcher = findFirst<GuiGenWave>(*editor);
+
+	REQUIRE(launcher != nullptr);
+	REQUIRE(host.stageAutoGenerate);
+	CHECK_FALSE(host.stageOpenedOnce);
+
+	// 触っていなくても、最初に開いたら作り始める
+	const auto touches = host.paramTouches.count();
+
+	launcher->setWindowOpen(true);
+
+	REQUIRE(launcher->stageWave() != nullptr);
+	CHECK(launcher->stageWave()->isBusy());
+	CHECK(host.stageOpenedOnce);
+
+	// 2 度目からは、触った履歴が無ければ作らない
+	launcher->setWindowOpen(false);
+
+	if (host.paramTouches.count() == touches)
+	{
+		launcher->setWindowOpen(true);
+
+		REQUIRE(launcher->stageWave() != nullptr);
+		CHECK_FALSE(launcher->stageWave()->isBusy());
+
+		launcher->setWindowOpen(false);
+	}
+
+	editor.reset();
+}
+
+TEST_CASE("生成中の波形: 再生の段は「加工」の段の下にある (4.4.1)")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	processor->stageAutoGenerate = false;
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	auto* launcher = findFirst<GuiGenWave>(*editor);
+
+	REQUIRE(launcher != nullptr);
+
+	launcher->setWindowOpen(true);
+
+	auto& stage = *launcher->stageWave();
+
+	// 「加工」の段のトグル (見えているもの) のいちばん下より、再生の段 (枠の段の上) が下にある。
+	// 再生の段は描くだけの部品なので、枠の段の上端との間で見る
+	int switchesBottom = 0;
+
+	// 操作の段のトグル (段の高さのもの) だけを見る。RHYTHM のパッドは 3 段目の枠の見出しに置くので数えない
+	for (auto* child : stage.getChildren())
+		if (auto* t = dynamic_cast<juce::ToggleButton*>(child); t != nullptr && t->isVisible() && t->getHeight() == GuiStageWave::controlHeight)
+			switchesBottom = juce::jmax(switchesBottom, t->getBottom());
+
+	// 操作の 3 段・横線 1 本・(出ていれば横のスクロールバー) の下端。再生の段はその下の横線のさらに下
+	const int viewsTop = GuiStageWave::margin + GuiStageWave::controlHeight * 3 + GuiStageWave::separatorGap
+		+ GuiStageWave::viewGap + GuiStageWave::viewGap / 2 + GuiStageWave::controlScrollHeight;
+
+	CHECK(switchesBottom <= viewsTop);
+
+	// 見えている部品は、どれも再生の段 (操作の 3 段の下) より上
+	for (auto* child : stage.getChildren())
+		if (child->isVisible() && dynamic_cast<juce::ScrollBar*>(child) == nullptr && child->getHeight() == GuiStageWave::controlHeight)
+			CHECK(child->getBottom() <= viewsTop);
+
+	// 見た目を確かめたいときは、置き場を環境変数で渡すと窓の中身を PNG に書き出す
+	if (const auto dir = juce::SystemStats::getEnvironmentVariable("STAGE_WAVE_SNAPSHOT_DIR", {}); dir.isNotEmpty())
+	{
+		auto* window = stage.findParentComponentOfClass<juce::ResizableWindow>();
+		auto* scroller = window->getContentComponent();
+		const auto image = scroller->createComponentSnapshot(scroller->getLocalBounds());
+		auto file = juce::File(dir).getChildFile("stage_441.png");
+
+		file.deleteFile();
+
+		juce::FileOutputStream out(file);
+		juce::PNGImageFormat().writeImageToStream(image, out);
+	}
+
+	launcher->setWindowOpen(false);
+
+	editor.reset();
+}
+
+TEST_CASE("ファイルブラウザー: 行のプレビューは打鍵の並びどおりに作り、並びごとに別に貯める (4.4.1)")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	auto& host = *processor;
+
+	processor->prepareToPlay(48000.0, 512);
+
+	// 既定は 120 BPM・1 小節・4 分音符ごとに 4 分音符・C3、生成周期 2・x1・30 FPS、自動生成は切
+	CHECK(host.browserBpm == doctest::Approx(120.0f));
+	CHECK(host.browserBars == 1);
+	CHECK(host.browserIntervalDiv == 4);
+	CHECK_FALSE(host.browserIntervalTriplet);
+	CHECK_FALSE(host.browserIntervalDotted);
+	CHECK(host.browserLengthDiv == 4);
+	CHECK_FALSE(host.browserLengthTriplet);
+	CHECK_FALSE(host.browserLengthDotted);
+	CHECK(host.browserMidiNote == 60);
+	CHECK(host.browserZoom == 1);
+	CHECK(host.browserFps == 30);
+	CHECK_FALSE(host.browserAutoGenerate);
+
+	auto pattern = StageWaveRender::browserPattern(host);
+
+	CHECK(pattern.midiNote == 60);
+	CHECK(pattern.sigNumerator == 4);
+	CHECK(pattern.sigDenominator == 4);
+
+	// 240 BPM・1 小節なら 1 秒 + 余韻
+	host.browserBpm = 240.0f;
+	pattern = StageWaveRender::browserPattern(host);
+
+	auto rig = host.createRenderRig(GenWaveRender::renderRate);
+
+	REQUIRE(rig != nullptr);
+
+	const auto wave = StageWaveRender::renderPattern(*rig, pattern);
+
+	CHECK(wave.noteHz == doctest::Approx(juce::MidiMessage::getMidiNoteInHertz(60)));
+	CHECK(wave.lengthSeconds() >= 1.0);
+	CHECK(wave.lengthSeconds() <= 1.0 + StageWaveRender::maxTailSeconds + 0.1);
+	CHECK(wave.left.size() == wave.right.size());
+
+	// 間引いた速さどおりに記す (44.1kHz を 3 つおき)
+	CHECK(wave.sampleRate == doctest::Approx(GenWaveRender::renderRate / 3.0));
+
+	// 並びが変われば、貯める先も変わる
+	const auto dir = juce::File::getSpecialLocation(juce::File::tempDirectory);
+	const auto source = dir.getChildFile("x.param.opna.json");
+	const auto before = GenWaveRender::cacheFileFor(dir, source, StageWaveRender::patternKey(pattern));
+
+	host.browserMidiNote = 62;
+
+	CHECK(GenWaveRender::cacheFileFor(dir, source, StageWaveRender::patternKey(StageWaveRender::browserPattern(host))) != before);
+
+	host.browserMidiNote = 60;
+	host.browserIntervalTriplet = true;
+
+	CHECK(GenWaveRender::cacheFileFor(dir, source, StageWaveRender::patternKey(StageWaveRender::browserPattern(host))) != before);
+}
+
+TEST_CASE("ファイルブラウザー: 作り方・見せ方の行は「フォルダ…」の行の下に 1 行で並び、自動生成は欠けているときだけ (4.4.1)")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	auto& host = *processor;
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	auto* editorHost = dynamic_cast<GuiEditorHost*>(editor.get());
+
+	REQUIRE(editorHost != nullptr);
+
+	GuiContext context(host, *editorHost, host.apvts);
+
+	// パラメータファイルを 1 件置いたフォルダ (中身は空。作るのには使わない)
+	juce::TemporaryFile tempDir;
+	const auto root = tempDir.getFile();
+
+	root.createDirectory();
+	root.getChildFile("tone.param.opna.json").replaceWithText("{}");
+
+	GuiParamBrowser browser(context);
+
+	GuiParamBrowser::Request request;
+
+	request.root = root;
+
+	host.browserAutoGenerate = false;
+
+	browser.open(*editor, request);
+
+	CHECK_FALSE(browser.needsAutoGenerate());
+
+	// 入れれば、貯めてあるものが無いので作る
+	host.browserAutoGenerate = true;
+
+	CHECK(browser.needsAutoGenerate());
+
+	host.browserAutoGenerate = false;
+
+	// 行の部品: テンポ・DAW 同期・小節・キーオン周期・音符長・キー・生成周期・表示倍率・FPS
+	auto zooms = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == 8 && b.getItemText(0) == "x1"; });
+	auto fpss = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == 4 && b.getItemText(0) == "15" && b.getItemText(3) == "120"; });
+	auto cycles = findAll<juce::ComboBox>(browser, [](juce::ComboBox& b) { return b.getNumItems() == 4 && b.getItemText(0) == "1" && b.getItemText(3) == "10"; });
+	auto folders = findAll<juce::TextButton>(browser, [](juce::TextButton& b) { return b.getButtonText() == EditorGuiText::ParamBrowser::folder.get(); });
+
+	REQUIRE(zooms.size() == 1);
+	REQUIRE(fpss.size() == 1);
+	REQUIRE(cycles.size() == 1);
+	REQUIRE(folders.size() == 1);
+
+	const int rowY = zooms[0]->getY();
+
+	CHECK(rowY > folders[0]->getBottom());
+	CHECK(fpss[0]->getY() == rowY);
+	CHECK(cycles[0]->getY() == rowY);
+	CHECK(cycles[0]->getRight() <= zooms[0]->getX());
+	CHECK(zooms[0]->getRight() <= fpss[0]->getX());
+	CHECK(fpss[0]->getRight() <= browser.getWidth());
+
+	// 初期値 (生成周期 2・x1・30 FPS)
+	CHECK(cycles[0]->getText() == "2");
+	CHECK(zooms[0]->getText() == "x1");
+	CHECK(fpss[0]->getText() == "30");
+
+	// 選ぶとプロセッサの値が変わる
+	zooms[0]->setSelectedId(3, juce::sendNotificationSync);
+	fpss[0]->setSelectedId(60, juce::sendNotificationSync);
+
+	CHECK(host.browserZoom == 3);
+	CHECK(host.browserFps == 60);
+
+	// 見た目を確かめたいときは、置き場を環境変数で渡すと PNG に書き出す
+	if (const auto dir = juce::SystemStats::getEnvironmentVariable("STAGE_WAVE_SNAPSHOT_DIR", {}); dir.isNotEmpty())
+	{
+		const auto image = browser.createComponentSnapshot(browser.getLocalBounds());
+		auto file = juce::File(dir).getChildFile("browser_441.png");
+
+		file.deleteFile();
+
+		juce::FileOutputStream out(file);
+		juce::PNGImageFormat().writeImageToStream(image, out);
+	}
+
+	browser.close();
+
+	root.deleteRecursively();
 
 	editor.reset();
 }

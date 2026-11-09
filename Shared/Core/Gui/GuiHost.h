@@ -208,6 +208,29 @@ public:
     // パラメータを触った履歴。自動生成が見る (ParamTouchWatch が書く)
     ParamTouchLog paramTouches;
 
+    // 起動してから、生成過程プレビューの窓を自動生成で開いたか。保存しない。
+    // 起動して最初に開いたときは、触った履歴が無くても (初期値のままでも) 作る
+    bool stageOpenedOnce = false;
+
+    // ---- ファイルブラウザーの行のプレビュー (4.4.1。GuiParamBrowser)。全フォルダ共通で、設定ファイルへ保存する。
+    // 作り方 (打鍵の並び) は生成過程プレビューと同じ形で、値は別に持つ。拍子は 4/4 (DAW 同期なら DAW の拍子)
+    float browserBpm = 120.0f;
+    bool browserFollowDaw = false;    // 作るときの DAW のテンポ・拍子を使う
+    int browserBars = 1;              // 1〜16 小節
+    int browserIntervalDiv = 4;       // キーオン周期 (押す間隔)。既定は 4 分音符
+    bool browserIntervalTriplet = false;
+    bool browserIntervalDotted = false;
+    int browserLengthDiv = 4;         // 音符長 (押している長さ)。既定は 4 分音符
+    bool browserLengthTriplet = false;
+    bool browserLengthDotted = false;
+    int browserMidiNote = 60;         // C3
+    int browserCycles = 1;            // 生成周期 (枠に何周期ぶんを出すか。GuiStageWave::cycleChoices の番号)
+    int browserZoom = 1;              // 表示倍率 (x1〜x8)
+    int browserFps = 30;              // 再生の 1 秒あたりのコマ数 (15 / 30 / 60 / 120)
+
+    // フォルダを開いたとき、プレビューが揃っていなければ全部を作る (SETTINGS)。既定は切
+    bool browserAutoGenerate = false;
+
     // DAW のテンポと拍子。音の側が書き、「生成」を押したときに画面が読む。0 なら分からない
     std::atomic<double> hostBpm{ 0.0 };
     std::atomic<int> hostTimeSigNumerator{ 4 };

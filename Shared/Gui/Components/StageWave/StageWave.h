@@ -30,6 +30,7 @@
 // 自動生成 (4.4.1。SETTINGS で入り切り)。あくまで自動で「生成」を押すだけで、鳴らしながら
 // 描き直すのではない。窓が開いているあいだ、パラメータ (とこの窓の打鍵の並び) を触り終えて
 // stageAutoInterval 秒たったら作る。窓を開いた瞬間は、触った履歴があれば待たずに作る。
+// 起動して最初に開いたときは、履歴が無くても (パラメータが初期値のままでも) 作る。
 // 作っているあいだは窓をローディング画面 (GuiLoading) で覆う。
 class GuiStageWave : public juce::Component, private juce::Timer, private juce::ScrollBar::Listener
 {
@@ -47,9 +48,16 @@ public:
 	static constexpr int rowLabelHeight = 20;
 	static constexpr int rowGap = 8;
 
+	// 段のあいだの横の区切り線。太さと、上下に空ける余裕 (4.4.1)
+	static constexpr int separatorHeight = 2;
+	static constexpr int separatorPad = 3;
+	static constexpr int separatorGap = separatorPad * 2 + separatorHeight;
+
 	static constexpr int contentWidth = margin * 2 + StageWaveRender::viewsPerRow * viewWidth + (StageWaveRender::viewsPerRow - 1) * viewGap;
-	// 操作 3 段と、1 段目のすぐ下に置く再生の段、その下に枠を 3 段
-	static constexpr int contentHeight = margin + (controlHeight + viewGap) * 3 + GenWavePlayer::height + viewGap + rowGap
+	// 操作 3 段と、その下 (「加工」の段の下) に置く再生の段、その下に枠を 3 段 (4.4.1 で再生の段を下へ移した)。
+	// 1 段目の下と「加工」の段の下には、横の区切り線 (上下に separatorPad の余裕) が入る
+	static constexpr int contentHeight = margin + controlHeight * 3 + separatorGap + viewGap + separatorGap
+		+ GenWavePlayer::height + viewGap + rowGap
 		+ (rowLabelHeight + viewHeight + rowGap) * 3 - rowGap + margin;
 
 	// 窓の最小 (最初の大きさの縦横半分) と最大
@@ -82,13 +90,17 @@ public:
 	static constexpr int cycleLabelWidth = 58;
 	static constexpr int cycleCellWidth = 34;
 
+	// 「表示倍率」の見出しの幅
+	static constexpr int zoomLabelWidth = 58;
+
 	explicit GuiStageWave(const GuiContext& context);
 	~GuiStageWave() override;
 
 	// 作る (ボタン・Ctrl+M から)
 	void requestGenerate() { startGenerate(); }
 
-	// 窓を開いた瞬間に呼ぶ。自動生成が入っていて、触った履歴があれば待たずに作る
+	// 窓を開いた瞬間に呼ぶ。自動生成が入っていて、触った履歴があれば待たずに作る。
+	// 起動して最初に開いたときは、履歴が無くても作る
 	void generateOnOpen();
 
 	// 自動生成で作る頃合いか。nowMs は juce::Time::getMillisecondCounterHiRes の時刻。
@@ -201,8 +213,9 @@ private:
 	// 様子を見直す間隔を数える
 	int m_idleTicks = 0;
 
-	// 区分のあいだに引く縦線 (resized で決める)
+	// 区分のあいだに引く縦線と、段のあいだに引く横線 (resized で決める)
 	std::vector<juce::Rectangle<int>> m_dividers;
+	std::vector<juce::Rectangle<int>> m_separators;
 
 	// 操作の段 (1〜3 段目) を横へずらす。窓に収まらないときだけ出す
 	juce::ScrollBar m_controlScrollBar{ false };
@@ -213,6 +226,9 @@ private:
 
 	// 枠の段の上端 (操作の段・再生の段・スクロールバーの下)
 	int viewsTop(bool controlScrollShown) const;
+
+	// 操作の 3 段 (と、出ていれば横のスクロールバー) の下端
+	int controlsBottom(bool controlScrollShown) const;
 
 	// 左の部品の右端と、右の部品の左端のあいだへ縦線を足す
 	void addDivider(int leftEdge, int rightEdge, int y);
@@ -235,6 +251,7 @@ private:
 	juce::Rectangle<int> viewArea(int row, int column) const;
 	juce::Rectangle<int> cycleArea() const;
 	juce::Rectangle<int> cycleCell(int index) const;
+	juce::Rectangle<int> zoomLabelArea() const;
 	juce::Rectangle<int> zoomBox() const;
 	juce::Rectangle<int> playerArea() const;
 

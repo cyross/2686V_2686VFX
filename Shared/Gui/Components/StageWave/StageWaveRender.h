@@ -150,4 +150,17 @@ namespace StageWaveRender
 
 	// 設定から打鍵の並びを作る。followDaw なら DAW のテンポ・拍子を使う (分からなければ設定の値)
 	Pattern patternFrom(const GuiProcessorHost& host, bool followDaw);
+
+	// ---- ファイルブラウザーの行のプレビュー (4.4.1)
+	// ブラウザーの設定 (browserBpm など) から打鍵の並びを作る。拍子は 4/4。
+	// DAW 同期なら DAW のテンポ・拍子を使う (分からなければ設定の値)
+	Pattern browserPattern(const GuiProcessorHost& host);
+
+	// 打鍵の並びの符号。貯めておくファイルの名前に付け、並びが違えば別物として扱う
+	juce::String patternKey(const Pattern& pattern);
+
+	// 打鍵の並びどおりに鳴らした出来上がり (L / R) を、GenWaveRender::storeRate へ間引いて返す。
+	// 最後に離したあとは、音が消えて tailSeconds たつまで (長くても maxTailSeconds) 見届ける。
+	// 時間が掛かるので、メッセージスレッドから直に呼ばないこと
+	GenWaveRender::Wave renderPattern(GuiRenderRig& rig, const Pattern& pattern);
 }

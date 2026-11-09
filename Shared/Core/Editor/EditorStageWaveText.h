@@ -29,6 +29,7 @@ namespace EditorGuiText
 
 		static inline const I18n::Text key{ u8"キー", u8"Key" };
 		static inline const I18n::Text cycles{ u8"表示周期", u8"View cycles" };
+		static inline const I18n::Text zoom{ u8"表示倍率", u8"View zoom" };
 		static inline const I18n::Text fps{ u8"FPS", u8"FPS" };
 		static inline const I18n::Text fpsTooltip{ u8"再生の 1 秒あたりのコマ数。上げるほどコマが細かくなり、コマの数 (長さ × FPS) も増えます。", u8"Frames per second for playback. Higher values give finer frames and more of them (length × FPS)." };
 		static inline const I18n::Text tempo{ u8"テンポ", u8"Tempo" };

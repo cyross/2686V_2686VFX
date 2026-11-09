@@ -252,6 +252,122 @@ StageWaveRender::Pattern StageWaveRender::patternFrom(const GuiProcessorHost& ho
 	return p;
 }
 
+StageWaveRender::Pattern StageWaveRender::browserPattern(const GuiProcessorHost& host)
+{
+	Pattern p;
+
+	p.bpm = host.browserBpm;
+	p.bars = juce::jlimit(1, 16, host.browserBars);
+	p.interval = { host.browserIntervalDiv, host.browserIntervalTriplet, host.browserIntervalDotted };
+	p.length = { host.browserLengthDiv, host.browserLengthTriplet, host.browserLengthDotted };
+	p.midiNote = juce::jlimit(0, 127, host.browserMidiNote);
+	p.sigNumerator = 4;
+	p.sigDenominator = 4;
+
+	if (host.browserFollowDaw && !juce::JUCEApplicationBase::isStandaloneApp())
+	{
+		const double bpm = host.hostBpm.load(std::memory_order_relaxed);
+
+		if (bpm > 0.0) p.bpm = bpm;
+
+		p.sigNumerator = juce::jlimit(1, 32, host.hostTimeSigNumerator.load(std::memory_order_relaxed));
+		p.sigDenominator = juce::jlimit(1, 32, host.hostTimeSigDenominator.load(std::memory_order_relaxed));
+	}
+
+	return p;
+}
+
+juce::String StageWaveRender::patternKey(const Pattern& p)
+{
+	const auto note = [](const NoteValue& v) {
+		return juce::String(v.division) + (v.triplet ? "t" : "") + (v.dotted ? "d" : "");
+	};
+
+	// テンポは 0.1 きざみまで見る (DAW のテンポは小数になることがある)
+	const juce::String text = juce::String((int)std::lround(p.bpm * 10.0)) + "_" + juce::String(p.bars)
+		+ "_" + juce::String(p.sigNumerator) + "-" + juce::String(p.sigDenominator)
+		+ "_" + note(p.interval) + "_" + note(p.length) + "_" + juce::String(p.midiNote);
+
+	return juce::String::toHexString((juce::int64)text.hashCode64());
+}
+
+GenWaveRender::Wave StageWaveRender::renderPattern(GuiRenderRig& rig, const Pattern& pattern)
+{
+	// 計算で鳴らした音は、グラフの鳴っている位置に出さない
+	const LivePosition::Mute mute;
+
+	const double rate = GenWaveRender::renderRate;
+
+	GenWaveRender::Wave out;
+
+	out.noteHz = juce::MidiMessage::getMidiNoteInHertz(pattern.midiNote);
+
+	bool truncated = false;
+
+	const auto events = buildEvents(pattern, { pattern.midiNote }, rate, truncated);
+
+	// 打鍵の並びの長さ (最後に離すところまで)。そのあとは余韻を見届ける
+	int patternEnd = (int)std::lround(patternSeconds(pattern) * rate);
+
+	for (const auto& e : events) patternEnd = juce::jmax(patternEnd, e.at);
+
+	const int limit = patternEnd + (int)std::lround(maxTailSeconds * rate);
+	const int silentLimit = (int)std::lround(tailSeconds * rate);
+
+	// 間引きの間隔。割り切れる値にしてあるので位相はずれない
+	const int step = juce::jmax(1, (int)std::lround(rate / GenWaveRender::storeRate));
+
+	// 間引いたあとの実際の速さ (44.1kHz を 3 つおきなら 14.7kHz)。storeRate のまま記すと長さと周期がずれる
+	out.sampleRate = rate / (double)step;
+
+	out.left.reserve((size_t)(patternEnd / step) + 1);
+	out.right.reserve((size_t)(patternEnd / step) + 1);
+
+	juce::AudioBuffer<float> buffer(2, blockSize);
+	juce::MidiBuffer midi;
+
+	size_t next = 0;
+	int silentFor = 0;
+
+	for (int done = 0; done < limit; done += blockSize)
+	{
+		const int num = juce::jmin(blockSize, limit - done);
+
+		midi.clear();
+
+		while (next < events.size() && events[next].at < done + num)
+		{
+			const auto& e = events[next++];
+			const int offset = juce::jlimit(0, num - 1, e.at - done);
+
+			midi.addEvent(e.on ? juce::MidiMessage::noteOn(1, e.note, (juce::uint8)100)
+				: juce::MidiMessage::noteOff(1, e.note), offset);
+		}
+
+		buffer.clear();
+		rig.renderNextBlock(buffer, midi, 0, num);
+
+		const float* left = buffer.getReadPointer(0);
+		const float* right = buffer.getNumChannels() > 1 ? buffer.getReadPointer(1) : left;
+
+		for (int i = 0; i < num; ++i)
+		{
+			if (std::abs(left[i]) > silenceLevel || std::abs(right[i]) > silenceLevel) silentFor = 0;
+			else ++silentFor;
+
+			if (((done + i) % step) != 0) continue;
+
+			out.left.push_back(juce::jlimit(-1.0f, 1.0f, left[i]));
+			out.right.push_back(juce::jlimit(-1.0f, 1.0f, right[i]));
+		}
+
+		// 打鍵の並びを終えて、音が消えて tailSeconds たったら切り上げる
+		if (done + num >= patternEnd && silentFor >= silentLimit) break;
+	}
+
+	return out;
+}
+
 GuiStageInfo StageWaveRender::inspect(GuiProcessorHost& host)
 {
 	auto rig = host.createStageRig(renderRate, 0, false, 1);
