@@ -6,6 +6,7 @@
 #include "Shared/Core/Editor/EditorStageWaveText.h"
 #include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiValues.h"
+#include "Shared/Gui/Components/Loading/GuiLoading.h"
 
 namespace
 {
@@ -85,7 +86,10 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 		return (double)text.getIntValue();
 	};
 	keySlider.setDoubleClickReturnValue(true, 60.0);
-	keySlider.onValueChange = [this] { ctx.audioProcessor.stageMidiNote = (int)keySlider.getValue(); };
+	keySlider.onValueChange = [this] {
+		ctx.audioProcessor.stageMidiNote = (int)keySlider.getValue();
+		touch();
+	};
 	addAndMakeVisible(keySlider);
 
 	// ---- 再生の FPS
@@ -111,7 +115,10 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	tempoSlider.setTextBoxStyle(juce::Slider::TextBoxLeft, false, 56, 18);
 	tempoSlider.setRange(20.0, 300.0, 0.1);
 	tempoSlider.setNumDecimalPlacesToDisplay(1);
-	tempoSlider.onValueChange = [this] { ctx.audioProcessor.stageBpm = (float)tempoSlider.getValue(); };
+	tempoSlider.onValueChange = [this] {
+		ctx.audioProcessor.stageBpm = (float)tempoSlider.getValue();
+		touch();
+	};
 	addAndMakeVisible(tempoSlider);
 
 	for (int i = 0; i < (int)tempoPresets.size(); ++i) tempoPresetBox.addItem(juce::String(tempoPresets[(size_t)i]), i + 1);
@@ -130,6 +137,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	followDawToggle.onClick = [this] {
 		ctx.audioProcessor.stageFollowDaw = followDawToggle.getToggleState();
 		updateFollowDawState();
+		touch();
 	};
 	addAndMakeVisible(followDawToggle);
 
@@ -150,6 +158,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 		ctx.audioProcessor.stageBeatDiv = note;
 		ctx.audioProcessor.stageBeatCount = defaultBeatCount(note);
 		beatCountSlider.setValue(ctx.audioProcessor.stageBeatCount, juce::dontSendNotification);
+		touch();
 	};
 	addAndMakeVisible(beatNoteBox);
 
@@ -159,6 +168,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	beatCountSlider.setTooltip(EditorGuiText::StageWave::beatTooltip);
 	beatCountSlider.onValueChange = [this] {
 		ctx.audioProcessor.stageBeatCount = juce::jlimit(1, beatCountMax, (int)beatCountSlider.getValue());
+		touch();
 	};
 	addAndMakeVisible(beatCountSlider);
 
@@ -168,7 +178,10 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 
 	for (int i = 1; i <= 16; ++i) barsBox.addItem(juce::String(i), i);
 
-	barsBox.onChange = [this] { ctx.audioProcessor.stageBars = juce::jlimit(1, 16, barsBox.getSelectedId()); };
+	barsBox.onChange = [this] {
+		ctx.audioProcessor.stageBars = juce::jlimit(1, 16, barsBox.getSelectedId());
+		touch();
+	};
 	addAndMakeVisible(barsBox);
 
 	// ---- 間隔と音符
@@ -180,7 +193,10 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 	// ---- 最後のリリースを反映するか
 	releaseTailToggle.setButtonText(EditorGuiText::StageWave::releaseTail);
 	releaseTailToggle.setTooltip(EditorGuiText::StageWave::releaseTailTooltip);
-	releaseTailToggle.onClick = [this] { ctx.audioProcessor.stageReleaseTail = releaseTailToggle.getToggleState(); };
+	releaseTailToggle.onClick = [this] {
+		ctx.audioProcessor.stageReleaseTail = releaseTailToggle.getToggleState();
+		touch();
+	};
 	addAndMakeVisible(releaseTailToggle);
 
 	// ---- 入れ切り
@@ -195,6 +211,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 		t.setButtonText(EditorGuiText::StageWave::moduleNames[m]);
 		t.setTooltip(EditorGuiText::StageWave::switchesTooltip);
 		t.setToggleState(true, juce::dontSendNotification);
+		t.onClick = [this] { touch(); };
 		addChildComponent(t);
 	}
 
@@ -208,6 +225,7 @@ GuiStageWave::GuiStageWave(const GuiContext& context) : ctx(context)
 
 		t.setButtonText("PAD" + juce::String(i + 1));
 		t.setToggleState(true, juce::dontSendNotification);
+		t.onClick = [this] { touch(); };
 		addChildComponent(t);
 	}
 
@@ -250,19 +268,27 @@ void GuiStageWave::setupNoteControls(NoteControls& c, const juce::String& title,
 		c.division.addItem(divisionName(StageWaveRender::divisions[(size_t)i]), i + 1);
 	}
 
-	c.division.onChange = [&c, &division] {
+	c.division.onChange = [this, &c, &division] {
 		const int index = c.division.getSelectedItemIndex();
 
 		if (index >= 0) division = StageWaveRender::divisions[(size_t)index];
+
+		touch();
 	};
 	addAndMakeVisible(c.division);
 
 	c.triplet.setButtonText(EditorGuiText::StageWave::triplet);
-	c.triplet.onClick = [&c, &triplet] { triplet = c.triplet.getToggleState(); };
+	c.triplet.onClick = [this, &c, &triplet] {
+		triplet = c.triplet.getToggleState();
+		touch();
+	};
 	addAndMakeVisible(c.triplet);
 
 	c.dotted.setButtonText(EditorGuiText::StageWave::dotted);
-	c.dotted.onClick = [&c, &dotted] { dotted = c.dotted.getToggleState(); };
+	c.dotted.onClick = [this, &c, &dotted] {
+		dotted = c.dotted.getToggleState();
+		touch();
+	};
 	addAndMakeVisible(c.dotted);
 }
 
@@ -704,7 +730,10 @@ void GuiStageWave::startGenerate()
 
 	if (job == nullptr) return;
 
-	m_busy = true;
+	// 作り始めた時点までに触ったぶんは、この結果に入る
+	m_generatedTouches = ctx.audioProcessor.paramTouches.count();
+
+	setBusy(true);
 	m_info = job->info;
 
 	updateVisibility();
@@ -730,7 +759,7 @@ void GuiStageWave::finishGenerate(const StageWaveRender::Result& result)
 {
 	m_result = result;
 	m_info = result.info;
-	m_busy = false;
+	setBusy(false);
 
 	m_player.restart(juce::Time::getMillisecondCounterHiRes());
 
@@ -741,6 +770,48 @@ void GuiStageWave::finishGenerate(const StageWaveRender::Result& result)
 	updateVisibility();
 	resized();
 	repaint();
+}
+
+void GuiStageWave::setBusy(bool busy)
+{
+	m_busy = busy;
+
+	if (onBusyChanged) onBusyChanged(busy);
+}
+
+// ----------------------------------------------------------------------------
+// 自動生成 (4.4.1)
+// ----------------------------------------------------------------------------
+bool GuiStageWave::autoGenerateDue(double nowMs, bool immediate) const
+{
+	const auto& host = ctx.audioProcessor;
+
+	if (!host.stageAutoGenerate || m_busy) return false;
+
+	// 一度も触っていない・作ったあとに触っていない
+	const auto touches = host.paramTouches.count();
+
+	if (touches == 0 || touches == m_generatedTouches) return false;
+
+	if (immediate) return true;
+
+	// つまみを掴んだまま止めているあいだは、まだ触っている最中とみなす
+	if (juce::ModifierKeys::currentModifiers.isAnyMouseButtonDown()) return false;
+
+	const double interval = juce::jlimit((double)GuiProcessorHost::stageAutoIntervalMin,
+		(double)GuiProcessorHost::stageAutoIntervalMax, (double)host.stageAutoInterval);
+
+	return nowMs - host.paramTouches.lastMs() >= interval * 1000.0;
+}
+
+void GuiStageWave::generateOnOpen()
+{
+	if (autoGenerateDue(juce::Time::getMillisecondCounterHiRes(), true)) startGenerate();
+}
+
+void GuiStageWave::checkAutoGenerate()
+{
+	if (autoGenerateDue(juce::Time::getMillisecondCounterHiRes(), false)) startGenerate();
 }
 
 void GuiStageWave::clearResult()
@@ -755,6 +826,8 @@ void GuiStageWave::clearResult()
 
 void GuiStageWave::timerCallback()
 {
+	checkAutoGenerate();
+
 	if (++m_idleTicks >= infoRefreshTicks) {
 		m_idleTicks = 0;
 
@@ -1115,6 +1188,13 @@ namespace
 			applyColours();
 		}
 
+		// 作っているあいだは、見えているところ全体をローディング画面で覆う
+		void setBusy(bool busy)
+		{
+			if (busy) m_loading.show(*this, EditorGuiText::StageWave::working);
+			else m_loading.hide();
+		}
+
 		void resized() override
 		{
 			// 縦横のスクロールバーが出ると、見える幅・高さがそのぶん減る
@@ -1137,10 +1217,15 @@ namespace
 			m_stage.setSize(width, juce::jmax(h, m_stage.minimumHeight(width)));
 
 			juce::Viewport::resized();
+
+			// 窓の大きさを変えても、覆いは見えているところいっぱいに
+			if (m_loading.isVisible()) m_loading.setBounds(getLocalBounds());
 		}
 
 	private:
 		GuiStageWave& m_stage;
+
+		GuiLoading m_loading;
 
 		void applyColours()
 		{
@@ -1161,6 +1246,8 @@ GuiStageWaveWindow::GuiStageWaveWindow(const GuiContext& context, std::function<
 	m_content = content.get();
 
 	auto scroller = std::make_unique<StageWaveScroller>(*content.release());
+
+	m_content->onBusyChanged = [s = scroller.get()](bool busy) { s->setBusy(busy); };
 
 	scroller->setSize(GuiStageWave::contentWidth, GuiStageWave::contentHeight);
 

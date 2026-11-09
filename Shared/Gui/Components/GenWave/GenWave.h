@@ -5,6 +5,7 @@
 #include <JuceHeader.h>
 
 #include "Shared/Core/Gui/GuiContext.h"
+#include "Shared/Core/Gui/GuiParamTouch.h"
 #include "Shared/Gui/Components/StageWave/StageWave.h"
 
 // ============================================================================
@@ -15,6 +16,9 @@
 // ここに残るのは、その窓を開け閉めするボタンだけ。
 //
 // 窓はこの部品が持つ。エディタを閉じる・作り直すときは窓も一緒に閉じる。
+//
+// 窓の自動生成 (4.4.1) のために、エディタが開いているあいだパラメータを触った履歴を取る
+// (ParamTouchWatch)。履歴はプロセッサ (paramTouches) に残るので、窓を閉じていても溜まる。
 class GuiGenWave : public juce::Component
 {
 public:
@@ -51,6 +55,9 @@ private:
     juce::TextButton openBtn;
 
     std::unique_ptr<GuiStageWaveWindow> m_window;
+
+    // パラメータを触った履歴を取る (エディタが開いているあいだ)
+    ParamTouchWatch m_touchWatch;
 
     void updateButton();
 };

@@ -3,7 +3,8 @@
 #include "Shared/Core/Editor/EditorStageWaveText.h"
 #include "Shared/Core/Gui/GuiColor.h"
 
-GuiGenWave::GuiGenWave(const GuiContext& context) : ctx(context)
+GuiGenWave::GuiGenWave(const GuiContext& context) : ctx(context),
+    m_touchWatch(context.apvts.processor, context.audioProcessor.undoManager, context.audioProcessor.paramTouches)
 {
 }
 
@@ -63,6 +64,9 @@ void GuiGenWave::setWindowOpen(bool open)
 
         m_window->setVisible(true);
         m_window->toFront(true);
+
+        // 開いた瞬間、触った履歴があればすぐ作る (自動生成が入っているとき)
+        m_window->content().generateOnOpen();
     }
     else
     {

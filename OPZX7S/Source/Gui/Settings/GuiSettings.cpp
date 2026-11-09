@@ -835,6 +835,32 @@ void GuiSettings::setup()
         enableLevelMeterRow();
     }
 
+    separatorStageAuto.setupComponent(*this);
+
+    // 生成過程プレビューの自動生成 (4.4.1)。切っているあいだは待ち時間を選べない
+    stageAutoToggle.setup({ .parent = *this, .title = SettingsGuiText::stageAutoGenerate, .font = toggleFont, .isReset = false });
+    stageAutoToggle.setToggleState(pluginOf(ctx).stageAutoGenerate, juce::dontSendNotification);
+    stageAutoToggle.setWantsKeyboardFocus(true);
+    stageAutoToggle.setExplicitFocusOrder(++tabOrder);
+    stageAutoToggle.onClick = [this] {
+        pluginOf(ctx).stageAutoGenerate = stageAutoToggle.getToggleState();
+        stageAutoIntervalSlider.setEnabledWithLabel(pluginOf(ctx).stageAutoGenerate);
+        };
+
+    stageAutoIntervalSlider.setup({ .parent = *this, .title = SettingsGuiText::stageAutoInterval, .isReset = false });
+    stageAutoIntervalSlider.setWantsKeyboardFocus(true);
+    stageAutoIntervalSlider.setExplicitFocusOrder(++tabOrder);
+    stageAutoIntervalSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+    stageAutoIntervalSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    stageAutoIntervalSlider.setRange(GuiProcessorHost::stageAutoIntervalMin, GuiProcessorHost::stageAutoIntervalMax, 0.1); // 0.1 〜 5.0 秒
+    stageAutoIntervalSlider.setNumDecimalPlacesToDisplay(1);
+    stageAutoIntervalSlider.setTextValueSuffix(SettingsGuiText::stageAutoIntervalUnit);
+    stageAutoIntervalSlider.setValue(pluginOf(ctx).stageAutoInterval, juce::dontSendNotification);
+    stageAutoIntervalSlider.setEnabledWithLabel(pluginOf(ctx).stageAutoGenerate);
+    stageAutoIntervalSlider.onValueChange = [this] {
+        pluginOf(ctx).stageAutoInterval = (float)stageAutoIntervalSlider.getValue();
+        };
+
     separator5.setupComponent(*this);
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
@@ -1366,6 +1392,18 @@ void GuiSettings::layout(juce::Rectangle<int> content)
         levelMeterPeakHoldToggle.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LevelMeterPeakHoldWidth));
     }
 
+    separatorStageAuto.layoutComponent(sRect);
+
+    // 生成過程プレビューの自動生成 (4.4.1)。1 行に、入り切りと待ち時間
+    {
+        auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+        stageAutoToggle.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
+        row.removeFromLeft(SettingsGuiValue::Settings::PaddingWidth);
+        stageAutoIntervalSlider.label.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::StageAutoLabelWidth));
+        stageAutoIntervalSlider.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::StageAutoSliderWidth));
+    }
+
     separator5.layoutComponent(sRect);
 
     // 22. Virtual Keyboard Row
@@ -1468,6 +1506,10 @@ void GuiSettings::setSettings()
     levelMeterBandsSelector.setSelectedId(GuiLevelMeter::clampBands(pluginOf(ctx).levelMeterBands), juce::dontSendNotification);
     levelMeterPeakHoldToggle.setToggleState(pluginOf(ctx).levelMeterPeakHold, juce::dontSendNotification);
     enableLevelMeterRow();
+
+    stageAutoToggle.setToggleState(pluginOf(ctx).stageAutoGenerate, juce::dontSendNotification);
+    stageAutoIntervalSlider.setValue(pluginOf(ctx).stageAutoInterval, juce::dontSendNotification);
+    stageAutoIntervalSlider.setEnabledWithLabel(pluginOf(ctx).stageAutoGenerate);
 
     // 設定を読み込み直したときも、つまみの見せ方を合わせる
     if (auto* editor = dynamic_cast<juce::Component*>(&ctx.editor)) GuiSlider::refreshN88Display(*editor);

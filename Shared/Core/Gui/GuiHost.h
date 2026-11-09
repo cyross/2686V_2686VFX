@@ -9,6 +9,7 @@
 
 #include "./GuiToggleAlign.h"
 #include "./GuiLiveGraph.h"
+#include "./GuiParamTouch.h"
 #include "../Synth/WtModWave.h"
 #include "../Synth/StepTable.h"
 #include "../Synth/StepTableUndo.h"
@@ -196,6 +197,16 @@ public:
     bool stageReleaseTail = true;     // 最後に離したあとの余韻 (リリース) まで作るか。切ると打鍵の並びの長さで切る
     int stageBeatDiv = 4;             // 1 小節の拍の音符 (4 = 4 分音符, 8 = 8 分音符)
     int stageBeatCount = 4;           // 1 小節の拍の数 (1〜12)
+
+    // ---- 生成過程プレビューの自動生成 (4.4.1)。窓が開いているあいだ、パラメータを触り終えて
+    // stageAutoInterval 秒たったら作る。窓を開いたときは、触った履歴があればすぐ作る
+    static constexpr float stageAutoIntervalMin = 0.1f;
+    static constexpr float stageAutoIntervalMax = 5.0f;
+    bool stageAutoGenerate = true;
+    float stageAutoInterval = 1.0f;   // 秒 (0.1〜5.0)
+
+    // パラメータを触った履歴。自動生成が見る (ParamTouchWatch が書く)
+    ParamTouchLog paramTouches;
 
     // DAW のテンポと拍子。音の側が書き、「生成」を押したときに画面が読む。0 なら分からない
     std::atomic<double> hostBpm{ 0.0 };

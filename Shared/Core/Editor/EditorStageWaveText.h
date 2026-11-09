@@ -21,7 +21,7 @@ namespace EditorGuiText
 		static inline const I18n::Text generate{ u8"生成", u8"Generate" };
 		static inline const I18n::Text regenerate{ u8"再生成", u8"Regenerate" };
 		static inline const I18n::Text remove{ u8"削除", u8"Delete" };
-		static inline const I18n::Text generateTooltip{ u8"今の設定と打鍵の並びで波形を作ります。音は出しません。値を変えたら押し直してください。", u8"Builds the waveform from the current settings and the note pattern. No sound is played. Press it again after changing a value." };
+		static inline const I18n::Text generateTooltip{ u8"今の設定と打鍵の並びで波形を作ります。音は出しません。値を変えたら押し直してください (SETTINGS の自動生成が入っていれば、触り終えてしばらくすると作り直します)。", u8"Builds the waveform from the current settings and the note pattern. No sound is played. Press it again after changing a value (with auto-generate on in SETTINGS, it rebuilds a moment after you stop editing)." };
 		static inline const I18n::Text working{ u8"波形を作っています…", u8"Building the waveform…" };
 		static inline const I18n::Text empty{ u8"「生成」で作ります", u8"Press Generate to build it" };
 		static inline const I18n::Text truncated{ u8"30 秒で打ち切りました", u8"Cut off at 30 seconds" };

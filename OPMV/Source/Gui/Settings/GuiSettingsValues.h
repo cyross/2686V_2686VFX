@@ -101,6 +101,9 @@ namespace SettingsGuiValue
 		static inline constexpr int LevelMeterStyleSelectorWidth = 100;
 		static inline constexpr int LevelMeterBandsSelectorWidth = 70;
 		static inline constexpr int LevelMeterPeakHoldWidth = 200;
+		// 生成過程プレビューの自動生成の行 (4.4.1)
+		static inline constexpr int StageAutoLabelWidth = 60;
+		static inline constexpr int StageAutoSliderWidth = 200;
 		// 相対パスの基準。選択肢の名前が長いので、トグルボタン配置より広く取る
 		static inline constexpr int PathRootSelectorWidth = 200;
 		static inline constexpr int ModeSelectorWidth = 320;

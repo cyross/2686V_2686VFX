@@ -73,6 +73,10 @@ namespace SettingsKey
 	static inline const juce::String stageReleaseTail = "stageReleaseTail";
 	static inline const juce::String stageBeatDiv = "stageBeatDiv";
 	static inline const juce::String stageBeatCount = "stageBeatCount";
+
+	// 生成過程プレビューの自動生成 (4.4.1)
+	static inline const juce::String stageAutoGenerate = "stageAutoGenerate";
+	static inline const juce::String stageAutoInterval = "stageAutoInterval";
 	static inline const juce::String showVirtualKeyboard = "showVirtualKeyboard";
 	static inline const juce::String fmParameterCopyType = "fmParameterCopyType";
 	static inline const juce::String fxOrder = "fxOrder";

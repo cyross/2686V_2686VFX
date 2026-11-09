@@ -171,6 +171,12 @@ class GuiSettings : public GuiBase
     GuiComboBox levelMeterBandsSelector;
     GuiToggleButton levelMeterPeakHoldToggle;
 
+    NormalSeparator separatorStageAuto;
+
+    // 生成過程プレビューの自動生成 (4.4.1)。入り切りと、触り終えてから作るまでの待ち時間
+    GuiToggleButton stageAutoToggle;
+    GuiSlider stageAutoIntervalSlider;
+
     NormalSeparator separator5;
 
     // 仮想MIDIキーボード表示制御
@@ -291,6 +297,9 @@ public:
         levelMeterStyleSelector(context),
         levelMeterBandsSelector(context),
         levelMeterPeakHoldToggle(context),
+        separatorStageAuto(context),
+        stageAutoToggle(context),
+        stageAutoIntervalSlider(context),
         separator5(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),

@@ -640,6 +640,8 @@ public:
         visit(SettingsKey::stageReleaseTail, stageReleaseTail);
         visit(SettingsKey::stageBeatDiv, stageBeatDiv);
         visit(SettingsKey::stageBeatCount, stageBeatCount);
+        visit(SettingsKey::stageAutoGenerate, stageAutoGenerate);
+        visit(SettingsKey::stageAutoInterval, stageAutoInterval);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
