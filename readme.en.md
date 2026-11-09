@@ -66,6 +66,8 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
 - **The file browser can build previews automatically when a folder is opened**
   - When a folder is opened and any of its parameter files has no preview, it builds all of them (even if some already exist)
   - SETTINGS has a new "When the file browser opens a folder, build all previews if any are missing" toggle, off by default and saved to the settings file (`browserAutoGenerate`)
+- **The version number is now 4.4.1**
+  - The version shown in the ABOUT tab and elsewhere was still 4.3.0 (it was not raised for 4.4.0)
 
 ### 3-0-2. What v4.4.0 adds and changes
 
