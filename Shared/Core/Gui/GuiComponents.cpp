@@ -1550,7 +1550,7 @@ void GuiCategoryLabel::paint(juce::Graphics& g)
     }
 
     // ---------------- 見出し ----------------
-    g.setColour(GuiColor::Category::Text);
+    g.setColour(*textColour);
     g.setFont(font);
     g.drawText(captionText, textArea, getJustificationType(), false);
 }
@@ -1826,6 +1826,13 @@ void GuiCategoryLabel::setupParamCategory(const Config& c)
 void GuiCategoryLabel::setupOtherCategory(const Config& c)
 {
     setupInner(c, GuiColor::Category::OtherBg);
+}
+
+void GuiCategoryLabel::setupFxCategory(const Config& c)
+{
+    setupInner(c, GuiColor::Category::FxBg);
+
+    textColour = &GuiColor::Category::FxText;
 }
 
 void GuiCategoryLabel::setupCategory(const Config& c, juce::Colour bgColor)

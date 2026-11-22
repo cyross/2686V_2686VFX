@@ -1629,6 +1629,9 @@ class GuiCategoryLabel : public GuiLabel
     // 背景色。カテゴリの種類で決まる。
     juce::Colour bgColor = GuiColor::Category::HwBg;
 
+    // 見出しの文字の色 (4.5.0)。FX の効果の区分だけオフブラックにする
+    const GuiColor::Entry* textColour = &GuiColor::Category::Text;
+
     // 簡易表示モードで隠しているか
     bool hidden = false;
 
@@ -1661,6 +1664,7 @@ public:
 	void setupTapPitchCategory(const Config& c); // TAP PITCH SEQUENCER 用
 	void setupParamCategory(const Config& c);    // PARAM ENV[256] / TAP PARAM SEQUENCER 用
 	void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
+	void setupFxCategory(const Config& c);    // FX の効果の区分 (4.5.0)。オフホワイトの地にオフブラックの文字
 
 	// 背景色を呼び出し側が決める。同じ部品でも、置かれたチャンネルによって
 	// ハードとソフトのどちらに見せたいかが変わる場合に使う。

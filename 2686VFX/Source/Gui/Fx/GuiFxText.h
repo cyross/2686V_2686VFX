@@ -68,7 +68,11 @@ namespace FxGuiText
 
 	namespace Group
 	{
-		static inline const I18n::Text mainGroup{ u8"エフェクター", u8"Effects" };
+		// 全体の設定の枠 (4.5.0 で「エフェクター」から改めた)
+		static inline const I18n::Text mainGroup{ u8"メイン", u8"Main" };
+
+		// 効果をまとめた枠 (4.5.0)
+		static inline const I18n::Text effectGroup{ u8"エフェクター", u8"Effects" };
 		static inline const I18n::Text fxTremolo{ u8"トレモロ", u8"Tremolo" };
 		static inline const I18n::Text fxVibrato{ u8"ビブラート", u8"Vibrato" };
 		static inline const I18n::Text fxMbc{ u8"ビットクラッシャー", u8"Bit crusher" };

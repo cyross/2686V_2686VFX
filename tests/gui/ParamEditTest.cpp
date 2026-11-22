@@ -170,26 +170,27 @@ TEST_CASE("ParamEdit: 履歴は新しいものが先頭で、選び直せる")
 	CHECK(clip.current()->tab == "A");
 }
 
-TEST_CASE("ParamEdit: FX の効果の枠を右クリックで写す単位にできる")
+TEST_CASE("ParamEdit: FX の効果の区分を右クリックで写す単位にできる")
 {
+	// 4.5.0 から、効果は枠ではなく「エフェクター」の枠の中の区分になった
 	Env env;
 
 	// FX はタブの中とは限らない (音源のプラグインでは画面の右に常に出ている)
 	std::vector<juce::Component*> all;
 	collect(env.editor.get(), all);
 
-	const GuiContext ctx(*static_cast<GuiProcessorHost*>(env.processor.get()),
-		*dynamic_cast<GuiEditorHost*>(env.editor.get()), env.processor->apvts);
-
 	int found = 0;
 
 	for (auto* c : all)
 	{
-		auto* group = dynamic_cast<GuiGroup*>(c);
+		auto* label = dynamic_cast<GuiCategoryLabel*>(c);
 
-		if (group == nullptr) continue;
+		// 閉じている区分は、調べるときにいったん開いて画面を並べ直す。並べ直すと
+		// 先に集めた部品の一覧が古くなるので、開いている区分だけを見る
+		// (効果の区分は最初から開いている)
+		if (label == nullptr || !label->isDetailVisible()) continue;
 
-		const auto target = ParamEdit::groupTarget(ctx, *group);
+		const auto target = ParamEdit::categoryTarget(*label);
 
 		const bool hasFilterType = std::find(target.ids.begin(), target.ids.end(), juce::String("FX_FIL_TYPE")) != target.ids.end();
 
