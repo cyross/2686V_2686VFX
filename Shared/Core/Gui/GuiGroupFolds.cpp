@@ -68,6 +68,10 @@ void GuiGroupFolds::attachStrip(juce::Viewport& strip)
 
     stripViewport = &strip;
 
+    // 送り台は既定では押下を受けず、中身より右・下の空いたところを押すと親 (タブ) へ抜けてしまう。
+    // 自分で受けて、そこを右クリックしてもチェックリストを出す
+    strip.setInterceptsMouseClicks(true, true);
+
     // 中の部品の押下も受けて、どこを押したかで振り分ける
     strip.addMouseListener(this, true);
 }

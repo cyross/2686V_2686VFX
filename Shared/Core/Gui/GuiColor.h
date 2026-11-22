@@ -629,7 +629,7 @@ namespace GuiColor {
 		// 塗り潰さないよう、色味のないオフホワイトにする。
 		inline Entry MajorBg{ "Category.MajorBg", []() -> juce::Colour { return Palette::OffWhite; } };
 
-		// FX の効果の区分 (4.5.0)。「エフェクター」の枠へまとめた効果ごとの見出し。
+		// FX の効果の区分 (4.5.0)。「エフェクト」の枠へまとめた効果ごとの見出し。
 		// オフホワイトの地にオフブラックの文字
 		inline Entry FxBg{ "Category.FxBg", []() -> juce::Colour { return Palette::OffWhite; } };
 		inline Entry FxText{ "Category.FxText", []() -> juce::Colour { return Palette::OffBlack; } };

@@ -35,7 +35,7 @@ class GuiFx : public GuiBase
         };
     }
 
-    // 「エフェクター」の枠 (4.5.0)。全体の設定 (メイン) と効果ごとの区分を縦に積み、
+    // 「エフェクト」の枠 (4.5.0)。全体の設定 (メイン) と効果ごとの区分を縦に積み、
     // 縦に送る。効果の区分はかける順番に並べる
     GuiScrollGroup fxGroup;
 
@@ -50,7 +50,7 @@ class GuiFx : public GuiBase
     GuiCategoryLabel eq3bCat;
     GuiCategoryLabel sfceCat;
 
-    // 作り終えた部品を「エフェクター」の枠の中身へ移す
+    // 作り終えた部品を「エフェクト」の枠の中身へ移す
     void moveToGroup();
 
     // 区分ごとの並べ方。FxType の番号で選ぶ

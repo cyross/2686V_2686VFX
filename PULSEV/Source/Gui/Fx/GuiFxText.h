@@ -10,9 +10,9 @@ namespace FxGuiText
 {
 	namespace Group
 	{
-		static inline const I18n::Text mainGroup{ u8"エフェクター", u8"Effects" };
+		static inline const I18n::Text mainGroup{ u8"エフェクト", u8"Effects" };
 
-		// 「エフェクター」の枠の、バイパス・リセット・順番などをまとめた区分 (4.5.0)
+		// 「エフェクト」の枠の、バイパス・リセット・順番などをまとめた区分 (4.5.0)
 		static inline const I18n::Text mainCategory{ u8"メイン", u8"Main" };
 		static inline const I18n::Text fxTremolo{ u8"トレモロ", u8"Tremolo" };
 		static inline const I18n::Text fxVibrato{ u8"ビブラート", u8"Vibrato" };

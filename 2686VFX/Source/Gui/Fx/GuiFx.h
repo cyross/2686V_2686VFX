@@ -116,7 +116,7 @@ class GuiFx : public GuiBase, private juce::Timer
     // 無いので、その代わりの周波数をここで決められるようにしてある。
     GuiSlider wtModBaseFreqSlider;
 
-    // 「エフェクター」の枠 (4.5.0)。効果ごとの区分を、かける順に縦に積んで縦に送る。
+    // 「エフェクト」の枠 (4.5.0)。効果ごとの区分を、かける順に縦に積んで縦に送る。
     // 変調の列と一緒に横へ送る板の、いちばん左の列に置く
     GuiScrollGroup fxGroup;
 

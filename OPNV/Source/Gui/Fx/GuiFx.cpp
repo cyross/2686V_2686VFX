@@ -141,7 +141,7 @@ void GuiFx::setup()
     int tabOrder = 1;
     const juce::Colour groupBgColour = GuiColor::FxTab::GroupBg;
 
-    // 「エフェクター」の枠 (4.5.0)。部品は *this へ作ってから、最後に中身へ移す
+    // 「エフェクト」の枠 (4.5.0)。部品は *this へ作ってから、最後に中身へ移す
     fxGroup.setup(*this, FxGuiText::Group::mainGroup);
     fxGroup.setBackgroundColor(groupBgColour);
 
@@ -639,7 +639,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     // ここで取るのは、上の withZeroOrigin() が渡された位置を捨てるため。
     pageArea.removeFromTop(EditorGuiValue::Group::gapFromTabBar);
 
-    // 「エフェクター」の枠 1 つを、ペインの幅いっぱい・下端まで取る (4.5.0)
+    // 「エフェクト」の枠 1 つを、ペインの幅いっぱい・下端まで取る (4.5.0)
     auto fxArea = pageArea.removeFromLeft(FxGuiValue::Fx::MainWidth);
 
     fxGroup.setBounds(fxArea);

@@ -468,7 +468,7 @@ void GuiFx::setup()
     exportFxParamBtn.setExplicitFocusOrder(++tabOrder);
     exportFxParamBtn.onClick = [this] { exportFxParam(); };
 
-    // 「エフェクター」の枠 (4.5.0)。効果の部品は *this へ作ってから、最後に中身へ移す
+    // 「エフェクト」の枠 (4.5.0)。効果の部品は *this へ作ってから、最後に中身へ移す
     fxGroup.setup(*this, FxGuiText::Group::effectGroup);
     fxGroup.setBackgroundColor(groupBgColour);
 
@@ -993,7 +993,7 @@ void GuiFx::setup()
 
     addAndMakeVisible(stripViewport);
 
-    // 効果の部品を「エフェクター」の枠の中身へ移す (4.5.0)。見えているかどうかは
+    // 効果の部品を「エフェクト」の枠の中身へ移す (4.5.0)。見えているかどうかは
     // そのまま (区分の板は隠れたまま移す)。並びも保つので、板は部品の後ろに残る
     {
         juce::Array<juce::Component*> fxChildren;
@@ -1102,7 +1102,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         { &modUnisonGroup, SimpleView::Unison },
     };
 
-    // 効果は「エフェクター」の枠 1 列 (4.5.0)。隠していれば列ごと出さない
+    // 効果は「エフェクト」の枠 1 列 (4.5.0)。隠していれば列ごと出さない
     const bool showEffects = !fxGroup.isGroupHidden();
 
     const int effectsWidth = showEffects ? fxGroup.columnWidth(FxGuiValue::Fx::ColWidth) + FxGuiValue::Fx::ColGap : 0;
@@ -1236,7 +1236,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
 
 
-    // 「エフェクター」の枠 (4.5.0)。いちばん左の列に置き、効果の区分をかける順に縦に積む。
+    // 「エフェクト」の枠 (4.5.0)。いちばん左の列に置き、効果の区分をかける順に縦に積む。
     // 順番を変えたらすぐ並べ直す
     if (showEffects) {
         fxGroup.setVisible(true);
