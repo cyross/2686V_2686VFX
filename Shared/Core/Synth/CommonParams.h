@@ -164,6 +164,16 @@ struct PcmParams {
 
     // 再生速度。ノートによる速さの変化へ掛ける。 (PcmParams の再生速度)
     float speed = 1.0f;
+
+    // 等速 (4.5.0)。どのキーでも素材の速さのまま鳴らす
+    bool fixedSpeed = false;
+
+    // 音色モード (4.5.0)。再生区間 (OFFSET・RATIO) を 1 周期とみなし、
+    // キーの周波数で繰り返す。ループポイントは使わない
+    bool tone = false;
+
+    // 音色モードの端折り方。0: 間引き、1: 足切り (CPV::Pcm::ToneFit)
+    int toneFit = 0;
 };
 
 struct LoopPointParams {

@@ -276,6 +276,12 @@ struct PrPtrsPcm {
     // 再生速度。ADPCM とリズムのパッド、OPZX7 のオペレーターが
     // この受け皿を分け合っているので、ここへ置けば 3 つとも行き渡る。
     std::atomic<float>* speed = nullptr;
+
+    // 等速・音色モード・端折り方 (4.5.0)。登録していないところ (リズムのパッドなど) は
+    // nullptr のままで、切っている扱いになる。
+    std::atomic<float>* fixedSpeed = nullptr;
+    std::atomic<float>* tone = nullptr;
+    std::atomic<float>* toneFit = nullptr;
 };
 
 struct PrPtrsLp {

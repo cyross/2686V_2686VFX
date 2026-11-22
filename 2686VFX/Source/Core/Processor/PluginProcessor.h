@@ -4,6 +4,7 @@
 #include <JuceHeader.h>
 
 #include "Shared/Core/Io/ParamFile.h"
+#include "Shared/Core/Gui/GuiGroupFoldKeys.h"
 #include "Shared/Core/Gui/GuiI18n.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
@@ -257,6 +258,11 @@ public:
         visit(SettingsKey::toggleAlign, toggleAlign);
         visit(SettingsKey::relativePathRoot, relativePathRoot);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
+
+        // 非表示にした枠 (4.5.0)。タブごとに 1 項目
+        for (const auto& foldKey : GuiGroupFoldKey::all()) {
+            visit(GuiGroupFoldKey::hiddenSettingsKey(foldKey), hiddenGroups[foldKey]);
+        }
         visit(SettingsKey::tapLiveGraph, tapLiveGraph);
         visit(SettingsKey::tapLiveFps, tapLiveFps);
         visit(SettingsKey::levelMeterShow, levelMeterShow);

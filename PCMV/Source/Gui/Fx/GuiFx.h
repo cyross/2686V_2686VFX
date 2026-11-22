@@ -35,16 +35,27 @@ class GuiFx : public GuiBase
         };
     }
 
-    GuiGroup mainGroup;
+    // 「エフェクト」の枠 (4.5.0)。全体の設定 (メイン) と効果ごとの区分を縦に積み、
+    // 縦に送る。効果の区分はかける順番に並べる
+    GuiScrollGroup fxGroup;
 
-    GuiGroup tremGroup;
-    GuiGroup vibGroup;
-    GuiGroup mbcGroup;
-    GuiGroup delayGroup;
-    GuiGroup reverbGroup;
-    GuiGroup filterGroup;
-    GuiGroup eq3bGroup;
-    GuiGroup sfceGroup;
+    GuiCategoryLabel mainCat;
+
+    GuiCategoryLabel tremCat;
+    GuiCategoryLabel vibCat;
+    GuiCategoryLabel mbcCat;
+    GuiCategoryLabel delayCat;
+    GuiCategoryLabel reverbCat;
+    GuiCategoryLabel filterCat;
+    GuiCategoryLabel eq3bCat;
+    GuiCategoryLabel sfceCat;
+
+    // 作り終えた部品を「エフェクト」の枠の中身へ移す
+    void moveToGroup();
+
+    // 区分ごとの並べ方。FxType の番号で選ぶ
+    void layoutMainCat(juce::Rectangle<int>& rect);
+    void layoutEffectCat(juce::Rectangle<int>& rect, int type);
 
     GuiToggleButton bypassToggle;
     NormalSeparator mainSeparator;
@@ -161,7 +172,7 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void layoutFxOrder(juce::Rectangle<int> rect);
+    void layoutFxOrder(juce::Rectangle<int>& rect);
     void updateFxOrder();
 
     // ファイルを読んで反映する。ブラウザからも、画面へ落としたファイルからも使う。

@@ -26,6 +26,7 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     PrHelper::addTnParameters(layout, prefix, prefixName);
     PrHelper::addAdpcmPanParameters(layout, prefix, prefixName);
     PrHelper::addPcmParameters(layout, prefix, prefixName);
+    PrHelper::addPcmToneParameters(layout, prefix, prefixName);
     PrHelper::addLPParameters(layout, prefix, prefixName);
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);
     PrHelper::addEnvParameters(layout, prefix, prefixName);

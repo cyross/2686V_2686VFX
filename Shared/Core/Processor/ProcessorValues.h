@@ -426,6 +426,31 @@ namespace CPV
 			inline constexpr float max = 1.0f;
 			inline constexpr float initial = 1.0f;
 		}
+
+		// 等速 (4.5.0)。入れると、どのキーでも素材の速さのまま鳴らす
+		namespace FixedSpeed
+		{
+			inline constexpr bool initial = false;
+		}
+
+		// 音色モード (4.5.0)。再生区間を 1 周期として、キーの周波数で繰り返す
+		namespace Tone
+		{
+			inline constexpr bool initial = false;
+		}
+
+		// 音色モードで 1 周期に入りきらない長い素材の端折り方 (4.5.0)
+		namespace ToneFit
+		{
+			// 間引き (速さを変えて区間全体を 1 周期へ縮める)
+			inline constexpr int decimate = 0;
+			// 足切り (素材の速さのまま、1 周期に入る長さだけ頭から抜き出す)
+			inline constexpr int cut = 1;
+
+			inline constexpr int min = decimate;
+			inline constexpr int max = cut;
+			inline constexpr int initial = decimate;
+		}
 	}
 
 	namespace Lp

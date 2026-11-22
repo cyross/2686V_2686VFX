@@ -155,6 +155,23 @@ void GuiAdpcmPlus::setup()
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
+    pcmToneButton.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::pcmTone, .title = AdpcmPlusGuiText::Adpcm::pcmTone, .isReset = true });
+    pcmToneButton.setWantsKeyboardFocus(true);
+    pcmToneButton.setExplicitFocusOrder(++tabOrder);
+    pcmToneButton.onStateChange = [this] { updatePcmToneEnabled(); };
+
+    {
+        // 値は CPV::Pcm::ToneFit の並び
+        std::vector<SelectItem> fitItems = {
+            {.name = I18n::pick(u8"間引き", u8"Decimate"), .value = 1 },
+            {.name = I18n::pick(u8"足切り", u8"Cut"), .value = 2 }
+        };
+
+        pcmToneFitSelector.setup(GuiComboBox::Config{ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::pcmToneFit, .title = AdpcmPlusGuiText::Adpcm::pcmToneFit, .items = fitItems, .isReset = true });
+    }
+    pcmToneFitSelector.setWantsKeyboardFocus(true);
+    pcmToneFitSelector.setExplicitFocusOrder(++tabOrder);
+
     // 切り出しとループの設定が変わったら、プレビューも合わせる。
     // 各コンポーネントの setup() より後に付けること。setup() は APVTS との
     // 束縛を張り直すので、先に付けると束縛が壊れて操作できなくなる。
@@ -167,6 +184,7 @@ void GuiAdpcmPlus::setup()
     loopPointEnableButton.onStateChange = refreshSamplePreview;
 
     updateSamplePreview();
+    updatePcmToneEnabled();
 
     // パンポット設定
     panCat.setupHwCategory({ .parent = pcmGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::pan, .detailVisible = true, .enableChangeDetailVisible = true });
@@ -533,12 +551,16 @@ void GuiAdpcmPlus::rebindSlot()
     loopCountSlider.getSlider().rebind(prefix + CPK::lpCount);
     pcmOffsetSlider.rebind(prefix + CPK::pcmOffset);
     pcmRatioSlider.rebind(prefix + CPK::pcmRatio);
+    pcmToneButton.rebind(prefix + CPK::pcmTone);
+    pcmToneFitSelector.rebind(prefix + CPK::pcmToneFit);
     loopButton.rebind(prefix + CPK::loop);
     loopPointEnableButton.rebind(prefix + CPK::lpEnable);
     loopPointStartSlider.rebind(prefix + CPK::lpStart);
     loopPointEndSlider.rebind(prefix + CPK::lpEnd);
 
     panSlider.rebind(prefix + CPK::pan);
+
+    updatePcmToneEnabled();
 }
 
 
@@ -827,6 +849,8 @@ void GuiAdpcmPlus::layoutOptionalCat(juce::Rectangle<int>& rect) {
     optCountSeparator.setVisible(visible);
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
+    pcmToneButton.setVisible(visible);
+    pcmToneFitSelector.setVisibleWithLabel(visible);
     loopButton.setVisible(visible);
     optLoopSepTop.setVisible(visible);
     optLoopSepBottom.setVisible(visible);
@@ -842,6 +866,8 @@ void GuiAdpcmPlus::layoutOptionalCat(juce::Rectangle<int>& rect) {
         optCountSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
         layoutMain({ .mainRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+        layoutMain({ .mainRect = rect, .component = &pcmToneButton });
+        layoutMain({ .mainRect = rect, .label = &pcmToneFitSelector.label, .component = &pcmToneFitSelector });
         optLoopSepTop.layoutComponent(rect);
 
         layoutMain({ .mainRect = rect, .component = &loopButton });
@@ -1201,6 +1227,8 @@ void GuiAdpcmPlus::applyPcmPlayParamFile(const juce::File& file)
     pcmOffsetSlider.setValue(reader->getFloat("pcmOffset", (float)pcmOffsetSlider.getValue()), juce::sendNotification);
     speedSlider.setValue(reader->getFloat("speed", (float)speedSlider.getValue()), juce::sendNotification);
     pcmRatioSlider.setValue(reader->getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);
+    pcmToneButton.setToggleState(reader->getBool("pcmTone", pcmToneButton.getToggleState()), juce::sendNotification);
+    pcmToneFitSelector.setSelectedId(reader->getInt("pcmToneFit", pcmToneFitSelector.getSelectedId() - 1) + 1, juce::sendNotification);
     loopPointEnableButton.setToggleState(reader->getBool("loopPointEnable", loopPointEnableButton.getToggleState()), juce::sendNotification);
     loopPointStartSlider.setValue(reader->getFloat("loopPointStart", (float)loopPointStartSlider.getValue()), juce::sendNotification);
     loopPointEndSlider.setValue(reader->getFloat("loopPointEnd", (float)loopPointEndSlider.getValue()), juce::sendNotification);
@@ -1312,6 +1340,10 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
             r.getFloat("pcmOffset", getParamValue(slotPrefix + CPK::pcmOffset)));
         setParamValue(slotPrefix + CPK::pcmRatio,
             r.getFloat("pcmRatio", getParamValue(slotPrefix + CPK::pcmRatio)));
+        setParamValue(slotPrefix + CPK::pcmTone,
+            r.getBool("pcmTone", getParamValue(slotPrefix + CPK::pcmTone) > CPV::boolThread) ? 1.0f : 0.0f);
+        setParamValue(slotPrefix + CPK::pcmToneFit,
+            (float)r.getInt("pcmToneFit", (int)getParamValue(slotPrefix + CPK::pcmToneFit)));
         setParamValue(slotPrefix + CPK::loop,
             r.getBool("loop", getParamValue(slotPrefix + CPK::loop) > CPV::boolThread) ? 1.0f : 0.0f);
         setParamValue(slotPrefix + CPK::lpEnable,
@@ -1406,6 +1438,8 @@ void GuiAdpcmPlus::writeChParams(Io::ParamWriter& writer) {
         w.set("speed", getParamValue(slotPrefix + CPK::speed));
         w.set("pcmOffset", getParamValue(slotPrefix + CPK::pcmOffset));
         w.set("pcmRatio", getParamValue(slotPrefix + CPK::pcmRatio));
+        w.set("pcmTone", getParamValue(slotPrefix + CPK::pcmTone) > CPV::boolThread);
+        w.set("pcmToneFit", (int)getParamValue(slotPrefix + CPK::pcmToneFit));
         w.set("loop", getParamValue(slotPrefix + CPK::loop) > CPV::boolThread);
         w.set("loopPointEnable", getParamValue(slotPrefix + CPK::lpEnable) > CPV::boolThread);
         w.set("loopPointStart", getParamValue(slotPrefix + CPK::lpStart));
@@ -1509,6 +1543,8 @@ void GuiAdpcmPlus::writePcmPlayParams(Io::ParamWriter& writer) {
 	writer.set("pcmOffset", (float)pcmOffsetSlider.getValue());
 	writer.set("speed", (float)speedSlider.getValue());
 	writer.set("pcmRatio", (float)pcmRatioSlider.getValue());
+	writer.set("pcmTone", pcmToneButton.getToggleState());
+	writer.set("pcmToneFit", pcmToneFitSelector.getSelectedId() - 1);
 	writer.set("loopPointEnable", loopPointEnableButton.getToggleState());
 	writer.set("loopPointStart", (float)loopPointStartSlider.getValue());
 	writer.set("loopPointEnd", (float)loopPointEndSlider.getValue());
@@ -1647,4 +1683,19 @@ void GuiAdpcmPlus::openTargetsDialog(GuiTargetsDialog::Mode mode)
     };
 
     targetsDialog.open(*this, targetsDialogArea, config);
+}
+
+// 音色モード (4.5.0) では、ループ・ループポイント・ループカウンターが効かない。
+// 端折り方は音色モードのときだけ使える
+void GuiAdpcmPlus::updatePcmToneEnabled()
+{
+    const bool tone = pcmToneButton.getToggleState();
+
+    pcmToneFitSelector.setEnabledWithLabel(tone);
+    loopButton.setEnabled(!tone);
+    loopPointEnableButton.setEnabled(!tone);
+    loopPointStartSlider.setEnabledWithLabel(!tone);
+    loopPointEndSlider.setEnabledWithLabel(!tone);
+    loopCountSlider.setEnabledWithLabel(!tone);
+    loopCountButtons.setEnables(!tone);
 }

@@ -116,20 +116,31 @@ class GuiFx : public GuiBase, private juce::Timer
     // 無いので、その代わりの周波数をここで決められるようにしてある。
     GuiSlider wtModBaseFreqSlider;
 
-    GuiGroup tremGroup;
-    GuiGroup vibGroup;
-    GuiGroup mbcGroup;
-    GuiGroup delayGroup;
-    GuiGroup reverbGroup;
-    GuiGroup filterGroup;
-    GuiGroup eq3bGroup;
-    GuiGroup sfceGroup;
+    // 「エフェクト」の枠 (4.5.0)。効果ごとの区分を、かける順に縦に積んで縦に送る。
+    // 変調の列と一緒に横へ送る板の、いちばん左の列に置く
+    GuiScrollGroup fxGroup;
+
+    // 効果の部品を作った範囲 (この画面の子の番号)。作り終えたら fxGroup の中身へ移す
+    int fxFirstChild = 0;
+    int fxEndChild = 0;
+
+    // 区分ごとの並べ方。FxType の番号で選ぶ
+    void layoutEffectCat(juce::Rectangle<int>& rect, int type);
+
+    GuiCategoryLabel tremCat;
+    GuiCategoryLabel vibCat;
+    GuiCategoryLabel mbcCat;
+    GuiCategoryLabel delayCat;
+    GuiCategoryLabel reverbCat;
+    GuiCategoryLabel filterCat;
+    GuiCategoryLabel eq3bCat;
+    GuiCategoryLabel sfceCat;
 
     // 2686V PCM Bit Crusher。実機のレートとビットの刻みで落とす。
-    GuiGroup pcmGroup;
+    GuiCategoryLabel pcmCat;
 
     // ノイズリダクション。音源の QUALITY (PCM) のゲートと高域カット。
-    GuiGroup nrGroup;
+    GuiCategoryLabel nrCat;
 
     GuiToggleButton bypassToggle;
 

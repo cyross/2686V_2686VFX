@@ -208,6 +208,10 @@ public:
     // 生成過程プレビューの窓を必ず最前面にする (SETTINGS。4.4.1。既定は切)
     bool stageAlwaysOnTop = false;
 
+    // 非表示にした枠 (4.5.0。GuiGroupFolds)。タブ (GuiGroupFoldKey) ごとに、隠した枠の
+    // 名前を | でつないで持つ。設定ファイルへ保存する
+    std::map<juce::String, juce::String> hiddenGroups;
+
     // パラメータを触った履歴。自動生成が見る (ParamTouchWatch が書く)
     ParamTouchLog paramTouches;
 

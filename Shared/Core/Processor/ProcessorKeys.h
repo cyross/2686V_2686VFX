@@ -67,6 +67,11 @@ namespace CPK
 	static inline const juce::String pcmOffset = "_PCM_OFFSET";
 	static inline const juce::String pcmRatio = "_PCM_RATIO";
 
+	// 等速 (OPZX7 のオペレーター)・音色モードと、その端折り方 (4.5.0)
+	static inline const juce::String pcmFixedSpeed = "_PCM_FIXED_SPEED";
+	static inline const juce::String pcmTone = "_PCM_TONE";
+	static inline const juce::String pcmToneFit = "_PCM_TONE_FIT";
+
 	static inline const juce::String lpEnable = "_LOOPPOINT_EN";
 	static inline const juce::String lpStart = "_LOOPPOINT_ST";
 	static inline const juce::String lpEnd = "_LOOPPOINT_END";

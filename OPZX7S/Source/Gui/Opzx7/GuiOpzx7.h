@@ -251,6 +251,15 @@ class GuiOpzx7 : public GuiBase
 
     GuiSlider pcmOffset;
     GuiSlider pcmRatio;
+
+    // 等速・音色モードと、その端折り方 (4.5.0)。WS が PCM のときだけ出す
+    GuiToggleButton pcmFixedSpeed;
+    GuiToggleButton pcmTone;
+    GuiComboBox pcmToneFit;
+
+    // 音色モードではループポイントと等速が効かないので、使えない表示にする
+    void updatePcmToneEnabled();
+
     GuiToggleButton loopPointEnable;
     GuiSlider loopPointStart;
     GuiSlider loopPointEnd;

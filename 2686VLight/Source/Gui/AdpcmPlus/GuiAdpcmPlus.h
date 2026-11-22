@@ -95,6 +95,13 @@ class GuiAdpcmPlus : public GuiBase
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
 
+    // 音色モードと、その端折り方 (4.5.0)
+    GuiToggleButton pcmToneButton;
+    GuiComboBox pcmToneFitSelector;
+
+    // 音色モードではループとループポイントが効かないので、使えない表示にする
+    void updatePcmToneEnabled();
+
 	GuiComponentLevel levelComponent;
 
     GuiSlider toneSlider;
@@ -244,6 +251,8 @@ public:
         optCountSeparator(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
+        pcmToneButton(context),
+        pcmToneFitSelector(context),
         levelComponent(context),
         toneSlider(context),
         noiseSlider(context),

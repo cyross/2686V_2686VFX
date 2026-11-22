@@ -6,6 +6,7 @@
 #include <JuceHeader.h>
 
 #include "Shared/Core/Io/ParamFile.h"
+#include "Shared/Core/Gui/GuiGroupFoldKeys.h"
 #include "Shared/Core/Gui/GuiI18n.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
@@ -655,6 +656,11 @@ public:
         visit(SettingsKey::browserFps, browserFps);
         visit(SettingsKey::browserAutoGenerate, browserAutoGenerate);
         visit(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
+
+        // 非表示にした枠 (4.5.0)。タブごとに 1 項目
+        for (const auto& foldKey : GuiGroupFoldKey::all()) {
+            visit(GuiGroupFoldKey::hiddenSettingsKey(foldKey), hiddenGroups[foldKey]);
+        }
     }
     bool showTooltips = true; // For show Parameter Range Tooltop
 

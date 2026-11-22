@@ -507,6 +507,8 @@ void GuiOpna::setup()
 
     // 区分は縦に積まず、横へ並べる。1 列 1 区分が基本。
     stripViewport.setViewedComponent(&stripCanvas, false);
+    // 帯の枠の無いところを右クリックすると、枠のチェックリストを出す (4.5.0)
+    groupFolds.attachStrip(stripViewport);
     stripViewport.setScrollBarsShown(false, true);
     stripViewport.setScrollBarThickness(CoreGuiValue::ScrollBar::horizontal);
     stripViewport.setOpaque(false);
@@ -1362,7 +1364,8 @@ void GuiOpna::layoutOpPanel(juce::Rectangle<int> area)
     // 右の列が左へ詰まる。
     auto layoutCol = [&](GuiScrollGroup& group, bool show, auto&& body)
         {
-            if (!show) {
+            // 非表示にした枠 (4.5.0) も列ごと出さない
+            if (!show || group.isGroupHidden()) {
                 group.setVisible(false);
 
                 return;

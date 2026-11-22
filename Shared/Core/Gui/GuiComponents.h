@@ -106,6 +106,15 @@ public:
     // 見出しが押されたとき。畳むかどうかは受け取った側が決める
     std::function<void()> onTitleClick;
 
+    // ---------------- 非表示 (4.5.0) ----------------
+    // 見出しを右クリックしたとき (畳める枠だけ)。「グループを非表示」を出すのは受け取った側
+    std::function<void()> onTitleMenu;
+
+    // 枠を丸ごと隠すか。並べる側 (タブ) がこれを見て、列ごと出さない。
+    // 状態を覚えるのは GuiGroupFolds
+    void setGroupHidden(bool hidden) { groupHidden = hidden; }
+    bool isGroupHidden() const { return groupHidden; }
+
     void paint(juce::Graphics& g) override;
     bool hitTest(int x, int y) override;
     void mouseDown(const juce::MouseEvent& e) override;
@@ -124,6 +133,7 @@ protected:
 private:
     bool foldable = false;
     bool folded = false;
+    bool groupHidden = false;
 
     // 畳める見出しの上にマウスが乗っているか
     bool titleHovered = false;
@@ -298,7 +308,44 @@ public:
         viewport.setScrollBarThickness(CoreGuiValue::ScrollBar::vertical);
         applyScrollBarColour();
         viewport.setViewedComponent(&contentCanvas, false); // キャンバスをセット(所有権は持たせない)
+
+        // 区分の無いところを右クリックすると、区分の開閉のチェックリストを出す (4.5.0)
+        contentCanvas.addMouseListener(&canvasClicks, false);
     }
+
+    ~GuiScrollGroup() override
+    {
+        contentCanvas.removeMouseListener(&canvasClicks);
+    }
+
+    // 枠の中の区分を並べ、押すと開閉するチェックリストを出す (4.5.0)。
+    // 「すべての区分を開く」「すべての区分を閉じる」も並べる。区分が 1 つも無ければ出さない
+    void showCategoryMenu();
+
+    // キャンバスの上のこの点が、区分 (見出しと開いた中身) の外か
+    bool isOutsideCategories(juce::Point<int> canvasPoint) const;
+
+private:
+    struct CanvasClicks : public juce::MouseListener
+    {
+        GuiScrollGroup& owner;
+
+        explicit CanvasClicks(GuiScrollGroup& g) : owner(g) {}
+
+        void mouseDown(const juce::MouseEvent& e) override
+        {
+            // キャンバスそのもの (部品の無いところ) を右クリックしたときだけ
+            if (e.originalComponent != &owner.contentCanvas || !e.mods.isPopupMenu()) return;
+
+            if (!owner.isOutsideCategories(e.getPosition())) return;
+
+            owner.showCategoryMenu();
+        }
+    };
+
+    CanvasClicks canvasClicks{ *this };
+
+public:
 
     // つまみの色は部品へ写すので、色が変わったら写し直す
     void applyScrollBarColour()
@@ -1582,6 +1629,9 @@ class GuiCategoryLabel : public GuiLabel
     // 背景色。カテゴリの種類で決まる。
     juce::Colour bgColor = GuiColor::Category::HwBg;
 
+    // 見出しの文字の色 (4.5.0)。FX の効果の区分だけオフブラックにする
+    const GuiColor::Entry* textColour = &GuiColor::Category::Text;
+
     // 簡易表示モードで隠しているか
     bool hidden = false;
 
@@ -1614,6 +1664,7 @@ public:
 	void setupTapPitchCategory(const Config& c); // TAP PITCH SEQUENCER 用
 	void setupParamCategory(const Config& c);    // PARAM ENV[256] / TAP PARAM SEQUENCER 用
 	void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
+	void setupFxCategory(const Config& c);    // FX の効果の区分 (4.5.0)。オフホワイトの地にオフブラックの文字
 
 	// 背景色を呼び出し側が決める。同じ部品でも、置かれたチャンネルによって
 	// ハードとソフトのどちらに見せたいかが変わる場合に使う。
@@ -1632,6 +1683,12 @@ public:
     // 折りたたみを外から開いておく。置いた先によっては、最初から
     // 中身が見えているほうが都合のよいことがある。
     void setDetailVisible(bool visible) { this->detailVisible = visible; }
+
+    // 押して開閉できる見出しか (4.5.0。区分の開閉のチェックリストに並べるかを決める)
+    bool canChangeDetailVisible() const { return this->enableChangeDetailVisible; }
+
+    // 見出しの文字 (4.5.0。チェックリストに出す)
+    const juce::String& getCaption() const { return this->captionText; }
 
     // 右クリックで、区分の中身の切り取り・コピー・貼り付け・初期化・複写と
     // 読み込み・書き出しを出す (ParamEdit::showCategoryMenu)。

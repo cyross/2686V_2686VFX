@@ -100,8 +100,26 @@ void Opzx7Operator::updateFrequency()
 
         float originalHz = (float)m_hostSampleRate / (float)playSize;
 
-        if (m_params.fix.enable) {
+        m_toneCycleFrac = 1.0;
+
+        if (m_params.pcm.tone) {
+            // 音色モード (4.5.0)。再生区間を 1 周期として、ほかの波形と同じく
+            // キー (または FIX) の周波数で回す。足切りでは素材の速さのまま
+            // 1 周期に入る長さだけを頭から使う
+            baseFreq = m_fixMode.noteOn(frequency);
+
+            if (m_params.pcm.toneFit == 1 && baseFreq > 0.0f) {
+                const double cycleSize = std::clamp((double)m_hostSampleRate / (double)baseFreq, 1.0, (double)playSize);
+
+                m_toneCycleFrac = cycleSize / (double)playSize;
+            }
+        }
+        else if (m_params.fix.enable) {
             baseFreq = originalHz * m_params.fix.freq;
+        }
+        else if (m_params.pcm.fixedSpeed) {
+            // 等速 (4.5.0)。どのキーでも素材の速さのまま鳴らす。FIX が優先
+            baseFreq = originalHz;
         }
         else {
             float rootFreq = 261.625565f;
@@ -457,7 +475,8 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // 変調指数。従来の 4π ラジアンは 2 サイクルに相当する
     float fmModIndex = 2.0f;
 
-    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    // 音色モードはほかの波形と同じく回すので、抑えない (4.5.0)
+    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && !m_params.pcm.tone && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         size_t totalSize = m_pcmBuffer->size();
         size_t offsetSamples = (size_t)((m_params.pcm.offset / 1000.0f) * m_hostSampleRate);
@@ -490,7 +509,8 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // m_phase の更新とラップアラウンドもラジアンで行う
     m_phase += currentPhaseDelta * m_params.pcm.speed;
 
-    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_loopPointEnable && !m_isReleased && !m_lpDone) {
+    // 音色モードではループポイントを使わない (4.5.0)
+    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_loopPointEnable && !m_params.pcm.tone && !m_isReleased && !m_lpDone) {
         // ループポイントは 0.0〜1.0 なので、そのままサイクル単位で扱える
         double loopStart = m_loopPointStart;
         double loopEnd = m_loopPointEnd;
@@ -545,8 +565,13 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
 
             if (playSize < 1) playSize = 1;
 
+            // 音色モード (4.5.0)。足切りでは 1 周期に入る長さだけを使い、ループポイントは使わない
+            const bool loopPoint = m_loopPointEnable && !m_params.pcm.tone;
+
+            if (m_params.pcm.tone) playSize = std::max<size_t>(1, (size_t)((double)playSize * m_toneCycleFrac));
+
             // --- FM変調による「ループ外への逸脱」を安全にクランプ/ラップアラウンドする ---
-            if (m_loopPointEnable && !m_isReleased) {
+            if (loopPoint && !m_isReleased) {
                 float loopStartNorm = m_loopPointStart;
                 float loopEndNorm = m_loopPointEnd;
                 float loopLenNorm = loopEndNorm - loopStartNorm;
@@ -570,7 +595,7 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
             int index2 = index1 + 1;
 
             // ループ境界を跨ぐ際の線形補間の安全処理
-            if (m_loopPointEnable && !m_isReleased) {
+            if (loopPoint && !m_isReleased) {
                 size_t loopStartSample = offsetSamples + (size_t)(playSize * m_loopPointStart);
                 size_t loopEndSample = offsetSamples + (size_t)(playSize * m_loopPointEnd);
 
