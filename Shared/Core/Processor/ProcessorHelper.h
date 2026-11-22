@@ -440,6 +440,11 @@ namespace PrHelper {
 		ptPtrs.offset = apvts.getRawParameterValue(prefix + CPK::pcmOffset);
 		ptPtrs.ratio = apvts.getRawParameterValue(prefix + CPK::pcmRatio);
 		ptPtrs.speed = apvts.getRawParameterValue(prefix + CPK::speed);
+
+		// 登録していなければ nullptr が返り、切っている扱いになる (4.5.0)
+		ptPtrs.fixedSpeed = apvts.getRawParameterValue(prefix + CPK::pcmFixedSpeed);
+		ptPtrs.tone = apvts.getRawParameterValue(prefix + CPK::pcmTone);
+		ptPtrs.toneFit = apvts.getRawParameterValue(prefix + CPK::pcmToneFit);
 	}
 
 	static inline void setupLp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsLp& ptPtrs){
@@ -1066,6 +1071,9 @@ namespace PrHelper {
 		params.offset = getFloat(ptPtrs.offset);
 		params.ratio = getFloat(ptPtrs.ratio);
 		params.speed = getFloat(ptPtrs.speed);
+		params.fixedSpeed = ptPtrs.fixedSpeed != nullptr && getBool(ptPtrs.fixedSpeed);
+		params.tone = ptPtrs.tone != nullptr && getBool(ptPtrs.tone);
+		params.toneFit = ptPtrs.toneFit != nullptr ? getInt(ptPtrs.toneFit) : CPV::Pcm::ToneFit::initial;
 	}
 
 	static inline void applyLp(PrPtrsLp& ptPtrs, LoopPointParams& params){
@@ -3285,6 +3293,12 @@ namespace PrHelper {
 		);
 	}
 
+	// 音色モードと端折り方 (4.5.0)。ADPCM・ADPCM+ のスロット・OPZX7 のオペレーター
+	static inline void addPcmToneParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addBool(layout, prefix + CPK::pcmTone, prefixName + CPN::pcmTone, CPV::Pcm::Tone::initial);
+		PrHelper::addInt(layout, prefix + CPK::pcmToneFit, prefixName + CPN::pcmToneFit, CPV::Pcm::ToneFit::min, CPV::Pcm::ToneFit::max, CPV::Pcm::ToneFit::initial);
+	}
+
 	static inline void addOpPcmParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix) {
 		PrHelper::addFloat(
 			layout, 
@@ -3299,6 +3313,10 @@ namespace PrHelper {
 			CPV::Pcm::Ratio::min, CPV::Pcm::Ratio::max, CPV::Pcm::Ratio::initial
 		);
 		PrHelper::addSpeedParameters(layout, prefix, namePrefix);
+
+		// 等速・音色モード (4.5.0)。オペレーターだけが等速を持つ
+		PrHelper::addBool(layout, prefix + CPK::pcmFixedSpeed, namePrefix + CPN::pcmFixedSpeed, CPV::Pcm::FixedSpeed::initial);
+		PrHelper::addPcmToneParameters(layout, prefix, namePrefix);
 	}
 
 	static inline void addOpLPParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix) {
@@ -3435,6 +3453,7 @@ namespace PrHelper {
 
 			PrHelper::addTnParameters(layout, slotPrefix, slotName);
 			PrHelper::addPcmParameters(layout, slotPrefix, slotName);
+			PrHelper::addPcmToneParameters(layout, slotPrefix, slotName);
 			PrHelper::addLPParameters(layout, slotPrefix, slotName);
 			PrHelper::addAdpcmPanParameters(layout, slotPrefix, slotName);
 			PrHelper::addAdpcmBasicParameters(layout, slotPrefix, slotName);

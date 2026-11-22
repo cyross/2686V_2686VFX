@@ -117,6 +117,11 @@ namespace Opzx7GuiText
 			static inline const juce::String PcmOffset = u8"P.OFFSET";
 			static inline const juce::String PcmRatio = u8"P.RATIO";
 			static inline const juce::String loopPointEnable = u8"Loop Point Enable";
+
+			// PCM の等速・音色モード (4.5.0)
+			static inline const I18n::Text pcmFixedSpeed{ u8"等速", u8"Fixed speed" };
+			static inline const I18n::Text pcmTone{ u8"音色モード", u8"Tone mode" };
+			static inline const I18n::Text pcmToneFit{ u8"端折り方", u8"Fit" };
 			static inline const juce::String loopPointStart = u8"LP.START";
 			static inline const juce::String loopPointEnd = u8"LP.END";
 			static inline const juce::String RgEn = u8"Register Mode";

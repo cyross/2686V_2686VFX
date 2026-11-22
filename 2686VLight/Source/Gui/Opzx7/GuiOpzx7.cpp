@@ -301,6 +301,15 @@ static std::vector<SelectItem> opzx7WsItems = {
     {.name = "72 [EX040]Exponential Spike",         .value = 73},
 };
 
+// 音色モードの端折り方 (4.5.0)。値は CPV::Pcm::ToneFit の並び
+static std::vector<SelectItem> pcmToneFitItems()
+{
+    return {
+        {.name = I18n::pick(u8"間引き", u8"Decimate"), .value = 1 },
+        {.name = I18n::pick(u8"足切り", u8"Cut"), .value = 2 }
+    };
+}
+
 static std::vector<SelectItem> ksModeItems = {
     {.name = "0: MA7", .value = 1 },
     {.name = "1: OPZ", .value = 2 },
@@ -451,6 +460,9 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     speed(context),
     pcmOffset(context),
     pcmRatio(context),
+    pcmFixedSpeed(context),
+    pcmTone(context),
+    pcmToneFit(context),
     loopPointEnable(context),
     loopPointStart(context),
     loopPointEnd(context),
@@ -1196,6 +1208,19 @@ void GuiOpzx7::setup()
     pcmRatio.setWantsKeyboardFocus(true);
     pcmRatio.setExplicitFocusOrder(++tabOrder);
 
+    pcmFixedSpeed.setup({ .parent = colWs.contentCanvas, .id = paramPrefix + CPK::pcmFixedSpeed, .title = Opzx7GuiText::Fm::Op::pcmFixedSpeed, .isReset = true });
+    pcmFixedSpeed.setWantsKeyboardFocus(true);
+    pcmFixedSpeed.setExplicitFocusOrder(++tabOrder);
+
+    pcmTone.setup({ .parent = colWs.contentCanvas, .id = paramPrefix + CPK::pcmTone, .title = Opzx7GuiText::Fm::Op::pcmTone, .isReset = true });
+    pcmTone.setWantsKeyboardFocus(true);
+    pcmTone.setExplicitFocusOrder(++tabOrder);
+    pcmTone.onStateChange = [this] { updatePcmToneEnabled(); };
+
+    pcmToneFit.setup(GuiComboBox::Config{ .parent = colWs.contentCanvas, .id = paramPrefix + CPK::pcmToneFit, .title = Opzx7GuiText::Fm::Op::pcmToneFit, .items = pcmToneFitItems(), .isReset = true });
+    pcmToneFit.setWantsKeyboardFocus(true);
+    pcmToneFit.setExplicitFocusOrder(++tabOrder);
+
     loopPointEnable.setup({ .parent = colWs.contentCanvas, .id = paramPrefix + CPK::lpEnable, .title = Opzx7GuiText::Fm::Op::loopPointEnable, .isReset = true });
     loopPointEnable.setWantsKeyboardFocus(true);
     loopPointEnable.setExplicitFocusOrder(++tabOrder);
@@ -1734,6 +1759,10 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     speed.setEnabledWithLabel(enable);
     pcmOffset.setEnabledWithLabel(enable);
     pcmRatio.setEnabledWithLabel(enable);
+    pcmFixedSpeed.setEnabled(enable);
+    pcmTone.setEnabled(enable);
+    pcmToneFit.setEnabledWithLabel(enable);
+    if (enable) updatePcmToneEnabled();
     loadWtBtn.setEnabled(enable);
     clearWtBtn.setEnabled(enable);
     wtFileNameLabel.setEnabled(enable);
@@ -1870,6 +1899,21 @@ void GuiOpzx7::fillWsPreview(GuiWavePreview& preview, int opIndex)
     preview.setMarkers(markers);
 }
 
+// 音色モード (4.5.0) では等速とループポイントが効かないので、使えない表示にする。
+// 端折り方は音色モードのときだけ使える
+void GuiOpzx7::updatePcmToneEnabled()
+{
+    const bool tone = pcmTone.getToggleState();
+
+    pcmFixedSpeed.setEnabled(!tone);
+    pcmToneFit.setEnabledWithLabel(tone);
+    loopPointEnable.setEnabled(!tone);
+    loopPointStart.setEnabledWithLabel(!tone);
+    loopPointEnd.setEnabledWithLabel(!tone);
+    loopCount.setEnabledWithLabel(!tone);
+    loopCountButtons.setEnables(!tone);
+}
+
 void GuiOpzx7::updateOnWsChange()
 {
     updateWsPreview();
@@ -1888,6 +1932,9 @@ void GuiOpzx7::updateOnWsChange()
         loopCountButtons.setVisibles(false);
         pcmOffset.setVisibleWithLabel(false);
         pcmRatio.setVisibleWithLabel(false);
+        pcmFixedSpeed.setVisible(false);
+        pcmTone.setVisible(false);
+        pcmToneFit.setVisibleWithLabel(false);
         loopPointEnable.setVisible(false);
         loopPointStart.setVisibleWithLabel(false);
         loopPointEnd.setVisibleWithLabel(false);
@@ -1910,6 +1957,9 @@ void GuiOpzx7::updateOnWsChange()
         loopCountButtons.setVisibles(false);
         pcmOffset.setVisibleWithLabel(false);
         pcmRatio.setVisibleWithLabel(false);
+        pcmFixedSpeed.setVisible(false);
+        pcmTone.setVisible(false);
+        pcmToneFit.setVisibleWithLabel(false);
         loopPointEnable.setVisible(false);
         loopPointStart.setVisibleWithLabel(false);
         loopPointEnd.setVisibleWithLabel(false);
@@ -1932,6 +1982,9 @@ void GuiOpzx7::updateOnWsChange()
         loopCountButtons.setVisibles(visible && loopCount.isVisibleNudge());
         pcmOffset.setVisibleWithLabel(visible);
         pcmRatio.setVisibleWithLabel(visible);
+        pcmFixedSpeed.setVisible(visible);
+        pcmTone.setVisible(visible);
+        pcmToneFit.setVisibleWithLabel(visible);
         loopPointEnable.setVisible(visible);
         loopPointStart.setVisibleWithLabel(visible);
         loopPointEnd.setVisibleWithLabel(visible);
@@ -1953,6 +2006,9 @@ void GuiOpzx7::updateOnWsChange()
         loopCountButtons.setVisibles(false);
         pcmOffset.setVisibleWithLabel(false);
         pcmRatio.setVisibleWithLabel(false);
+        pcmFixedSpeed.setVisible(false);
+        pcmTone.setVisible(false);
+        pcmToneFit.setVisibleWithLabel(false);
         loopPointEnable.setVisible(false);
         loopPointStart.setVisibleWithLabel(false);
         loopPointEnd.setVisibleWithLabel(false);
@@ -2089,9 +2145,13 @@ void GuiOpzx7::rebind(int opIndex)
     loopCount.getSlider().rebind(code + CPK::lpCount);
     pcmOffset.rebind(code + CPK::pcmOffset);
     pcmRatio.rebind(code + CPK::pcmRatio);
+    pcmFixedSpeed.rebind(code + CPK::pcmFixedSpeed);
+    pcmTone.rebind(code + CPK::pcmTone);
+    pcmToneFit.rebind(code + CPK::pcmToneFit);
     loopPointEnable.rebind(code + CPK::lpEnable);
     loopPointStart.rebind(code + CPK::lpStart);
     loopPointEnd.rebind(code + CPK::lpEnd);
+    updatePcmToneEnabled();
 
     se.rebind(code + CPK::Fm::se);
     seFreq.rebind(code + CPK::Fm::seFreq);
@@ -2916,6 +2976,9 @@ void GuiOpzx7::layoutOpWsCat(juce::Rectangle<int>& rect, int selectedWs) {
     loopCountButtons.setVisibles((visible && selectedWs == Opzx7PrValue::pcmIndex) && loopCount.isVisibleNudge());
     pcmOffset.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmRatio.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmFixedSpeed.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmTone.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmToneFit.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loopPointEnable.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loopPointStart.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loopPointEnd.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
@@ -2944,6 +3007,9 @@ void GuiOpzx7::layoutOpWsCat(juce::Rectangle<int>& rect, int selectedWs) {
             if (loopCount.isVisibleNudge()) loopCountButtons.layoutComponentRow(rect);
             layoutRow({ .rowRect = rect, .label = &pcmOffset.label, .component = &pcmOffset });
             layoutRow({ .rowRect = rect, .label = &pcmRatio.label, .component = &pcmRatio });
+            layoutRow({ .rowRect = rect, .component = &pcmFixedSpeed });
+            layoutRow({ .rowRect = rect, .component = &pcmTone });
+            layoutRow({ .rowRect = rect, .label = &pcmToneFit.label, .component = &pcmToneFit });
             layoutRow({ .rowRect = rect, .component = &loopPointEnable });
             layoutRow({ .rowRect = rect, .label = &loopPointStart.label, .component = &loopPointStart, });
             layoutRow({ .rowRect = rect, .label = &loopPointEnd.label, .component = &loopPointEnd, });
@@ -3278,6 +3344,9 @@ void GuiOpzx7::copyOpParams(int p, CopyOpzx7Op& copyObj) {
     copyObj.pcm.pcmOffset = pcmOffset.getValue();
     copyObj.pcm.speed = speed.getValue();
     copyObj.pcm.pcmRatio = pcmRatio.getValue();
+    copyObj.pcm.fixedSpeed = pcmFixedSpeed.getToggleState();
+    copyObj.pcm.tone = pcmTone.getToggleState();
+    copyObj.pcm.toneFit = pcmToneFit.getSelectedId();
     copyObj.ssgEg.ssgEg = se.getSelectedId();
     copyObj.ssgEg.fmSsgEgFreq = seFreq.getValue();
     copyObj.mask.mask = mask.getToggleState();
@@ -3346,6 +3415,9 @@ void GuiOpzx7::pasteOpParams(int p, CopyOpzx7Op& copyObj) {
     pcmOffset.setValue(copyObj.pcm.pcmOffset, juce::sendNotification);
     speed.setValue(copyObj.pcm.speed, juce::sendNotification);
     pcmRatio.setValue(copyObj.pcm.pcmRatio, juce::sendNotification);
+    pcmFixedSpeed.setToggleState(copyObj.pcm.fixedSpeed, juce::sendNotification);
+    pcmTone.setToggleState(copyObj.pcm.tone, juce::sendNotification);
+    pcmToneFit.setSelectedId(copyObj.pcm.toneFit, juce::sendNotification);
     se.setSelectedId(copyObj.ssgEg.ssgEg, juce::sendNotification);
     seFreq.setValue(copyObj.ssgEg.fmSsgEgFreq, juce::sendNotification);
     mask.setToggleState(copyObj.mask.mask, juce::sendNotification);
@@ -3517,6 +3589,9 @@ void GuiOpzx7::applyOpPcmPlayParamFile(int opIndex, const juce::File& file)
     pcmOffset.setValue(reader->getFloat("pcmOffset", (float)pcmOffset.getValue()), juce::sendNotification);
     speed.setValue(reader->getFloat("speed", (float)speed.getValue()), juce::sendNotification);
     pcmRatio.setValue(reader->getFloat("pcmRatio", (float)pcmRatio.getValue()), juce::sendNotification);
+    pcmFixedSpeed.setToggleState(reader->getBool("pcmFixedSpeed", pcmFixedSpeed.getToggleState()), juce::sendNotification);
+    pcmTone.setToggleState(reader->getBool("pcmTone", pcmTone.getToggleState()), juce::sendNotification);
+    pcmToneFit.setSelectedId(reader->getInt("pcmToneFit", pcmToneFit.getSelectedId() - 1) + 1, juce::sendNotification);
     loopPointEnable.setToggleState(reader->getBool("loopPointEnable", loopPointEnable.getToggleState()), juce::sendNotification);
     loopPointStart.setValue(reader->getFloat("loopPointStart", (float)loopPointStart.getValue()), juce::sendNotification);
     loopPointEnd.setValue(reader->getFloat("loopPointEnd", (float)loopPointEnd.getValue()), juce::sendNotification);
@@ -3914,6 +3989,9 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
     pcmOffset.setValue(r.getFloat("pcmOffset", (float)pcmOffset.getValue()), juce::sendNotification);
     speed.setValue(r.getFloat("speed", (float)speed.getValue()), juce::sendNotification);
     pcmRatio.setValue(r.getFloat("pcmRatio", (float)pcmRatio.getValue()), juce::sendNotification);
+    pcmFixedSpeed.setToggleState(r.getBool("pcmFixedSpeed", pcmFixedSpeed.getToggleState()), juce::sendNotification);
+    pcmTone.setToggleState(r.getBool("pcmTone", pcmTone.getToggleState()), juce::sendNotification);
+    pcmToneFit.setSelectedId(r.getInt("pcmToneFit", pcmToneFit.getSelectedId() - 1) + 1, juce::sendNotification);
     loopPointEnable.setToggleState(r.getBool("loopPointEnable", loopPointEnable.getToggleState()), juce::sendNotification);
     loopPointStart.setValue(r.getFloat("loopPointStart", (float)loopPointStart.getValue()), juce::sendNotification);
     loopPointEnd.setValue(r.getFloat("loopPointEnd", (float)loopPointEnd.getValue()), juce::sendNotification);
@@ -3991,6 +4069,9 @@ void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
     w.set("pcmOffset", (float)pcmOffset.getValue());
     w.set("speed", (float)speed.getValue());
     w.set("pcmRatio", (float)pcmRatio.getValue());
+    w.set("pcmFixedSpeed", pcmFixedSpeed.getToggleState());
+    w.set("pcmTone", pcmTone.getToggleState());
+    w.set("pcmToneFit", pcmToneFit.getSelectedId() - 1);
     w.set("loopPointEnable", loopPointEnable.getToggleState());
     w.set("loopPointStart", (float)loopPointStart.getValue());
     w.set("loopPointEnd", (float)loopPointEnd.getValue());
@@ -4257,6 +4338,9 @@ void GuiOpzx7::writeOpPcmPlayParams(int opIndex, Io::ParamWriter& writer) {
 	writer.set("pcmOffset", (float)pcmOffset.getValue());
 writer.set("speed", (float)speed.getValue());
 	writer.set("pcmRatio", (float)pcmRatio.getValue());
+	writer.set("pcmFixedSpeed", pcmFixedSpeed.getToggleState());
+	writer.set("pcmTone", pcmTone.getToggleState());
+	writer.set("pcmToneFit", pcmToneFit.getSelectedId() - 1);
 	writer.set("loopPointEnable", loopPointEnable.getToggleState());
 	writer.set("loopPointStart", (float)loopPointStart.getValue());
 	writer.set("loopPointEnd", (float)loopPointEnd.getValue());

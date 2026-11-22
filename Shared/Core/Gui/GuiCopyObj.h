@@ -324,6 +324,11 @@ struct CopyPcm {
 	float pcmOffset;
 	float pcmRatio;
 	float speed;
+
+	// 等速・音色モード・端折り方 (4.5.0)。端折り方は選択肢の ID (1 始まり)
+	bool fixedSpeed = false;
+	bool tone = false;
+	int toneFit = 1;
 };
 
 struct CopyWt {

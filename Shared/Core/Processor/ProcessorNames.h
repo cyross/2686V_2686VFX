@@ -59,6 +59,10 @@ namespace CPN
 	static inline const juce::String pcmOffset = " PCM Offset";
 	static inline const juce::String pcmRatio = " PCM Ratio";
 
+	static inline const juce::String pcmFixedSpeed = " PCM Fixed Speed";
+	static inline const juce::String pcmTone = " PCM Tone Mode";
+	static inline const juce::String pcmToneFit = " PCM Tone Fit";
+
 	static inline const juce::String lpEnable = " Loop-point Enable";
 	static inline const juce::String lpStart = " Loop-point Start";
 	static inline const juce::String lpEnd = " Loop-point End";

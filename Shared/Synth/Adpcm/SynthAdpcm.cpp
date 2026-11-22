@@ -77,6 +77,8 @@ void AdpcmCore::setParameters(const SynthCoreParams& params)
     m_pcmOffset = chipParams.pcm.offset;
     m_pcmRatio = chipParams.pcm.ratio;
     m_speed = chipParams.pcm.speed;
+    m_toneMode = chipParams.pcm.tone;
+    m_toneFit = chipParams.pcm.toneFit;
     m_loopPointEnable = chipParams.lp.enable;
     m_lpCount = chipParams.lp.count;
     m_loopPointStart = std::clamp(chipParams.lp.start, 0.0f, 0.999999f);
@@ -174,6 +176,34 @@ void AdpcmCore::updateFrequency()
     // 素材を読む速さ。ホストのレートとの比も掛ける (m_playRate は
     // いま読んでいる素材の標本化周波数)。
     m_pitchRatio = (float)((m_currentFrequency / m_keyRootFreq) * (m_playRate / m_sampleRate));
+
+    // 音色モード (4.5.0)。再生区間を 1 周期として、1 秒に周波数の回数だけ回す。
+    // 間引きは区間全体を 1 周期へ縮め (速さを変えるのと同じ)、足切りは素材の
+    // 速さのまま 1 周期に入る長さだけを頭から使う。区間が 1 周期より短ければ
+    // どちらも引き伸ばす。
+    m_toneCycleFrac = 1.0;
+
+    if (m_toneMode && m_pcm != nullptr && m_currentFrequency > 0.0f && m_playRate > 0.0) {
+        const bool encoded = GenPcmHelper::isEncodedMode(m_qualityMode);
+        const double totalSize = (double)(encoded ? m_pcm->encoded.size() : m_pcm->raw.size());
+
+        if (totalSize > 0.0) {
+            double offsetSamples = (m_pcmOffset / 1000.0) * m_playRate;
+
+            if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+
+            const double playSize = std::max(1.0, (totalSize - offsetSamples) * m_pcmRatio);
+
+            double cycleSize = playSize;
+
+            if (m_toneFit == 1) cycleSize = std::min(playSize, m_playRate / m_currentFrequency);
+
+            cycleSize = std::max(1.0, cycleSize);
+
+            m_toneCycleFrac = cycleSize / playSize;
+            m_pitchRatio = (float)(cycleSize * m_currentFrequency / m_sampleRate);
+        }
+    }
 
     // QUALITY のノイズリダクション (再生側)。高域カットの上端は、素材が
     // 出力の 1 標本あたりに進む量 (m_pitchRatio) で決まる。
@@ -398,6 +428,9 @@ float AdpcmCore::getSample()
 
         if (playSize < 1.0) playSize = 1.0;
 
+        // 音色モード (4.5.0)。足切りでは 1 周期に入る長さだけを頭から使う
+        if (m_toneMode) playSize = std::max(1.0, playSize * m_toneCycleFrac);
+
         double endPosition = offsetSamples + playSize;
         double loopStartPos = offsetSamples + playSize * m_loopPointStart;
         double loopEndPos = offsetSamples + playSize * m_loopPointEnd;
@@ -405,7 +438,7 @@ float AdpcmCore::getSample()
         // =========================================================
         // ループ・終了判定
         // =========================================================
-        if (m_loopPointEnable) {
+        if (m_loopPointEnable && !m_toneMode) {
             if (!m_isReleased && !m_lpDone) {
                 // リリース前：ループポイント間をループ
                 if (m_position >= loopEndPos) {
@@ -424,7 +457,7 @@ float AdpcmCore::getSample()
             else {
                 // リリース後：最後まで再生
                 if (m_position >= endPosition) {
-                    if (m_isLooping) {
+                    if (m_isLooping || m_toneMode) {
                         m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
                     }
                     else {
@@ -437,7 +470,7 @@ float AdpcmCore::getSample()
         else {
             // 従来の処理
             if (m_position >= endPosition) {
-                if (m_isLooping) {
+                if (m_isLooping || m_toneMode) {
                     m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
                 }
                 else {
@@ -456,7 +489,7 @@ float AdpcmCore::getSample()
         int idx_m1 = idx_0 - 1;
 
         // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
-        if (m_isLooping) {
+        if (m_isLooping || m_toneMode) {
             if (idx_m1 < (int)offsetSamples) idx_m1 += (int)playSize;
             if (idx_1 >= (int)endPosition) idx_1 -= (int)playSize;
             if (idx_2 >= (int)endPosition) idx_2 -= (int)playSize;
@@ -552,6 +585,9 @@ float AdpcmCore::getSample()
 
         if (playSize < 1.0) playSize = 1.0;
 
+        // 音色モード (4.5.0)。足切りでは 1 周期に入る長さだけを頭から使う
+        if (m_toneMode) playSize = std::max(1.0, playSize * m_toneCycleFrac);
+
         double endPosition = offsetSamples + playSize;
         double loopStartPos = offsetSamples + playSize * m_loopPointStart;
         double loopEndPos = offsetSamples + playSize * m_loopPointEnd;
@@ -559,7 +595,7 @@ float AdpcmCore::getSample()
         // =========================================================
         // ループ・終了判定
         // =========================================================
-        if (m_loopPointEnable) {
+        if (m_loopPointEnable && !m_toneMode) {
             if (!m_isReleased && !m_lpDone) {
                 // リリース前：ループポイント間をループ
                 if (m_position >= loopEndPos) {
@@ -578,7 +614,7 @@ float AdpcmCore::getSample()
             else {
                 // リリース後：最後まで再生
                 if (m_position >= endPosition) {
-                    if (m_isLooping) {
+                    if (m_isLooping || m_toneMode) {
                         m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
                     }
                     else {
@@ -591,7 +627,7 @@ float AdpcmCore::getSample()
         else {
             // 従来の処理
             if (m_position >= endPosition) {
-                if (m_isLooping) {
+                if (m_isLooping || m_toneMode) {
                     m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
                 }
                 else {
@@ -610,7 +646,7 @@ float AdpcmCore::getSample()
         int idx_m1 = idx_0 - 1;
 
         // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
-        if (m_isLooping) {
+        if (m_isLooping || m_toneMode) {
             if (idx_m1 < (int)offsetSamples) idx_m1 += (int)playSize;
             if (idx_1 >= (int)endPosition) idx_1 -= (int)playSize;
             if (idx_2 >= (int)endPosition) idx_2 -= (int)playSize;

@@ -118,6 +118,13 @@ private:
     float m_keyFreq = 0.0f;
     void updateFrequency();
     float m_keyRootFreq = 261.625565f; // 押したときの ROOT の周波数
+
+    // 音色モード (4.5.0)
+    bool m_toneMode = false;
+    int m_toneFit = 0;
+
+    // 1 周期に使う長さの、再生区間に対する割合 (足切りで 1 未満になる)
+    double m_toneCycleFrac = 1.0;
     FixMode m_fixMode;
     Opzx7LfoCore m_lfo;
     SsgNoiseGen m_noiseGen;
