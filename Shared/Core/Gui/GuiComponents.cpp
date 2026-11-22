@@ -3,6 +3,8 @@
 #include <set>
 #include "./GuiComponents.h"
 #include "./GuiParamEdit.h"
+#include "./GuiChecklistMenu.h"
+#include "./GuiI18n.h"
 #include "Shared/Core/Processor/ProcessorKeys.h"
 
 
@@ -297,6 +299,15 @@ bool ColoredGroupComponent::hitTest(int x, int y)
 
 void ColoredGroupComponent::mouseDown(const juce::MouseEvent& e)
 {
+    // 見出しを右クリック: 「グループを非表示」(4.5.0)
+    if (foldable && e.mods.isPopupMenu() && onTitleMenu != nullptr
+        && titleChipBounds().expanded(2.0f).contains(e.position))
+    {
+        onTitleMenu();
+
+        return;
+    }
+
     if (foldable && e.mods.isLeftButtonDown() && onTitleClick != nullptr
         && titleChipBounds().expanded(2.0f).contains(e.position))
     {
@@ -1929,4 +1940,101 @@ void GuiDialog::styleButtons(juce::AlertWindow& window)
 
         ++index;
     }
+}
+
+// ============================================================================
+// 区分の開閉のチェックリスト (4.5.0)
+// ============================================================================
+namespace
+{
+    // キャンバスの中の区分の見出しを、上から順に集める。簡易表示モードで
+    // 隠しているもの・押して開閉できないものは入れない
+    std::vector<GuiCategoryLabel*> collectCategories(juce::Component& canvas)
+    {
+        std::vector<GuiCategoryLabel*> found;
+
+        std::function<void(juce::Component&)> walk = [&](juce::Component& parent) {
+            for (auto* child : parent.getChildren()) {
+                if (auto* cat = dynamic_cast<GuiCategoryLabel*>(child)) {
+                    if (cat->canChangeDetailVisible() && !cat->isHidden() && cat->isVisible()) found.push_back(cat);
+                }
+
+                walk(*child);
+            }
+            };
+
+        walk(canvas);
+
+        std::stable_sort(found.begin(), found.end(), [&](GuiCategoryLabel* a, GuiCategoryLabel* b) {
+            return canvas.getLocalPoint(a, juce::Point<int>()).y < canvas.getLocalPoint(b, juce::Point<int>()).y;
+            });
+
+        return found;
+    }
+}
+
+bool GuiScrollGroup::isOutsideCategories(juce::Point<int> canvasPoint) const
+{
+    auto& canvas = const_cast<juce::Component&>(static_cast<const juce::Component&>(contentCanvas));
+
+    for (auto* cat : collectCategories(canvas)) {
+        const auto label = canvas.getLocalArea(cat->getParentComponent(), cat->getBounds());
+        const auto backdrop = canvas.getLocalArea(cat->getParentComponent(), cat->backdropBounds());
+
+        if (label.contains(canvasPoint) || backdrop.contains(canvasPoint)) return false;
+    }
+
+    return true;
+}
+
+void GuiScrollGroup::showCategoryMenu()
+{
+    auto cats = collectCategories(contentCanvas);
+
+    if (cats.empty()) return;
+
+    std::vector<GuiChecklistMenu::Check> checks;
+
+    // 開き具合を変えたら並べ直す。エディタを閉じたあとに押されたら (枠が消えていれば) 何もしない
+    juce::Component::SafePointer<GuiScrollGroup> self(this);
+    GuiEditorHost* editor = &ctx.editor;
+
+    auto relayout = [self, editor] { if (self != nullptr) editor->resized(); };
+
+    for (auto* cat : cats) {
+        juce::Component::SafePointer<GuiCategoryLabel> safe(cat);
+
+        checks.push_back({
+            .name = cat->getCaption(),
+            .isOn = [safe] { return safe != nullptr && safe->isDetailVisible(); },
+            .set = [safe, relayout](bool on) {
+                if (safe == nullptr) return;
+
+                safe->setDetailVisible(on);
+                safe->repaint();
+
+                relayout();
+                },
+            });
+    }
+
+    std::vector<juce::Component::SafePointer<GuiCategoryLabel>> all;
+
+    for (auto* cat : cats) all.emplace_back(cat);
+
+    auto setAll = [all, relayout](bool on) {
+        for (auto& cat : all) {
+            if (cat == nullptr) continue;
+
+            cat->setDetailVisible(on);
+            cat->repaint();
+        }
+
+        relayout();
+        };
+
+    GuiChecklistMenu::show(getText(), std::move(checks), {
+        { I18n::pick(u8"すべての区分を開く", u8"Open all sections"), [setAll] { setAll(true); } },
+        { I18n::pick(u8"すべての区分を閉じる", u8"Close all sections"), [setAll] { setAll(false); } },
+        });
 }

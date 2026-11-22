@@ -15,6 +15,7 @@
 #include "Core/Processor/PluginProcessor.h"
 #include "Core/Editor/PluginEditor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
+#include "Shared/Core/Gui/GuiGroupFoldKeys.h"
 #include "./EditorTestAccess.h"
 
 namespace
@@ -353,4 +354,59 @@ TEST_CASE("GroupFold: 見出しにマウスが乗ると色を変える。畳ん�
 
 	group->mouseExit(mouseAt(*group, foldedTitle));
 	CHECK_FALSE(group->isTitleHovered());
+}
+
+// ============================================================================
+// 枠の非表示 (4.5.0)
+// ============================================================================
+// どの枠を隠したかは、タブごとに設定ファイルへ書く。隠した枠は列ごと出さない。
+
+TEST_CASE("GroupHide: 隠した枠の記録は、設定ファイルへ書いて読み直すと戻る")
+{
+	auto source = std::make_unique<AudioPlugin2686V>();
+
+	for (const auto& key : GuiGroupFoldKey::all()) source->hiddenGroups[key] = key + "|pitchEnv";
+
+	// 拡張子はいまの書き出し形式に合わせる (読むときに拡張子で形式を見分けるため)
+	auto file = juce::File::createTempFile(source->getStartupSettingsFileToWrite().getFileExtension());
+
+	REQUIRE(source->saveEnvironment(file));
+
+	auto target = std::make_unique<AudioPlugin2686V>();
+
+	REQUIRE(target->loadEnvironment(file, false));
+
+	for (const auto& key : GuiGroupFoldKey::all()) CHECK(target->hiddenGroups[key] == key + "|pitchEnv");
+
+	file.deleteFile();
+}
+
+TEST_CASE("GroupHide: 隠した枠は、開いた画面で列ごと出さない")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	// PITCH ENV の枠は、畳める枠のあるタブにどれもある
+	for (const auto& key : GuiGroupFoldKey::all()) processor->hiddenGroups[key] = "pitchEnv";
+
+	Editor e(*processor);
+
+	if (!e.openFoldableTab())
+	{
+		if (kRequireAll) FAIL("畳める枠が見つからない");
+
+		MESSAGE("畳める枠が無いので飛ばす");
+
+		return;
+	}
+
+	auto hidden = findAll<ColoredGroupComponent>(e.editor.get(), [](ColoredGroupComponent& g) {
+		return g.isFoldable() && g.isGroupHidden();
+	});
+
+	CHECK_FALSE(hidden.empty());
+
+	for (auto* g : hidden) CHECK_FALSE(shown(*g));
+
+	// 隠していない枠は出ている
+	CHECK_FALSE(e.foldables().empty());
 }
