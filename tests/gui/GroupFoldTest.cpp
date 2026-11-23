@@ -410,3 +410,35 @@ TEST_CASE("GroupHide: 隠した枠は、開いた画面で列ごと出さない"
 	// 隠していない枠は出ている
 	CHECK_FALSE(e.foldables().empty());
 }
+
+TEST_CASE("CategoryMenu: 区分を閉じて中身が縮んでも、その下の空いたところで右クリックを受ける")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	Editor e(*processor);
+
+	auto groups = findAll<GuiScrollGroup>(e.editor.get(), [](GuiScrollGroup&) { return true; });
+
+	REQUIRE_FALSE(groups.empty());
+
+	for (auto* g : groups)
+	{
+		// 中身を送り台より低くして、下に空いたところを作る。畳んだ枠では送り台が
+		// 隠れていて何も受けないので、見せてから確かめる
+		g->viewport.setVisible(true);
+		g->viewport.setBounds(0, 0, 200, 200);
+		g->contentCanvas.setSize(g->getContentWidth(), 20);
+
+		// 送り台そのものが押下を受ける (親へ抜けると、右クリックしてもメニューが出ない)
+		bool self = false;
+		bool children = false;
+
+		g->viewport.getInterceptsMouseClicks(self, children);
+
+		CHECK(self);
+		CHECK(children);
+
+		// キャンバスより下を押すと、送り台が受ける
+		CHECK(g->viewport.getComponentAt(juce::Point<int>(10, 150)) == &g->viewport);
+	}
+}
