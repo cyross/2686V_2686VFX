@@ -311,10 +311,16 @@ public:
 
         // 区分の無いところを右クリックすると、区分の開閉のチェックリストを出す (4.5.0)
         contentCanvas.addMouseListener(&canvasClicks, false);
+
+        // 区分を閉じてキャンバスが縮むと、その下は送り台だけになる。送り台は既定では
+        // 押下を受けず親へ抜けてしまうので、自分で受けて同じチェックリストを出す
+        viewport.setInterceptsMouseClicks(true, true);
+        viewport.addMouseListener(&canvasClicks, false);
     }
 
     ~GuiScrollGroup() override
     {
+        viewport.removeMouseListener(&canvasClicks);
         contentCanvas.removeMouseListener(&canvasClicks);
     }
 
@@ -334,8 +340,16 @@ private:
 
         void mouseDown(const juce::MouseEvent& e) override
         {
+            if (!e.mods.isPopupMenu()) return;
+
+            // キャンバスより下の空いたところ (送り台そのもの) は、区分の外
+            if (e.originalComponent == &owner.viewport) {
+                owner.showCategoryMenu();
+                return;
+            }
+
             // キャンバスそのもの (部品の無いところ) を右クリックしたときだけ
-            if (e.originalComponent != &owner.contentCanvas || !e.mods.isPopupMenu()) return;
+            if (e.originalComponent != &owner.contentCanvas) return;
 
             if (!owner.isOutsideCategories(e.getPosition())) return;
 
