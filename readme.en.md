@@ -43,12 +43,12 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - Per OPZX7 operator (when WS is PCM file), ADPCM (PCM in 86V) and per ADPCM+ slot (TARGET). 2686V, 2686VLight, 86V, OPZX7S, PCMV
   - Saved to the parameter files as `pcmTone` / `pcmToneFit`
 - **Groups can now be hidden**
-  - Right-clicking a group's title shows "Hide group". Clicking it hides that group
+  - Right-clicking a group's title shows "Hide group". Clicking it hides that group. Below it, after a separator, the checklist of that group's sections (next item) is also shown
   - Right-clicking an empty spot of the strip where groups line up shows a checklist of the groups. Groups that are shown are ticked. Ticking a group shows it (folded), unticking hides it. "Show all groups" and "Hide all groups" are also there. Clicking does not close the checklist; press ESC or click outside it to close it
   - Which groups are hidden is saved per tab in the settings file (`opnaHiddenGroups` and so on), and written and read when the settings file is saved or loaded in SETTINGS
   - FM operator columns (OPNA / OPN / OPL / OPL3 / OPM / OPZX7), RHYTHM pad columns, and 2686VFX's "Effects" and modulation columns. Every plugin (including 2686VFX)
 - **Added a checklist to open and close sections together**
-  - Right-clicking a spot inside a group that has neither the group title nor a section shows a checklist of that group's sections. Open sections are ticked. Ticking opens a section, unticking closes it. "Open all sections" and "Close all sections" are also there. Clicking does not close the checklist; press ESC or click outside it to close it
+  - Right-clicking an empty spot inside a group (with no section), or the group's title, shows a checklist of that group's sections. Open sections are ticked. Ticking opens a section, unticking closes it. "Open all sections" and "Close all sections" are also there. Clicking does not close the checklist; press ESC or click outside it to close it
   - Every plugin (including 2686VFX)
 - **Plugins with a sound source: the FX are now one "Effects" group**
   - The groups that used to be split per effect are now one "Effects" group, with each effect as a section. Bypass, reset, order and so on from the old "Effects" frame are now the "Main" section

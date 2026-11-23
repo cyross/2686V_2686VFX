@@ -442,3 +442,26 @@ TEST_CASE("CategoryMenu: 区分を閉じて中身が縮んでも、その下の�
 		CHECK(g->viewport.getComponentAt(juce::Point<int>(10, 150)) == &g->viewport);
 	}
 }
+
+TEST_CASE("CategoryMenu: 見出しの右クリックでも区分のチェックリストを出す")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+
+	Editor e(*processor);
+
+	auto groups = findAll<GuiScrollGroup>(e.editor.get(), [](GuiScrollGroup& g) { return g.getText().isNotEmpty(); });
+
+	REQUIRE_FALSE(groups.empty());
+
+	for (auto* g : groups)
+	{
+		// 畳めない枠も含め、見出しの右クリックの受け口がある
+		CHECK(g->onTitleMenu != nullptr);
+
+		// 見出しの上は、畳めない枠でもマウスを受ける (開いた見出しは左上にある)
+		g->setFolded(false);
+		g->setBounds(0, 0, 300, 300);
+
+		CHECK(g->hitTest(20, 3));
+	}
+}

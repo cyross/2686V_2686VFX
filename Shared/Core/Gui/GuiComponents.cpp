@@ -291,16 +291,17 @@ void ColoredGroupComponent::setFolded(bool shouldFold)
 
 bool ColoredGroupComponent::hitTest(int x, int y)
 {
-    // 枠そのものはマウスを受けない (中身へ通す) ので、見出しの上だけ受ける
-    if (foldable && titleChipBounds().expanded(2.0f).contains((float)x, (float)y)) return true;
+    // 枠そのものはマウスを受けない (中身へ通す) ので、見出しの上だけ受ける。
+    // 畳めない枠も、見出しの右クリックのメニューがあれば受ける
+    if ((foldable || onTitleMenu != nullptr) && titleChipBounds().expanded(2.0f).contains((float)x, (float)y)) return true;
 
     return juce::GroupComponent::hitTest(x, y);
 }
 
 void ColoredGroupComponent::mouseDown(const juce::MouseEvent& e)
 {
-    // 見出しを右クリック: 「グループを非表示」(4.5.0)
-    if (foldable && e.mods.isPopupMenu() && onTitleMenu != nullptr
+    // 見出しを右クリック: 「グループを非表示」と区分の開閉 (4.5.0)
+    if (e.mods.isPopupMenu() && onTitleMenu != nullptr
         && titleChipBounds().expanded(2.0f).contains(e.position))
     {
         onTitleMenu();
@@ -1994,11 +1995,15 @@ bool GuiScrollGroup::isOutsideCategories(juce::Point<int> canvasPoint) const
     return true;
 }
 
-void GuiScrollGroup::showCategoryMenu()
+void GuiScrollGroup::showCategoryMenu(std::vector<GuiChecklistMenu::Action> leading)
 {
     auto cats = collectCategories(contentCanvas);
 
-    if (cats.empty()) return;
+    if (cats.empty()) {
+        if (!leading.empty()) GuiChecklistMenu::show({}, {}, {}, std::move(leading));
+
+        return;
+    }
 
     std::vector<GuiChecklistMenu::Check> checks;
 
@@ -2040,8 +2045,11 @@ void GuiScrollGroup::showCategoryMenu()
         relayout();
         };
 
-    GuiChecklistMenu::show(getText(), std::move(checks), {
+    // 見出しの右クリックから出すときは、見出しの名前を重ねて出さない
+    const auto title = leading.empty() ? getText() : juce::String();
+
+    GuiChecklistMenu::show(title, std::move(checks), {
         { I18n::pick(u8"すべての区分を開く", u8"Open all sections"), [setAll] { setAll(true); } },
         { I18n::pick(u8"すべての区分を閉じる", u8"Close all sections"), [setAll] { setAll(false); } },
-        });
+        }, std::move(leading));
 }

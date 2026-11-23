@@ -43,19 +43,25 @@ void GuiGroupFolds::add(ColoredGroupComponent& group, const juce::String& name)
         ctx.editor.resized();
         };
 
-    // 見出しを右クリック: 「グループを非表示」(4.5.0)
+    // 見出しを右クリック: 「グループを非表示」(4.5.0)。その下に区切り線を引き、
+    // 枠の中の背景を右クリックしたときと同じ、区分の開閉のチェックリストを並べる
     group.onTitleMenu = [this, &group] {
-        juce::PopupMenu menu;
+        std::vector<GuiChecklistMenu::Action> leading{
+            { I18n::pick(u8"グループを非表示", u8"Hide group"), [this, &group] {
+                setHidden(group, true);
 
-        menu.addItem(I18n::pick(u8"グループを非表示", u8"Hide group"), [this, &group] {
-            setHidden(group, true);
+                saveHidden();
 
-            saveHidden();
+                ctx.editor.resized();
+                } },
+        };
 
-            ctx.editor.resized();
-            });
+        if (auto* scroll = dynamic_cast<GuiScrollGroup*>(&group)) {
+            scroll->showCategoryMenu(std::move(leading));
+            return;
+        }
 
-        menu.showMenuAsync(juce::PopupMenu::Options().withMousePosition());
+        GuiChecklistMenu::show({}, {}, {}, std::move(leading));
         };
 
     load();

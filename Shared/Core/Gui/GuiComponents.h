@@ -12,6 +12,7 @@
 #include "./GuiContext.h"
 #include "./GuiValues.h"
 #include "./GuiText.h"
+#include "./GuiChecklistMenu.h"
 
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -107,7 +108,9 @@ public:
     std::function<void()> onTitleClick;
 
     // ---------------- 非表示 (4.5.0) ----------------
-    // 見出しを右クリックしたとき (畳める枠だけ)。「グループを非表示」を出すのは受け取った側
+    // 見出しを右クリックしたとき。何を出すかは受け取った側が決める。GuiScrollGroup は
+    // 区分の開閉のチェックリストを出し、畳める枠 (GuiGroupFolds) はその上に
+    // 「グループを非表示」を足す
     std::function<void()> onTitleMenu;
 
     // 枠を丸ごと隠すか。並べる側 (タブ) がこれを見て、列ごと出さない。
@@ -312,6 +315,9 @@ public:
         // 区分の無いところを右クリックすると、区分の開閉のチェックリストを出す (4.5.0)
         contentCanvas.addMouseListener(&canvasClicks, false);
 
+        // 見出しを右クリックしても、同じチェックリストを出す (4.5.0)
+        onTitleMenu = [this] { showCategoryMenu(); };
+
         // 区分を閉じてキャンバスが縮むと、その下は送り台だけになる。送り台は既定では
         // 押下を受けず親へ抜けてしまうので、自分で受けて同じチェックリストを出す
         viewport.setInterceptsMouseClicks(true, true);
@@ -325,8 +331,10 @@ public:
     }
 
     // 枠の中の区分を並べ、押すと開閉するチェックリストを出す (4.5.0)。
-    // 「すべての区分を開く」「すべての区分を閉じる」も並べる。区分が 1 つも無ければ出さない
-    void showCategoryMenu();
+    // 「すべての区分を開く」「すべての区分を閉じる」も並べる。区分が 1 つも無ければ出さない。
+    // leading を渡すと、それをいちばん上に置き、区切り線の下へチェックリストを並べる
+    // (見出しの右クリックの「グループを非表示」)。このときは区分が無くても leading だけ出す
+    void showCategoryMenu(std::vector<GuiChecklistMenu::Action> leading = {});
 
     // キャンバスの上のこの点が、区分 (見出しと開いた中身) の外か
     bool isOutsideCategories(juce::Point<int> canvasPoint) const;

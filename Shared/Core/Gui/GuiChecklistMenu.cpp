@@ -93,13 +93,18 @@ namespace
     };
 }
 
-void GuiChecklistMenu::show(const juce::String& title, std::vector<Check> checks, std::vector<Action> actions)
+void GuiChecklistMenu::show(const juce::String& title, std::vector<Check> checks, std::vector<Action> actions, std::vector<Action> leading)
 {
     juce::PopupMenu menu;
 
     auto rows = std::make_shared<Rows>();
 
     if (title.isNotEmpty()) menu.addSectionHeader(title);
+
+    // 上に置くふつうの項目 (見出しの右クリックの「グループを非表示」など)。押すと閉じる
+    for (auto& a : leading) menu.addItem(a.name, a.run);
+
+    if (!leading.empty() && (!checks.empty() || !actions.empty())) menu.addSeparator();
 
     for (auto& c : checks) {
         auto isOn = c.isOn;

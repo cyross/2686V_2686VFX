@@ -36,6 +36,7 @@ namespace GuiChecklistMenu
         std::function<void()> run;
     };
 
-    // マウスの位置に出す
-    void show(const juce::String& title, std::vector<Check> checks, std::vector<Action> actions);
+    // マウスの位置に出す。leading はいちばん上に並べるふつうの項目で、押すと閉じる。
+    // チェックリストとのあいだには区切り線を引く
+    void show(const juce::String& title, std::vector<Check> checks, std::vector<Action> actions, std::vector<Action> leading = {});
 }
