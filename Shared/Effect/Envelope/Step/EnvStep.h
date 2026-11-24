@@ -74,6 +74,9 @@ struct StepEnvParams
 
 	// T SYNC (4.3.0)。RATE の段の 1 刻みを、秒ではなくテンポに合わせた音符の長さで取る
 	bool tickSync = false;
+
+	// パターンを切り替えたときに始め直す数 (4.5.0)。前に見た数と違えば、走っていれば頭から始め直す
+	uint32_t restart = 0;
 };
 
 class StepEnv
@@ -140,6 +143,9 @@ private:
 
 	const StepTable* table = nullptr;
 	std::uint32_t tableVersion = 0;
+
+	// 前に見た、パターンの始め直しの数 (4.5.0)
+	std::uint32_t lastRestart = 0;
 
 	// 写している値の組 (PARAM ENV)。-1 は組を使わない
 	int levelSet = -1;

@@ -17,6 +17,8 @@
 //
 // 値も幅も、もとはパラメータが決めている。つまみはそれを映していた
 // だけなので、接頭辞さえ分かれば同じものが直に採れる。
+#include "Shared/Core/Processor/ProcessorPattern.h"
+
 namespace GuiGraphValues
 {
     // 鳴っている位置 (グラフの縦線。4.3.0)。段の表を持つエンベロープは表の中、
@@ -135,7 +137,9 @@ namespace GuiGraphValues
         v.head.loopCount = (int)value(apvts, code + loopCountKey);
         v.head.loopMode = (int)value(apvts, code + loopModeKey);
 
-        const auto* table = tables.find(code + tableKey);
+        // パターン (4.5.0)。選んでいる組の表
+        const auto* patterns = PatternStore::find(apvts);
+        const auto* table = tables.find(patterns != nullptr ? patterns->tableKeyFor(code + tableKey) : code + tableKey);
 
         if (table != nullptr) v.head.loops = table->loopList();
 

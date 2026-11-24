@@ -796,7 +796,7 @@ void GuiRhythm::updatePadGraph(int p)
         graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwEnv256 + CPK::bypass));
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
-        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwEnv256), ctx.audioProcessor.envLiveRate());
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, ctx.audioProcessor.patterns.tableKeyFor(code + CPK::ssgSwEnv256)), ctx.audioProcessor.envLiveRate());
     }
     else if (mode == GuiEnvGraphMode::SsgSwP256) {
         const auto v = GuiGraphValues::ssgSwPEnv256(apvts, ctx.audioProcessor.stepTables, code);
@@ -805,7 +805,7 @@ void GuiRhythm::updatePadGraph(int p)
         graph.updateBypass(GuiGraphValues::flag(apvts, code + CPK::ssgSwPEnv256 + CPK::bypass));
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwPEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, 0);
-        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwPEnv256), ctx.audioProcessor.envLiveRate());
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, ctx.audioProcessor.patterns.tableKeyFor(code + CPK::ssgSwPEnv256)), ctx.audioProcessor.envLiveRate());
     }
     // PARAM ENV[256] (4.3.0)。値は TARGET の組から。鳴っている位置も出す
     else if (mode == GuiEnvGraphMode::ParamEnv256) {

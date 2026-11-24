@@ -2,6 +2,8 @@
 
 #include <JuceHeader.h>
 
+#include "../Pattern/Pattern.h"
+
 #include "../../../Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
@@ -37,6 +39,9 @@ class GuiComponentUnison : public GuiBase {
     GuiSlider paraDistance;
     GuiComponentNudgeSliderFloat paraDetune;
     GuiComponentPitchButtons paraDetuneButtons;
+
+    // パターン (4.5.0)。区分の一番下に置く
+    GuiComponentPattern patternParts;
     juce::String paramCode;
 
     void rebindParaSliders();
@@ -88,7 +93,8 @@ public:
         targetVoice(context),
         paraDistance(context),
         paraDetune(context),
-        paraDetuneButtons(context)
+        paraDetuneButtons(context),
+        patternParts(context)
     {
     }
 

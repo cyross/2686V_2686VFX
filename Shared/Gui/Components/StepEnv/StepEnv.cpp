@@ -147,7 +147,8 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     endLevelSeparator(context),
     endLevelEnable(context),
     endLevel(context),
-    levelSteps(context)
+    levelSteps(context),
+    patternParts(context)
 {
 }
 
@@ -155,7 +156,8 @@ StepTable* GuiComponentStepEnv::table() const
 {
     if (paramCode.isEmpty()) return nullptr;
 
-    return ctx.audioProcessor.stepTables.find(paramCode + spec.tableKey);
+    // パターン (4.5.0)。選んでいる組の表
+    return ctx.audioProcessor.stepTables.find(ctx.audioProcessor.patterns.tableKeyFor(paramCode + spec.tableKey));
 }
 
 void GuiComponentStepEnv::changed()
@@ -465,6 +467,11 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
 
     if (hasTickSync()) tickSync.watchToggle([this] { applyActive(); });
 
+    // パターン (4.5.0)。SSG SW AMP / PITCH ENV[256] だけが持つ (ほかの区分には置かれない)。
+    // 組が変わったら、表 (選んでいる組のもの) を引き直して出し直す
+    patternParts.setupComponent(parent, code + spec.tableKey, tabOrder);
+    patternParts.onPatternChange = [this] { if (paramCode.isNotEmpty()) rebind(paramCode); changed(); };
+
     applyActive();
 
     startTimerHz(10);
@@ -494,8 +501,10 @@ void GuiComponentStepEnv::rebind(const juce::String& code)
         endLevel.rebind(code + spec.endl);
     }
 
-    // 区分の右クリックで表も写すための印
-    const auto key = code + spec.tableKey;
+    // 区分の右クリックで表も写すための印。パターン (4.5.0) は選んでいる組の表
+    const auto key = ctx.audioProcessor.patterns.tableKeyFor(code + spec.tableKey);
+
+    patternParts.rebind(code + spec.tableKey);
 
     rate.getSlider().getProperties().set(ParamEdit::Property::stepTable, key);
     level.getSlider().getProperties().set(ParamEdit::Property::stepTable, key);
@@ -1078,6 +1087,11 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
 
     const bool visible = cat.isDetailVisible();
 
+
+    // パターン (4.5.0)
+
+    patternParts.setPartsVisible(visible);
+
     flag.setVisible(visible);
     flagSeparator.setVisible(visible);
     targetBox.setVisibleWithLabel(visible && isParam());
@@ -1198,6 +1212,9 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     layoutMain({ .mainRect = rect, .component = &endLevelEnable, .rowHeight = h });
     layoutMain({ .mainRect = rect, .label = &endLevel.label, .component = &endLevel, .rowHeight = h });
 
+    // パターン (4.5.0)。区分の一番下
+    patternParts.layoutComponent(rect);
+
     rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 }
 
@@ -1259,7 +1276,10 @@ void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curv
         return;
     }
 
-    auto v = GuiGraphValues::stepEnv256(ctx.apvts, ctx.audioProcessor.stepTables, paramCode, spec.tableKey,
+    // パターン (4.5.0)。選んでいる組の表 (鍵は code + tableKey なので、頭を除いた尻尾を渡す)
+    const auto tableKey = ctx.audioProcessor.patterns.tableKeyFor(paramCode + spec.tableKey).substring(paramCode.length());
+
+    auto v = GuiGraphValues::stepEnv256(ctx.apvts, ctx.audioProcessor.stepTables, paramCode, tableKey,
         spec.steps, spec.loop, spec.loopTo, spec.loopCount, spec.loopMode, spec.stl, spec.rr, spec.lr, (float)spec.levelMax);
 
     v.startNow = hasStartNow() && startNow.getToggleState();
@@ -1277,7 +1297,7 @@ void GuiComponentStepEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curv
     else graph.updateSsgSwEnv256(v, keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
 
     // 鳴っている位置 (グラフの縦線)
-    graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, paramCode + spec.tableKey), ctx.audioProcessor.envLiveRate());
+    graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, paramCode + tableKey), ctx.audioProcessor.envLiveRate());
 }
 
 // ---------------------------------------------------------------- 止める
@@ -1366,6 +1386,9 @@ void GuiComponentStepEnv::applyActive()
     endLevelEnable.setEnabled(outerEnabled);
     endLevelEnable.setDimmed(!active);
     endLevel.setEnabledWithLabel(active && endLevelEnable.getToggleState());
+
+    // パターンの切り替えは、区分を切っていても使える
+    patternParts.setPartsEnabled(outerEnabled);
 }
 
 // ---------------------------------------------------------------- ファイル

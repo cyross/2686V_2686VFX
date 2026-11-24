@@ -650,3 +650,46 @@ TEST_CASE("StepRate: 段の長さと終わりの値は、音の側 (StepEnv) と
     // 動かず打ち切りもしない
     CHECK(StepRate::segment(0.0f, 1.0f, 0.0f, 0.0, 0.0f).endless);
 }
+
+TEST_CASE("StepEnv: パターンの始め直しの数が進むと、押しているあいだは頭の段から始め直す (4.5.0)")
+{
+    StepTable t(0.0f, 0.0f);
+    fill(t, { 0.25f, 0.5f, 0.75f });
+
+    StepEnv env;
+    env.prepare(0, -1, kRate);
+
+    auto p = makeParams(t, 3);
+
+    env.setParameters(p);
+    env.noteOn();
+
+    CHECK(env.process() == doctest::Approx(0.25f));
+    CHECK(env.process() == doctest::Approx(0.5f));
+
+    // 数が同じなら、続きから
+    env.setParameters(p);
+    CHECK(env.process() == doctest::Approx(0.75f));
+
+    // 数が進んだら、1 段目から
+    p.restart = 1;
+    env.setParameters(p);
+    CHECK(env.process() == doctest::Approx(0.25f));
+    CHECK(env.process() == doctest::Approx(0.5f));
+}
+
+TEST_CASE("StepEnv: 走っていないときは、始め直しの数が進んでも鳴り出さない (4.5.0)")
+{
+    StepTable t(0.0f, 0.0f);
+    fill(t, { 0.25f, 0.5f });
+
+    StepEnv env;
+    env.prepare(0, -1, kRate);
+
+    auto p = makeParams(t, 2);
+    p.restart = 3;
+
+    env.setParameters(p);
+
+    CHECK(env.isIdle());
+}

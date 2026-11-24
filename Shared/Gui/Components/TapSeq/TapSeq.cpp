@@ -90,7 +90,8 @@ GuiComponentTapSeq::GuiComponentTapSeq(const GuiContext& context, Kind k) :
     listSeparator(context),
     increment(context),
     decrement(context),
-    clearStep(context)
+    clearStep(context),
+    patternParts(context)
 {
 }
 
@@ -98,7 +99,8 @@ StepTable* GuiComponentTapSeq::table() const
 {
     if (paramCode.isEmpty()) return nullptr;
 
-    return ctx.audioProcessor.stepTables.find(paramCode + spec.keys.base);
+    // パターン (4.5.0)。選んでいる組の表
+    return ctx.audioProcessor.stepTables.find(ctx.audioProcessor.patterns.tableKeyFor(paramCode + spec.keys.base));
 }
 
 void GuiComponentTapSeq::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder)
@@ -189,6 +191,17 @@ void GuiComponentTapSeq::setupComponent(juce::Component& parent, const juce::Str
     loop.watchToggle([this] { applyActive(); });
 
     target.setValue(1, juce::dontSendNotification);
+
+    // パターン (4.5.0)。組が変わったら、表 (選んでいる組のもの) を引き直して出し直す
+    patternParts.setupComponent(parent, code + spec.keys.base, tabOrder);
+    patternParts.onPatternChange = [this] {
+        // 区分の右クリックで写す表も、選んでいる組のものへ
+        value.getSlider().getProperties().set(ParamEdit::Property::stepTable, ctx.audioProcessor.patterns.tableKeyFor(paramCode + spec.keys.base));
+
+        applyStepCount();
+        rebindValue();
+        refresh();
+        };
 
     applyStepCount();
     applyActive();
@@ -396,6 +409,11 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
 
     const bool visible = cat.isDetailVisible();
 
+
+    // パターン (4.5.0)
+
+    patternParts.setPartsVisible(visible);
+
     enable.setVisible(visible);
     enableSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
@@ -446,6 +464,9 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     listSeparator.layoutComponent(rect);
     layoutMainThreeComps({ .rect = rect, .comp1 = &increment, .comp2 = &decrement, .comp3 = &clearStep, .rowHeight = h });
 
+    // パターン (4.5.0)。区分の一番下
+    patternParts.layoutComponent(rect);
+
     rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 }
 
@@ -487,6 +508,9 @@ void GuiComponentTapSeq::applyActive()
     increment.setEnabled(active);
     decrement.setEnabled(active);
     clearStep.setEnabled(active);
+
+    // パターンの切り替えは、区分を切っていても使える
+    patternParts.setPartsEnabled(outerEnabled);
 }
 
 // ---------------------------------------------------------------- ファイル

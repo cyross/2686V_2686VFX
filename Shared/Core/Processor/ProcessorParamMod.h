@@ -661,7 +661,8 @@ public:
 
 			s.live = isLiveSuffix(suffix);
 
-			s.ptr = apvts.getRawParameterValue(id);
+			// パターン (4.5.0) の区分のつまみは、音の側が読む値 (live) を置き換える
+			s.ptr = PatternStore::raw(apvts, id);
 			s.param = apvts.getParameter(id);
 
 			// 一覧に書いた鍵がパラメータに無い。一覧を直すこと

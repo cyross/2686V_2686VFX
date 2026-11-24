@@ -61,6 +61,15 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The effect groups stacked in four columns are now one "Effects" group in one column, with each effect as a section. The section titles are off-black text on off-white. They are in the order the effects are applied, and changing the order re-arranges them straight away
   - The group has a vertical scroll bar and sits left of the modulation columns
   - Folding is remembered for the one "Effects" group. The old per-effect folding is not carried over
+- **Envelopes and sequencers now have "patterns" that can be switched while playing**
+  - Sections: SSG HW AMP ENV, SSG HW PITCH ENV, SSG SW AMP ENV[256], SSG SW PITCH ENV[256], TAP AMP SEQUENCER, TAP PITCH SEQUENCER and UNISON/HARMONY, for each channel, operator and pad
+  - At the bottom of the section, below a separator, there are "PATTERNS" (how many, 1 to 32, default 1), "PATTERN" (which one to use, 1 to PATTERNS) and "RESET TO CHANGE" (default off)
+  - One pattern holds all of the section's settings (the controls, plus the step values, SKIPs and loop entries). The section's switch (Enable / Bypass) and TAP SEQUENCER's INCREMENT / DECREMENT / CLEAR STEP are not part of a pattern
+  - Changing PATTERN switches at once, even while a note is sounding. PATTERN can be automated and switches reliably when rendering too. The section's controls show the selected pattern
+  - With "RESET TO CHANGE" on, switching restarts the sounding notes' envelope from the top, TAP SEQUENCER from before the first step, and UNISON's ARP from the first voice. With it off, playback keeps its position and carries on with the new pattern's values (TAP SEQUENCER keeps its step position)
+  - Section import / export (right-click) and copy & paste work on the selected pattern
+  - Each pattern's values are saved in presets and the DAW state. With PATTERNS at 1, the sound and what is saved are the same as before
+  - Every plugin except 2686VFX
 - **The version is now 4.5.0**
 
 ### 3-0-2. What v4.4.1 adds and changes

@@ -4,6 +4,8 @@
 #include "../ValueNudge/ValueNudge.h"
 #include <JuceHeader.h>
 
+#include "../Pattern/Pattern.h"
+
 #include "../../../Core/Io/ParamFile.h"
 #include <array>
 #include <vector>
@@ -53,6 +55,9 @@ class GuiComponentSsgHwEnv : public GuiBase {
     // ホールドと部分再生。区分のいちばん下へ置く。
     GuiComponentWaveHold waveHold;
 
+    // パターン (4.5.0)。区分の一番下に置く
+    GuiComponentPattern patternParts;
+
     std::unique_ptr<juce::FileChooser> fileChooser;
 public:
     // 区分の見出し。右クリックの IMPORT / EXPORT をつなぐのに使う
@@ -97,7 +102,8 @@ public:
         maxSlider(context),
         levelSteps(context),
         preview(context),
-        waveHold(context)
+        waveHold(context),
+        patternParts(context)
     {
     }
 

@@ -102,4 +102,7 @@ struct SsgHwEnvParams {
 
     // ホールドと部分再生
     WaveHoldParams hold;
+
+    // パターンを切り替えたときに始め直す数 (4.5.0)。前に見た数と違えば始め直す
+    uint32_t restart = 0;
 };

@@ -62,6 +62,9 @@ private:
 
 	uint32_t m_rngState = 0x2686FDu;
 
+	// 前に見た、パターンの始め直しの数 (4.5.0)
+	uint32_t m_lastRestart = 0;
+
 	// Sample & Hold 用のサイクル管理
 	int m_prevCycle = 0;
 	uint32_t m_cycleCount = 0;

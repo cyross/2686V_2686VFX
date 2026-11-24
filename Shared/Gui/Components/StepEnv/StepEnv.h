@@ -2,6 +2,8 @@
 
 #include <JuceHeader.h>
 
+#include "../Pattern/Pattern.h"
+
 #include <functional>
 #include <memory>
 
@@ -261,6 +263,9 @@ private:
     // 3 つのつまみへ聞き手を付けるので、つまみより後に置く (先に壊れて外す側になる)。
     // 前に置いていたら、壊すときに先に消えたつまみから聞き手を外しに行って落ちていた。
     GuiComponentStepSnap levelSteps;
+
+    // パターン (4.5.0)。区分の一番下に置く
+    GuiComponentPattern patternParts;
 
     juce::String paramCode;
     juce::String m_flagKey;

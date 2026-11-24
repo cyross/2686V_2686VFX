@@ -13,6 +13,7 @@
 #include "../Synth/WtModWave.h"
 #include "../Synth/StepTable.h"
 #include "../Synth/StepTableUndo.h"
+#include "../Processor/ProcessorPattern.h"
 #include "../Synth/LevelMeterFeed.h"
 #include "../Synth/StageProbe.h"
 #include "../Io/IoPathRoot.h"
@@ -131,6 +132,10 @@ public:
     // SSG SW AMP / PITCH ENV[256] などの段の表。256 段 × 2 をパラメータで
     // 持つと数が膨大になるため、ここが持って state へ書く。
     StepTableStore stepTables;
+
+    // エンベロープ・シーケンサーのパターン (4.5.0)。区分の組ごとの値と、組の切り替え。
+    // 段の表 (stepTables) を指すので、そのあとに置く (先に壊れる)
+    PatternStore patterns;
 
     // 段の表の書き換えを Undo に載せるための、最後に載せた中身 (GuiStepTableUndo)
     StepTableUndo::History stepTableHistory;

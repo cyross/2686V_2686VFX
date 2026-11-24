@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <array>
+#include <cstdint>
 
 #include "Shared/Core/Const/ConstGlobal.h"
 
@@ -18,4 +19,7 @@ struct UnisonParams {
     // ボイス0 (元の音) は 3.6.3 で足した。それまではボイス1〜7だけだった。
     std::array<float, Global::unisonVoices> paraDistance{};
     std::array<int, Global::unisonVoices> paraDetune{};
+
+    // パターンを切り替えたときに始め直す数 (4.5.0)。前に見た数と違えば始め直す
+    uint32_t restart = 0;
 };

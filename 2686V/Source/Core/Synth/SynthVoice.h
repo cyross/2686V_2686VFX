@@ -124,6 +124,9 @@ public:
     // 鳴り残っているコアを直に叩くとき (レガート) に呼ぶ
     void beginParamMod(bool isLegato);
 
+    // パターンを切り替えて RESET TO CHANGE が入っていたら (4.5.0)、ARP を頭のボイスから
+    void restartArp() { m_arpPhase = 0.0; }
+
     void setArpParams(bool enable, int freq, bool smooth)
     {
         m_arpEnable = enable;

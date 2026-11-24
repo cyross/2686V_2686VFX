@@ -1775,7 +1775,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::SsgSwEnv256::enable));
         graph.setKeepLevels(GuiGraphValues::ssgSwEnv256Keep(apvts, code));
         graph.updateSsgSwEnv256(v);
-        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwEnv256), ctx.audioProcessor.envLiveRate());
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, ctx.audioProcessor.patterns.tableKeyFor(code + CPK::ssgSwEnv256)), ctx.audioProcessor.envLiveRate());
     }
     // =============================================================
     // SSG SW PEnv 11
@@ -1786,7 +1786,7 @@ void GuiOpl::updateOpGraph(int opIndex)
         graph.updateBypass(!GuiGraphValues::flag(apvts, code + CPK::SsgSwPEnv256::enable));
         graph.setKeepLevels(GuiGraphValues::ssgSwPEnv256Keep(apvts, code));
         graph.updateSsgSwPEnv256(v);
-        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwPEnv256), ctx.audioProcessor.envLiveRate());
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, ctx.audioProcessor.patterns.tableKeyFor(code + CPK::ssgSwPEnv256)), ctx.audioProcessor.envLiveRate());
     }
     // =============================================================
     // PARAM ENV[256] (4.3.0)。値は TARGET の組から。鳴っている位置も出す

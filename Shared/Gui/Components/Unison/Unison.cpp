@@ -77,6 +77,11 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
     targetVoice.onValueChange = [this] { rebindParaSliders(); };
     targetVoice.setValue(1, juce::sendNotification);
 
+    // パターン (4.5.0)。組が変わったら、ボイス単位のつまみを出し直す
+    patternParts.setupComponent(parent, code + EnvPattern::unison, tabOrder);
+    patternParts.onPatternChange = [this] { rebindParaSliders(); };
+
+
     // onValueChange は値が変わらないと呼ばれないため、初期束縛はここで明示的に行う
     rebindParaSliders();
 }
@@ -112,6 +117,11 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
 
     bool visible = cat.isDetailVisible();
 
+
+    // パターン (4.5.0)
+
+    patternParts.setPartsVisible(visible);
+
     voices.setVisibleWithLabel(visible);
     detune.setVisibleWithLabel(visible);
     detuneButtons.setVisibles(visible && detune.isVisibleNudge());
@@ -141,6 +151,9 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &paraDistance.label, .component = &paraDistance });
         paraDetune.layoutComponent(rect);
         if (paraDetune.isVisibleNudge()) paraDetuneButtons.layoutComponent(rect);
+
+        // パターン (4.5.0)。区分の一番下
+        patternParts.layoutComponent(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }

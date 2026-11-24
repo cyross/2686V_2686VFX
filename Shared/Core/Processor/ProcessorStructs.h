@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <cstdint>
+
 #include "Shared/Core/Synth/LivePosition.h"
 
 #include <array>
@@ -93,6 +95,9 @@ struct PrPtrsStepEnv {
     std::atomic<float>* startNow = nullptr;
     std::atomic<float>* tickSync = nullptr;
     const StepTable* table = nullptr;
+
+    // パターンを切り替えたときに始め直す数 (4.5.0, PatternStore)。無ければ nullptr
+    const std::atomic<uint32_t>* restart = nullptr;
 };
 
 struct PrPtrsSsgSwEnv256 : PrPtrsStepEnv {
@@ -255,6 +260,9 @@ struct PrPtrsUnison {
     std::atomic<float>* arpSmooth = nullptr;
     std::array<std::atomic<float>*, Global::unisonVoices> paraDistance{};
     std::array<std::atomic<float>*, Global::unisonVoices> paraDetune{};
+
+    // パターンを切り替えたときに始め直す数 (4.5.0, PatternStore)。無ければ nullptr
+    const std::atomic<uint32_t>* restart = nullptr;
 };
 
 struct PrPtrsToneNoise {
@@ -359,6 +367,9 @@ struct PrPtrsSsgHwEnv {
 
     // ホールドと部分再生
     PrPtrsWaveHold hold;
+
+    // パターンを切り替えたときに始め直す数 (4.5.0, PatternStore)。無ければ nullptr
+    const std::atomic<uint32_t>* restart = nullptr;
 };
 
 struct PrPtrsSsgHwPEnv {
@@ -373,6 +384,9 @@ struct PrPtrsSsgHwPEnv {
 
     // ホールドと部分再生
     PrPtrsWaveHold hold;
+
+    // パターンを切り替えたときに始め直す数 (4.5.0, PatternStore)。無ければ nullptr
+    const std::atomic<uint32_t>* restart = nullptr;
 };
 
 struct PrPtrsPanpot {

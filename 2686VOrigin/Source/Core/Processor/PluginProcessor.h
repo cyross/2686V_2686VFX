@@ -100,6 +100,23 @@ public:
 
     SynthParams* currentParams = nullptr;
 
+    // パターン (4.5.0)。UNISON の区分の始め直しの数が進んだら、鳴っている音の ARP を
+    // 頭のボイスから始め直す。ブロックの頭で呼ぶ
+    void restartArps(uint32_t restart)
+    {
+        if (restart == m_unisonRestart) return;
+
+        m_unisonRestart = restart;
+
+        for (int i = 0; i < getNumVoices(); ++i) {
+            if (auto* voice = dynamic_cast<SynthVoice*>(getVoice(i))) {
+                if (voice->isVoiceActive()) voice->restartArp();
+            }
+        }
+    }
+
+    uint32_t m_unisonRestart = 0;
+
     // TAP AMP / PITCH SEQUENCER の、いま鳴らしている打鍵の値 (割合とセント)。
     // モノで鍵を離して前の鍵へ戻るときは、段を進めずにこの値で鳴らし続ける。
     float m_tapGain = 1.0f;

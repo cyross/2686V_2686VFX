@@ -85,6 +85,23 @@ void StepEnv::setParameters(const StepEnvParams& p)
 		std::fill(l.begin() + 1, l.end(), 0.0f);
 		rates.fill({});
 	}
+
+	// パターンを切り替えて RESET TO CHANGE が入っていたら (4.5.0)、押しているあいだの
+	// エンベロープを頭 (STL・1 段目) から始め直す。離したあとの余韻はそのまま
+	if (p.restart != lastRestart) {
+		lastRestart = p.restart;
+
+		if (state == State::Running) {
+			loopCounter = 0;
+			richState.clear();
+
+			current = l[0];
+			keepLevel = current;
+
+			beginStep(1);
+			publish();
+		}
+	}
 }
 
 float StepEnv::curve(int param, float x) const

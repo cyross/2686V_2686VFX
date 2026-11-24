@@ -11,6 +11,7 @@
 #include "Shared/Core/Processor/ProcessorValues.h"
 #include "./ProcessorFloat.h"
 #include "./ProcessorOverride.h"
+#include "./ProcessorPattern.h"
 
 #include "Shared/Core/Synth/CommonParams.h"
 #include "Shared/Effect/Envelope/Amp/OplAdsr/EnvOplAdsrParams.h"
@@ -71,16 +72,16 @@ namespace PrHelper {
 	static inline void setupWaveHoldPtrs(juce::AudioProcessorValueTreeState& apvts,
 		const juce::String& prefix, PrPtrsWaveHold& ptPtrs)
 	{
-		ptPtrs.holdEnable = apvts.getRawParameterValue(prefix + CPK::WaveHold::holdEnable);
-		ptPtrs.holdCount = apvts.getRawParameterValue(prefix + CPK::WaveHold::holdCount);
-		ptPtrs.holdTarget = apvts.getRawParameterValue(prefix + CPK::WaveHold::holdTarget);
-		ptPtrs.holdMin = apvts.getRawParameterValue(prefix + CPK::WaveHold::holdMin);
-		ptPtrs.holdMax = apvts.getRawParameterValue(prefix + CPK::WaveHold::holdMax);
-		ptPtrs.keepEnable = apvts.getRawParameterValue(prefix + CPK::WaveHold::keepEnable);
-		ptPtrs.waveStart = apvts.getRawParameterValue(prefix + CPK::WaveHold::waveStart);
-		ptPtrs.keepStart = apvts.getRawParameterValue(prefix + CPK::WaveHold::keepStart);
-		ptPtrs.waveEnd = apvts.getRawParameterValue(prefix + CPK::WaveHold::waveEnd);
-		ptPtrs.keepEnd = apvts.getRawParameterValue(prefix + CPK::WaveHold::keepEnd);
+		ptPtrs.holdEnable = PatternStore::raw(apvts, prefix + CPK::WaveHold::holdEnable);
+		ptPtrs.holdCount = PatternStore::raw(apvts, prefix + CPK::WaveHold::holdCount);
+		ptPtrs.holdTarget = PatternStore::raw(apvts, prefix + CPK::WaveHold::holdTarget);
+		ptPtrs.holdMin = PatternStore::raw(apvts, prefix + CPK::WaveHold::holdMin);
+		ptPtrs.holdMax = PatternStore::raw(apvts, prefix + CPK::WaveHold::holdMax);
+		ptPtrs.keepEnable = PatternStore::raw(apvts, prefix + CPK::WaveHold::keepEnable);
+		ptPtrs.waveStart = PatternStore::raw(apvts, prefix + CPK::WaveHold::waveStart);
+		ptPtrs.keepStart = PatternStore::raw(apvts, prefix + CPK::WaveHold::keepStart);
+		ptPtrs.waveEnd = PatternStore::raw(apvts, prefix + CPK::WaveHold::waveEnd);
+		ptPtrs.keepEnd = PatternStore::raw(apvts, prefix + CPK::WaveHold::keepEnd);
 	}
 
 	static inline void applyWaveHold(const PrPtrsWaveHold& ptPtrs, WaveHoldParams& params)
@@ -206,45 +207,47 @@ namespace PrHelper {
 	}
 
 	static inline void setupSsgSwEnv256Ptrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv256& ptPtrs, StepTableStore& tables){
-		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::bypass);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopCount);
-		ptPtrs.loopMode = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopMode);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::stl);
-		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::lr);
-		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::rr);
-		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endl);
-		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endlEnable);
-		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::keep);
-		ptPtrs.strictRate = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::strictRate);
-		ptPtrs.startNow = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::startNow);
-		ptPtrs.tickSync = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::tickSync);
+		ptPtrs.bypass = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::bypass);
+		ptPtrs.steps = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::steps);
+		ptPtrs.loop = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::loop);
+		ptPtrs.loopTo = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::loopTo);
+		ptPtrs.loopCount = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::loopCount);
+		ptPtrs.loopMode = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::loopMode);
+		ptPtrs.stl = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::stl);
+		ptPtrs.lr = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::lr);
+		ptPtrs.rr = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::rr);
+		ptPtrs.endl = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::endl);
+		ptPtrs.endlEnable = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::endlEnable);
+		ptPtrs.keep = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::keep);
+		ptPtrs.strictRate = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::strictRate);
+		ptPtrs.startNow = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::startNow);
+		ptPtrs.tickSync = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::tickSync);
 
 		// 段の R / L はプロセッサが持つ表から引く
-		ptPtrs.table = &tables.get(prefix + CPK::ssgSwEnv256, (float)CPV::SsgSwEnv256::R::initial, (float)CPV::SsgSwEnv256::L::initial);
+		ptPtrs.table = PatternStore::bindTable(apvts, tables, prefix + CPK::ssgSwEnv256, (float)CPV::SsgSwEnv256::R::initial, (float)CPV::SsgSwEnv256::L::initial, &ptPtrs.table);
+		ptPtrs.restart = PatternStore::restartOf(apvts, prefix + EnvPattern::ssgSwEnv256);
 	}
 
 	static inline void setupSsgSwEnv256PtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwEnv256Op& ptPtrs, StepTableStore& tables){
-		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::enable);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopCount);
-		ptPtrs.loopMode = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::loopMode);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::stl);
-		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::lr);
-		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::rr);
-		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endl);
-		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::endlEnable);
-		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::keep);
-		ptPtrs.strictRate = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::strictRate);
-		ptPtrs.startNow = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::startNow);
-		ptPtrs.tickSync = apvts.getRawParameterValue(prefix + CPK::SsgSwEnv256::tickSync);
+		ptPtrs.enable = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::enable);
+		ptPtrs.steps = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::steps);
+		ptPtrs.loop = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::loop);
+		ptPtrs.loopTo = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::loopTo);
+		ptPtrs.loopCount = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::loopCount);
+		ptPtrs.loopMode = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::loopMode);
+		ptPtrs.stl = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::stl);
+		ptPtrs.lr = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::lr);
+		ptPtrs.rr = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::rr);
+		ptPtrs.endl = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::endl);
+		ptPtrs.endlEnable = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::endlEnable);
+		ptPtrs.keep = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::keep);
+		ptPtrs.strictRate = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::strictRate);
+		ptPtrs.startNow = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::startNow);
+		ptPtrs.tickSync = PatternStore::raw(apvts, prefix + CPK::SsgSwEnv256::tickSync);
 
 		// 段の R / L はプロセッサが持つ表から引く
-		ptPtrs.table = &tables.get(prefix + CPK::ssgSwEnv256, (float)CPV::SsgSwEnv256::R::initial, (float)CPV::SsgSwEnv256::L::initial);
+		ptPtrs.table = PatternStore::bindTable(apvts, tables, prefix + CPK::ssgSwEnv256, (float)CPV::SsgSwEnv256::R::initial, (float)CPV::SsgSwEnv256::L::initial, &ptPtrs.table);
+		ptPtrs.restart = PatternStore::restartOf(apvts, prefix + EnvPattern::ssgSwEnv256);
 	}
 
 	static inline void setupPitchEnvPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPitchEnv& ptPtrs){
@@ -276,45 +279,47 @@ namespace PrHelper {
 	}
 
 	static inline void setupSsgSwPEnv256Ptrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwPEnv256& ptPtrs, StepTableStore& tables){
-		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::bypass);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopCount);
-		ptPtrs.loopMode = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopMode);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::stl);
-		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::lr);
-		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::rr);
-		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endl);
-		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endlEnable);
-		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::keep);
-		ptPtrs.strictRate = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::strictRate);
-		ptPtrs.startNow = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::startNow);
-		ptPtrs.tickSync = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::tickSync);
+		ptPtrs.bypass = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::bypass);
+		ptPtrs.steps = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::steps);
+		ptPtrs.loop = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::loop);
+		ptPtrs.loopTo = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::loopTo);
+		ptPtrs.loopCount = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::loopCount);
+		ptPtrs.loopMode = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::loopMode);
+		ptPtrs.stl = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::stl);
+		ptPtrs.lr = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::lr);
+		ptPtrs.rr = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::rr);
+		ptPtrs.endl = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::endl);
+		ptPtrs.endlEnable = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::endlEnable);
+		ptPtrs.keep = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::keep);
+		ptPtrs.strictRate = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::strictRate);
+		ptPtrs.startNow = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::startNow);
+		ptPtrs.tickSync = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::tickSync);
 
 		// 段の R / L はプロセッサが持つ表から引く
-		ptPtrs.table = &tables.get(prefix + CPK::ssgSwPEnv256, (float)CPV::SsgSwPEnv256::R::initial, (float)CPV::SsgSwPEnv256::L::initial);
+		ptPtrs.table = PatternStore::bindTable(apvts, tables, prefix + CPK::ssgSwPEnv256, (float)CPV::SsgSwPEnv256::R::initial, (float)CPV::SsgSwPEnv256::L::initial, &ptPtrs.table);
+		ptPtrs.restart = PatternStore::restartOf(apvts, prefix + EnvPattern::ssgSwPEnv256);
 	}
 
 	static inline void setupSsgSwPEnv256PtrsOp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgSwPEnv256Op& ptPtrs, StepTableStore& tables){
-		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::enable);
-		ptPtrs.steps = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::steps);
-		ptPtrs.loop = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loop);
-		ptPtrs.loopTo = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopTo);
-		ptPtrs.loopCount = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopCount);
-		ptPtrs.loopMode = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::loopMode);
-		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::stl);
-		ptPtrs.lr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::lr);
-		ptPtrs.rr = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::rr);
-		ptPtrs.endl = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endl);
-		ptPtrs.endlEnable = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::endlEnable);
-		ptPtrs.keep = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::keep);
-		ptPtrs.strictRate = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::strictRate);
-		ptPtrs.startNow = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::startNow);
-		ptPtrs.tickSync = apvts.getRawParameterValue(prefix + CPK::SsgSwPEnv256::tickSync);
+		ptPtrs.enable = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::enable);
+		ptPtrs.steps = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::steps);
+		ptPtrs.loop = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::loop);
+		ptPtrs.loopTo = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::loopTo);
+		ptPtrs.loopCount = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::loopCount);
+		ptPtrs.loopMode = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::loopMode);
+		ptPtrs.stl = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::stl);
+		ptPtrs.lr = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::lr);
+		ptPtrs.rr = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::rr);
+		ptPtrs.endl = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::endl);
+		ptPtrs.endlEnable = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::endlEnable);
+		ptPtrs.keep = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::keep);
+		ptPtrs.strictRate = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::strictRate);
+		ptPtrs.startNow = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::startNow);
+		ptPtrs.tickSync = PatternStore::raw(apvts, prefix + CPK::SsgSwPEnv256::tickSync);
 
 		// 段の R / L はプロセッサが持つ表から引く
-		ptPtrs.table = &tables.get(prefix + CPK::ssgSwPEnv256, (float)CPV::SsgSwPEnv256::R::initial, (float)CPV::SsgSwPEnv256::L::initial);
+		ptPtrs.table = PatternStore::bindTable(apvts, tables, prefix + CPK::ssgSwPEnv256, (float)CPV::SsgSwPEnv256::R::initial, (float)CPV::SsgSwPEnv256::L::initial, &ptPtrs.table);
+		ptPtrs.restart = PatternStore::restartOf(apvts, prefix + EnvPattern::ssgSwPEnv256);
 	}
 
 	static inline void setupOplDetunePtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOplDetune& ptPtrs){
@@ -409,19 +414,21 @@ namespace PrHelper {
 	}
 
 	static inline void setupUnisonPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsUnison& ptPtrs){
-		ptPtrs.voices = apvts.getRawParameterValue(prefix + CPK::Unison::voices);
-		ptPtrs.detuneCents = apvts.getRawParameterValue(prefix + CPK::Unison::detune);
-		ptPtrs.spread = apvts.getRawParameterValue(prefix + CPK::Unison::spread);
-		ptPtrs.arpEnable = apvts.getRawParameterValue(prefix + CPK::Unison::arpEnable);
-		ptPtrs.arpFreq = apvts.getRawParameterValue(prefix + CPK::Unison::arpFreq);
-		ptPtrs.arpSmooth = apvts.getRawParameterValue(prefix + CPK::Unison::arpSmooth);
+		ptPtrs.voices = PatternStore::raw(apvts, prefix + CPK::Unison::voices);
+		ptPtrs.detuneCents = PatternStore::raw(apvts, prefix + CPK::Unison::detune);
+		ptPtrs.spread = PatternStore::raw(apvts, prefix + CPK::Unison::spread);
+		ptPtrs.arpEnable = PatternStore::raw(apvts, prefix + CPK::Unison::arpEnable);
+		ptPtrs.arpFreq = PatternStore::raw(apvts, prefix + CPK::Unison::arpFreq);
+		ptPtrs.arpSmooth = PatternStore::raw(apvts, prefix + CPK::Unison::arpSmooth);
 
 		// ボイス単位の設定 (キー末尾は 0〜7 のボイス番号)
 		for (int i = 0; i < Global::unisonVoices; ++i) {
 			const juce::String no = juce::String(i);
-			ptPtrs.paraDistance[i] = apvts.getRawParameterValue(prefix + CPK::Unison::paraDistance + no);
-			ptPtrs.paraDetune[i] = apvts.getRawParameterValue(prefix + CPK::Unison::paraDetune + no);
+			ptPtrs.paraDistance[i] = PatternStore::raw(apvts, prefix + CPK::Unison::paraDistance + no);
+			ptPtrs.paraDetune[i] = PatternStore::raw(apvts, prefix + CPK::Unison::paraDetune + no);
 		}
+
+		ptPtrs.restart = PatternStore::restartOf(apvts, prefix + EnvPattern::unison);
 	}
 
 	static inline void setupToneNoise(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsToneNoise& ptPtrs){
@@ -512,27 +519,29 @@ namespace PrHelper {
 	}
 
 	static inline void setupSsgHwEnv(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgHwEnv& ptPtrs) {
-		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::enable);
-		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::shape);
-		ptPtrs.period = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::period);
-		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::min);
-		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::max);
-		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::smooth);
-		ptPtrs.valueOn = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::valueOn);
-		ptPtrs.value = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::value);
+		ptPtrs.enable = PatternStore::raw(apvts, prefix + CPK::SsgHwEnv::enable);
+		ptPtrs.shape = PatternStore::raw(apvts, prefix + CPK::SsgHwEnv::shape);
+		ptPtrs.period = PatternStore::raw(apvts, prefix + CPK::SsgHwEnv::period);
+		ptPtrs.min = PatternStore::raw(apvts, prefix + CPK::SsgHwEnv::min);
+		ptPtrs.max = PatternStore::raw(apvts, prefix + CPK::SsgHwEnv::max);
+		ptPtrs.smooth = PatternStore::raw(apvts, prefix + CPK::SsgHwEnv::smooth);
+		ptPtrs.valueOn = PatternStore::raw(apvts, prefix + CPK::SsgHwEnv::valueOn);
+		ptPtrs.value = PatternStore::raw(apvts, prefix + CPK::SsgHwEnv::value);
 		setupWaveHoldPtrs(apvts, prefix + CPK::SsgHwEnv::holdPrefix, ptPtrs.hold);
+		ptPtrs.restart = PatternStore::restartOf(apvts, prefix + EnvPattern::ssgHwEnv);
 	}
 
 	static inline void setupSsgHwPEnv(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgHwPEnv& ptPtrs) {
-		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::enable);
-		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::shape);
-		ptPtrs.period = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::period);
-		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::min);
-		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::max);
-		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::smooth);
-		ptPtrs.valueOn = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::valueOn);
-		ptPtrs.value = apvts.getRawParameterValue(prefix + CPK::SsgHwPEnv::value);
+		ptPtrs.enable = PatternStore::raw(apvts, prefix + CPK::SsgHwPEnv::enable);
+		ptPtrs.shape = PatternStore::raw(apvts, prefix + CPK::SsgHwPEnv::shape);
+		ptPtrs.period = PatternStore::raw(apvts, prefix + CPK::SsgHwPEnv::period);
+		ptPtrs.min = PatternStore::raw(apvts, prefix + CPK::SsgHwPEnv::min);
+		ptPtrs.max = PatternStore::raw(apvts, prefix + CPK::SsgHwPEnv::max);
+		ptPtrs.smooth = PatternStore::raw(apvts, prefix + CPK::SsgHwPEnv::smooth);
+		ptPtrs.valueOn = PatternStore::raw(apvts, prefix + CPK::SsgHwPEnv::valueOn);
+		ptPtrs.value = PatternStore::raw(apvts, prefix + CPK::SsgHwPEnv::value);
 		setupWaveHoldPtrs(apvts, prefix + CPK::SsgHwPEnv::holdPrefix, ptPtrs.hold);
+		ptPtrs.restart = PatternStore::restartOf(apvts, prefix + EnvPattern::ssgHwPEnv);
 	}
 
 	static inline void setupPanpot(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPanpot& ptPtrs){
@@ -848,6 +857,7 @@ namespace PrHelper {
 		params.startNow = getBool(ptPtrs.startNow);
 		params.tickSync = getBool(ptPtrs.tickSync);
 		params.table = ptPtrs.table;
+		params.restart = (ptPtrs.restart != nullptr ? ptPtrs.restart->load(std::memory_order_acquire) : 0u);
 	}
 
 	static inline void applySsgSwEnv256Op(PrPtrsSsgSwEnv256Op& ptPtrs, SsgSwEnv256Params& params, bool& enable){
@@ -868,6 +878,7 @@ namespace PrHelper {
 		params.startNow = getBool(ptPtrs.startNow);
 		params.tickSync = getBool(ptPtrs.tickSync);
 		params.table = ptPtrs.table;
+		params.restart = (ptPtrs.restart != nullptr ? ptPtrs.restart->load(std::memory_order_acquire) : 0u);
 	}
 
 	static inline void applyPitchEnv(PrPtrsPitchEnv& ptPtrs, PitchAdsrParams& params){
@@ -918,6 +929,7 @@ namespace PrHelper {
 		params.startNow = getBool(ptPtrs.startNow);
 		params.tickSync = getBool(ptPtrs.tickSync);
 		params.table = ptPtrs.table;
+		params.restart = (ptPtrs.restart != nullptr ? ptPtrs.restart->load(std::memory_order_acquire) : 0u);
 	}
 
 	static inline void applySsgSwPEnv256Op(PrPtrsSsgSwPEnv256Op& ptPtrs, SsgSwPEnv256Params& params, bool& enable){
@@ -938,6 +950,7 @@ namespace PrHelper {
 		params.startNow = getBool(ptPtrs.startNow);
 		params.tickSync = getBool(ptPtrs.tickSync);
 		params.table = ptPtrs.table;
+		params.restart = (ptPtrs.restart != nullptr ? ptPtrs.restart->load(std::memory_order_acquire) : 0u);
 	}
 
 	static inline void applyOplDetune(PrPtrsOplDetune& ptPtrs, OplDetuneParams& params){
@@ -1051,6 +1064,8 @@ namespace PrHelper {
 			params.paraDistance[i] = getFloat(ptPtrs.paraDistance[i]);
 			params.paraDetune[i] = getInt(ptPtrs.paraDetune[i]);
 		}
+
+		params.restart = (ptPtrs.restart != nullptr ? ptPtrs.restart->load(std::memory_order_acquire) : 0u);
 	}
 
 	static inline void applyToneNoise(PrPtrsToneNoise& ptPtrs, ToneNoiseParams& params){
@@ -1159,6 +1174,7 @@ namespace PrHelper {
 		params.max = getFloat(ptPtrs.max);
 		params.smooth = getBool(ptPtrs.smooth);
 		applyWaveHold(ptPtrs.hold, params.hold);
+		params.restart = (ptPtrs.restart != nullptr ? ptPtrs.restart->load(std::memory_order_acquire) : 0u);
 	}
 
 	static inline void applySsgHwPEnv(PrPtrsSsgHwPEnv& ptPtrs, SsgHwPEnvParams& params) {
@@ -1172,6 +1188,7 @@ namespace PrHelper {
 		params.max = getInt(ptPtrs.max);
 		params.smooth = getBool(ptPtrs.smooth);
 		applyWaveHold(ptPtrs.hold, params.hold);
+		params.restart = (ptPtrs.restart != nullptr ? ptPtrs.restart->load(std::memory_order_acquire) : 0u);
 	}
 
 	static inline void applyPanpot(PrPtrsPanpot& ptPtrs, PanpotParams& params){
@@ -2306,6 +2323,9 @@ namespace PrHelper {
 		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::strictRate, prefixName + CPN::SsgSwEnv256::strictRate, CPV::SsgSwEnv256::StrictRate::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::startNow, prefixName + CPN::SsgSwEnv256::startNow, CPV::SsgSwEnv256::StartNow::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::tickSync, prefixName + CPN::SsgSwEnv256::tickSync, CPV::SsgSwEnv256::TickSync::initial);
+
+		// パターン (4.5.0)
+		EnvPattern::addParameters(layout, prefix + EnvPattern::ssgSwEnv256, prefixName + " SSG SW ENV[256]");
 	}
 
 	static inline void addOpSsgSwEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
@@ -2332,6 +2352,9 @@ namespace PrHelper {
 		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::strictRate, namePrefix + CPN::SsgSwEnv256::strictRate, CPV::SsgSwEnv256::StrictRate::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::startNow, namePrefix + CPN::SsgSwEnv256::startNow, CPV::SsgSwEnv256::StartNow::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwEnv256::tickSync, namePrefix + CPN::SsgSwEnv256::tickSync, CPV::SsgSwEnv256::TickSync::initial);
+
+		// パターン (4.5.0)
+		EnvPattern::addParameters(layout, prefix + EnvPattern::ssgSwEnv256, namePrefix + " SSG SW ENV[256]");
 	}
 
 	static inline void addSsgSwPEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName)
@@ -2358,6 +2381,9 @@ namespace PrHelper {
 		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::strictRate, prefixName + CPN::SsgSwPEnv256::strictRate, CPV::SsgSwPEnv256::StrictRate::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::startNow, prefixName + CPN::SsgSwPEnv256::startNow, CPV::SsgSwPEnv256::StartNow::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::tickSync, prefixName + CPN::SsgSwPEnv256::tickSync, CPV::SsgSwPEnv256::TickSync::initial);
+
+		// パターン (4.5.0)
+		EnvPattern::addParameters(layout, prefix + EnvPattern::ssgSwPEnv256, prefixName + " SSG SW PITCH ENV[256]");
 	}
 
 	static inline void addOpSsgSwPEnv256Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
@@ -2384,6 +2410,9 @@ namespace PrHelper {
 		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::strictRate, namePrefix + CPN::SsgSwPEnv256::strictRate, CPV::SsgSwPEnv256::StrictRate::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::startNow, namePrefix + CPN::SsgSwPEnv256::startNow, CPV::SsgSwPEnv256::StartNow::initial);
 		PrHelper::addBool(layout, prefix + CPK::SsgSwPEnv256::tickSync, namePrefix + CPN::SsgSwPEnv256::tickSync, CPV::SsgSwPEnv256::TickSync::initial);
+
+		// パターン (4.5.0)
+		EnvPattern::addParameters(layout, prefix + EnvPattern::ssgSwPEnv256, namePrefix + " SSG SW PITCH ENV[256]");
 	}
 
 	static inline void addOpmLfoParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -2846,6 +2875,9 @@ namespace PrHelper {
 				CPV::Unison::ParaDetune::min, CPV::Unison::ParaDetune::max, CPV::Unison::ParaDetune::initial
 			);
 		}
+
+		// パターン (4.5.0)
+		EnvPattern::addParameters(layout, prefix + EnvPattern::unison, prefixName + " Unison");
 	}
 
 	static inline void addEnvBypassParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
@@ -3924,6 +3956,9 @@ namespace PrHelper {
 		// ホールドと部分再生
 		PrHelper::addWaveHoldParameters(layout, prefix + CPK::SsgHwEnv::holdPrefix,
 			prefixName + CPN::SsgHwEnv::holdPrefix, WaveHoldUnit::Level);
+
+		// パターン (4.5.0)
+		EnvPattern::addParameters(layout, prefix + EnvPattern::ssgHwEnv, prefixName + " SSG HW ENV");
 	}
 
 	// SSG HW PITCH ENV。波形スロットは音量版と同じで、Min / Max だけが
@@ -3976,5 +4011,8 @@ namespace PrHelper {
 		// ホールドと部分再生
 		PrHelper::addWaveHoldParameters(layout, prefix + CPK::SsgHwPEnv::holdPrefix,
 			prefixName + CPN::SsgHwPEnv::holdPrefix, WaveHoldUnit::Cent);
+
+		// パターン (4.5.0)
+		EnvPattern::addParameters(layout, prefix + EnvPattern::ssgHwPEnv, prefixName + " SSG HW PITCH ENV");
 	}
 }

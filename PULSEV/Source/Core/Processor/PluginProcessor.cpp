@@ -113,6 +113,9 @@ AudioPlugin2686V::AudioPlugin2686V()
     pPitchResetOnLegato = apvts.getRawParameterValue(CPK::Midi::pitchResetOnLegato);
     pFixedVelocity = apvts.getRawParameterValue(CPK::Midi::fixedVelocity);
 
+    // パターン (4.5.0)。音源の init (パラメータのポインタを引く) より前に、区分を集めておく
+    patterns.attach(apvts, stepTables);
+
     prSsg.init(apvts, modWaveSlots, stepTables);
     prBeep.init(apvts, modWaveSlots, stepTables);
     prFx.init(apvts);
@@ -230,6 +233,11 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     // DAW の再生を止めたら、TAP SEQUENCER を開始前へ戻す。鍵を見る前に
     stepTables.followTransport(getPlayHead());
+
+    // パターン (4.5.0)。使う組の値を音の側へ写す。組を切り替えて RESET TO CHANGE が
+    // 入っていれば、鳴っている音の UNISON の ARP を頭から始め直す
+    patterns.process();
+    m_synth.restartArps(patterns.restartSum(EnvPattern::unison));
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
@@ -473,6 +481,9 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 
     // 段の表 (SSG SW AMP / PITCH ENV[256] など)
     StepTableIo::write(stepTables, *xml);
+
+    // パターン (4.5.0)。組ごとの値
+    patterns.write(*xml);
 };
 
 void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState)
@@ -481,7 +492,10 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
     {
         // 段の表 (SSG SW AMP / PITCH ENV[256] など)。3.6.3 までの [11] と 6 段は [256] へ写す。
         // 表はパラメータではないので、APVTS へ渡す前に読んで外しておく。
+        // パターン (4.5.0)。組の表を作ってから表を読み、組の写しを読む
+        patterns.prepareTables(*xmlState);
         StepTableIo::read(stepTables, *xmlState);
+        patterns.read(*xmlState);
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwEnv);
         StepEnvLegacy::convertState(*xmlState, stepTables, StepEnvLegacy::ssgSwPEnv);
         StepEnvLegacy::convertSixStep(*xmlState, stepTables);
@@ -490,11 +504,15 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         ParamEnvLegacy::convertState(*xmlState, stepTables);
 
         while (auto* tables = xmlState->getChildByName(StepTableIo::xmlTag)) xmlState->removeChildElement(tables, true);
+        while (auto* pats = xmlState->getChildByName(PatternStore::xmlTag)) xmlState->removeChildElement(pats, true);
 
         // パラメータ復帰 (書かれていないものは初期値へ戻す)
         fillMissingParamsWithDefaults(*xmlState);
 
         apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+
+        // パターン (4.5.0)。戻した APVTS (いま選んでいる組) を組の写しへ
+        patterns.settle();
         stateLoads.fetch_add(1, std::memory_order_release); // 画面が畳み具合などを当て直す (GuiGroupFolds)
 
         // メタデータ復帰
@@ -1213,6 +1231,9 @@ void AudioPlugin2686V::initPreset()
     // 段の表 (SSG SW AMP / PITCH ENV[256] など) も初期の値へ
     stepTables.resetAll();
 
+    // パターン (4.5.0) の組も初期値へ
+    patterns.reset();
+
     // 2. メタデータのリセット
     presetName = PresetValue::MetaData::Initial::name;
     presetAuthor = PresetValue::MetaData::Initial::author;
@@ -1247,6 +1268,9 @@ void AudioPlugin2686V::initParams(const juce::String& code)
     stepTables.forEach([&code](const juce::String& key, StepTable& table) {
         if (key.startsWith(code)) table.reset();
     });
+
+    // パターン (4.5.0) の組も、このチャンネルのぶんを初期値へ
+    patterns.reset(code);
 
 
     if (code == "ADPCM_") {

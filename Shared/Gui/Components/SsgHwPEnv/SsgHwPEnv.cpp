@@ -116,6 +116,10 @@ void GuiComponentSsgHwPEnv::setupComponent(juce::Component& parent, const juce::
     // PERIOD と VALUE のどちらが効いているかで、押せる方を切り替える
     valueToggle.watchToggle([this] { applyActive(); });
 
+    // パターン (4.5.0)。組が変わったら形の絵を描き直す
+    patternParts.setupComponent(parent, code + EnvPattern::ssgHwPEnv, tabOrder);
+    patternParts.onPatternChange = [this] { updatePreview(); };
+
     applyActive();
 }
 
@@ -138,6 +142,8 @@ void GuiComponentSsgHwPEnv::rebind(const juce::String& code)
     waveHold.rebind(code + CPK::SsgHwPEnv::holdPrefix);
 
     updatePreview();
+
+    patternParts.rebind(code + EnvPattern::ssgHwPEnv);
 }
 
 void GuiComponentSsgHwPEnv::layoutComponent(juce::Rectangle<int>& rect)
@@ -145,6 +151,11 @@ void GuiComponentSsgHwPEnv::layoutComponent(juce::Rectangle<int>& rect)
     layoutMainCategory({ .mainRect = rect, .component = &cat });
 
     bool visible = cat.isDetailVisible();
+
+
+    // パターン (4.5.0)
+
+    patternParts.setPartsVisible(visible);
 
     envEnableButton.setVisible(visible);
     smoothEnableButton.setVisible(visible);
@@ -182,6 +193,9 @@ void GuiComponentSsgHwPEnv::layoutComponent(juce::Rectangle<int>& rect)
         // ホールドと部分再生
         waveHold.layoutComponent(rect);
 
+        // パターン (4.5.0)。区分の一番下
+        patternParts.layoutComponent(rect);
+
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
 }
@@ -191,6 +205,11 @@ void GuiComponentSsgHwPEnv::layoutComponentRow(juce::Rectangle<int>& rect)
     layoutRowCategory({ .rowRect = rect, .component = &cat });
 
     bool visible = cat.isDetailVisible();
+
+
+    // パターン (4.5.0)
+
+    patternParts.setPartsVisible(visible);
 
     envEnableButton.setVisible(visible);
     smoothEnableButton.setVisible(visible);
@@ -227,6 +246,9 @@ void GuiComponentSsgHwPEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 
         // ホールドと部分再生
         waveHold.layoutComponentRow(rect);
+
+        // パターン (4.5.0)。区分の一番下
+        patternParts.layoutComponent(rect);
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }
@@ -267,6 +289,9 @@ void GuiComponentSsgHwPEnv::applyActive() {
     maxButtons.setEnables(active);
     preview.setEnabled(active);
     waveHold.setEnables(active);
+
+    // パターンの切り替えは、区分を切っていても使える
+    patternParts.setPartsEnabled(outerEnabled);
 }
 
 void GuiComponentSsgHwPEnv::copyParams(CopyPEnvSsgHw& copyObj) {

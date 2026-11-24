@@ -95,6 +95,9 @@ TEST_CASE("SSG の設定値: VALUE を入れると PERIOD / N.FREQ の代わり�
 	SsgHwEnvParams ep;
 	SsgHwPEnvParams pp;
 
+	// 音の側はブロックの頭で写した値を読む (パターン、4.5.0)
+	processor->patterns.process();
+
 	// 初めは切。これまでどおり PERIOD
 	PrHelper::applySsgHwEnv(env, ep);
 	PrHelper::applySsgHwPEnv(penv, pp);
@@ -103,6 +106,7 @@ TEST_CASE("SSG の設定値: VALUE を入れると PERIOD / N.FREQ の代わり�
 
 	setReal(apvts, "SSG" + CPK::SsgHwEnv::valueOn, 1.0f);
 	setReal(apvts, "SSG" + CPK::SsgHwPEnv::valueOn, 1.0f);
+	processor->patterns.process();
 
 	PrHelper::applySsgHwEnv(env, ep);
 	PrHelper::applySsgHwPEnv(penv, pp);

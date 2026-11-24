@@ -2136,7 +2136,7 @@ void GuiOpm::updateOpGraph(int opIndex)
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwEnv256(v,
             keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
-        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwEnv256), ctx.audioProcessor.envLiveRate());
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, ctx.audioProcessor.patterns.tableKeyFor(code + CPK::ssgSwEnv256)), ctx.audioProcessor.envLiveRate());
     }
     // =============================================================
     // SSG SW PEnv 11
@@ -2149,7 +2149,7 @@ void GuiOpm::updateOpGraph(int opIndex)
         graph.setKeepLevels(keepOn);
         graph.updateSsgSwPEnv256(v,
             keepOn ? nullptr : p_curveCore, keepOn ? false : isCurveMode, posIdx);
-        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, code + CPK::ssgSwPEnv256), ctx.audioProcessor.envLiveRate());
+        graph.setLiveSource(GuiGraphValues::liveOfTable(ctx.audioProcessor.stepTables, ctx.audioProcessor.patterns.tableKeyFor(code + CPK::ssgSwPEnv256)), ctx.audioProcessor.envLiveRate());
     }
     // =============================================================
     // PARAM ENV[256] (4.3.0)。値は TARGET の組から。鳴っている位置も出す

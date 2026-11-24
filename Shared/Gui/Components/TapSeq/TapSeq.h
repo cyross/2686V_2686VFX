@@ -2,6 +2,8 @@
 
 #include <JuceHeader.h>
 
+#include "../Pattern/Pattern.h"
+
 #include <functional>
 
 #include "../../../Core/Io/ParamFile.h"
@@ -128,6 +130,9 @@ private:
     GuiTextButton increment;
     GuiTextButton decrement;
     GuiTextButton clearStep;
+
+    // パターン (4.5.0)。区分の一番下に置く
+    GuiComponentPattern patternParts;
 
     juce::String paramCode;
     bool outerEnabled = true;

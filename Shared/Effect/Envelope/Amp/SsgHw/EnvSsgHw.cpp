@@ -25,6 +25,12 @@ void SsgHwEnv::setParameters(const SsgHwEnvParams& params) {
     this->m_max = params.max;
     this->m_smooth = params.smooth;
     this->m_hold.setParameters(params.hold);
+
+    // パターンを切り替えて RESET TO CHANGE が入っていたら (4.5.0)、形を頭から始め直す
+    if (params.restart != m_lastRestart) {
+        m_lastRestart = params.restart;
+        noteOn();
+    }
 }
 
 void SsgHwEnv::updateSampleRate(double newSampleRate) {

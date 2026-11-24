@@ -95,6 +95,9 @@ namespace TapSeq
 		PrHelper::addBool(layout, prefix + k.inc, n + " Increment", false);
 		PrHelper::addBool(layout, prefix + k.dec, n + " Decrement", false);
 		PrHelper::addBool(layout, prefix + k.reset, n + " Clear Step", false);
+
+		// パターン (4.5.0)。段の値・SKIP・ループの組と STEPS・LOOP を組ごとに持つ
+		EnvPattern::addParameters(layout, prefix + k.base, n);
 	}
 
 	inline void setupPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, const Spec& s, Ptrs& p, StepTableStore& tables)
@@ -102,14 +105,14 @@ namespace TapSeq
 		const auto& k = s.keys;
 
 		p.enable = apvts.getRawParameterValue(prefix + k.enable);
-		p.steps = apvts.getRawParameterValue(prefix + k.steps);
-		p.loop = apvts.getRawParameterValue(prefix + k.loop);
+		p.steps = PatternStore::raw(apvts, prefix + k.steps);
+		p.loop = PatternStore::raw(apvts, prefix + k.loop);
 		p.inc = apvts.getRawParameterValue(prefix + k.inc);
 		p.dec = apvts.getRawParameterValue(prefix + k.dec);
 		p.reset = apvts.getRawParameterValue(prefix + k.reset);
 
 		// 段の値は表の L に持つ (R は使わない)
-		p.table = &tables.get(prefix + k.base, 0.0f, s.valueInitial);
+		p.table = PatternStore::bindTable(apvts, tables, prefix + k.base, 0.0f, s.valueInitial, &p.table);
 	}
 
 	// 札を見て段を動かし、音の側へ渡す値を作る

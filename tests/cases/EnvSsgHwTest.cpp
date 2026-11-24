@@ -175,3 +175,32 @@ TEST_CASE("SsgHwEnv: same settings give the same output")
         }
     }
 }
+
+TEST_CASE("SsgHwEnv: パターンの始め直しの数が進むと、形を頭から始め直す (4.5.0)")
+{
+    // 0: Saw Down。頭がいちばん大きく、進むほど下がる
+    SsgHwEnv env;
+    env.prepare(kRate);
+
+    auto p = makeParams(0, 10.0f);
+
+    env.setParameters(p);
+    env.noteOn();
+
+    const float first = env.process();
+
+    for (int i = 0; i < 1000; ++i) env.process();
+
+    const float later = env.process();
+
+    CHECK(later < first);
+
+    // 数が同じなら続きから
+    env.setParameters(p);
+    CHECK(env.process() < first);
+
+    // 数が進んだら頭から
+    p.restart = 1;
+    env.setParameters(p);
+    CHECK(env.process() == doctest::Approx(first).epsilon(0.01));
+}
