@@ -68,6 +68,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - Changing PATTERN switches at once, even while a note is sounding. PATTERN can be automated and switches reliably when rendering too. The section's controls show the selected pattern
   - With "RESET TO CHANGE" on, switching restarts the sounding notes' envelope from the top, TAP SEQUENCER from before the first step, and UNISON's ARP from the first voice. With it off, playback keeps its position and carries on with the new pattern's values (TAP SEQUENCER keeps its step position)
   - Section import / export (right-click) and copy & paste work on the selected pattern
+  - While the section is off (Enable off or Bypass on), PATTERNS, PATTERN and RESET TO CHANGE can't be used, like the section's other controls
   - Each pattern's values are saved in presets and the DAW state. With PATTERNS at 1, the sound and what is saved are the same as before
   - Every plugin except 2686VFX
 - **The version is now 4.5.0**

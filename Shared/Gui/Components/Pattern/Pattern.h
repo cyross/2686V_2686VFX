@@ -39,7 +39,9 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
 
     void setPartsVisible(bool visible);
-    void setPartsEnabled(bool enabled);
+    // enabled は区分の外側から (チャンネルを切っているときなど)、active は区分が効いているか
+    // (Enable 入・Bypass 切)。効いていないときはつまみを押せなくし、トグルは薄くする
+    void setPartsEnabled(bool enabled, bool active);
 
     // 組が変わったとき (画面で選んだとき・オートメーションで切り替わったとき)
     std::function<void()> onPatternChange;

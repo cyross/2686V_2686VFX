@@ -92,14 +92,18 @@ void GuiComponentPattern::setPartsVisible(bool visible)
     reset.setVisible(visible);
 }
 
-void GuiComponentPattern::setPartsEnabled(bool enabled)
+void GuiComponentPattern::setPartsEnabled(bool enabled, bool active)
 {
-    partsEnabled = enabled;
+    partsEnabled = enabled && active;
 
     if (!available) return;
 
-    patterns.setEnabledWithLabel(enabled);
+    separator.setEnabled(partsEnabled);
+    patterns.setEnabledWithLabel(partsEnabled);
+
+    // トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう
     reset.setEnabled(enabled);
+    reset.setDimmed(!partsEnabled);
 
     clampPattern();
 }

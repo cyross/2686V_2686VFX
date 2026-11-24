@@ -509,8 +509,8 @@ void GuiComponentTapSeq::applyActive()
     decrement.setEnabled(active);
     clearStep.setEnabled(active);
 
-    // パターンの切り替えは、区分を切っていても使える
-    patternParts.setPartsEnabled(outerEnabled);
+    // パターンも区分の設定のうち。区分を切っている (Enable 切・Bypass 入) ときは押せなくする
+    patternParts.setPartsEnabled(outerEnabled, active);
 }
 
 // ---------------------------------------------------------------- ファイル
