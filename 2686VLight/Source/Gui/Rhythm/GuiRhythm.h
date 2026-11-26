@@ -5,6 +5,7 @@
 #include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
+#include "Shared/Gui/Components/ShowHide/ShowHide.h"
 #include "../../Processor/Rhythm/ProcessorRhythmPads.h"
 
 #include "Shared/Gui/Components/PathRoot/PathRoot.h"
@@ -430,6 +431,10 @@ class GuiRhythm : public GuiBase
     GuiComponentEdit editComponent;
 
     GuiCategoryLabel utilityCat;
+
+    // UTILITY の IM/EX のまとまりを出し入れするボタン (4.5.0)
+    GuiShowHideButton padIeToggle;
+    GuiShowHideButton chIeToggle;
     GuiComponentPathRoot pathRoot;
     GuiTextButton broadcastLevelButton;
     GuiComponentImportExport ieToneNoise;

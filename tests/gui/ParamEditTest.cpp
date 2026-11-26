@@ -179,15 +179,22 @@ TEST_CASE("ParamEdit: FX の効果の区分を右クリックで写す単位に�
 	std::vector<juce::Component*> all;
 	collect(env.editor.get(), all);
 
+	// 効果の区分は最初は閉じている (4.5.0)。開いて並べ直してから集め直す
+	for (auto* c : all)
+		if (auto* label = dynamic_cast<GuiCategoryLabel*>(c)) label->setDetailVisible(true);
+
+	env.editor->resized();
+
+	all.clear();
+	collect(env.editor.get(), all);
+
 	int found = 0;
 
 	for (auto* c : all)
 	{
 		auto* label = dynamic_cast<GuiCategoryLabel*>(c);
 
-		// 閉じている区分は、調べるときにいったん開いて画面を並べ直す。並べ直すと
-		// 先に集めた部品の一覧が古くなるので、開いている区分だけを見る
-		// (効果の区分は最初から開いている)
+		// 開いている区分だけを見る
 		if (label == nullptr || !label->isDetailVisible()) continue;
 
 		const auto target = ParamEdit::categoryTarget(*label);

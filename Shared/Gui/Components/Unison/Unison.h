@@ -42,6 +42,10 @@ class GuiComponentUnison : public GuiBase {
 
     // パターン (4.5.0)。区分の一番下に置く
     GuiComponentPattern patternParts;
+
+    // ARPEGGIO・PARA-PARAM のまとまりを出し入れするボタン (4.5.0)
+    GuiShowHideButton arpToggle;
+    GuiShowHideButton paraToggle;
     juce::String paramCode;
 
     void rebindParaSliders();
@@ -94,7 +98,9 @@ public:
         paraDistance(context),
         paraDetune(context),
         paraDetuneButtons(context),
-        patternParts(context)
+        patternParts(context),
+        arpToggle(context),
+        paraToggle(context)
     {
     }
 

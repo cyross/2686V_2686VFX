@@ -370,6 +370,8 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ssgSwPEnv256g(context),
     unisonComponent(context),
     utilityCat(context),
+    opIeToggle(context),
+    chIeToggle(context),
     pathRoot(context),
     ampMajorCat(context),
     pitchMajorCat(context),
@@ -774,6 +776,8 @@ void GuiOpzx7::setup()
     importFmBtn.onClick = [this] { importFmParams(); };
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::util, .enableChangeDetailVisible = true });
+    opIeToggle.setupComponent(mainGroup.contentCanvas, "OP IM/EX", tabOrder);
+    chIeToggle.setupComponent(mainGroup.contentCanvas, "CH IM/EX", tabOrder);
 
     // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
     pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
@@ -1466,7 +1470,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
     levelComponent.layoutComponent(mRect);
 
@@ -1614,7 +1618,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     layoutUtilityCat(mRect);
 
-    int usedHeight = 2000 - mRect.getHeight();
+    int usedHeight = CoreGuiValue::Canvas::layoutHeight - mRect.getHeight();
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
@@ -2443,7 +2447,7 @@ void GuiOpzx7::layoutOpPanel(juce::Rectangle<int> area)
 
             group.setViewportCustomBounds(inner.translated(-colArea.getX(), -colArea.getY()));
 
-            juce::Rectangle<int> rect(0, 0, group.getContentWidth(), 20000);
+            juce::Rectangle<int> rect(0, 0, group.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
             body(rect);
 
@@ -2548,83 +2552,99 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    // IM/EX のまとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す
+    const bool opIeShown = visible && opIeToggle.isShown();
+    const bool chIeShown = visible && chIeToggle.isShown();
+    opIeToggle.setVisible(visible);
+    chIeToggle.setVisible(visible);
+
     pathRoot.setVisible(visible);
 
-    importFmBtn.setVisible(visible);
+    importFmBtn.setVisible(chIeShown);
 
-    ieOpLfo.setVisible(visible);
-    ieOpDetune.setVisible(visible);
-    ieOpPitchEnv.setVisible(visible);
-    ieOpSsgSwEnv256.setVisible(visible);
-    ieOpSsgSwPEnv256.setVisible(visible);
-    ieOpSsgHwPEnv.setVisible(visible);
-    ieOpWtAmpMod.setVisible(visible);
-    ieOpSsgHwEnv.setVisible(visible);
-    ieOpWtMod.setVisible(visible);
-    ieOpPcmPlay.setVisible(visible);
-    ieOpChParam.setVisible(visible);
-    uSep003.setVisible(visible);
-    ieAmpEnvG.setVisible(visible);
-    ieSsgHwEnv.setVisible(visible);
-    ieSsgHwPEnv.setVisible(visible);
-    ieWtMod.setVisible(visible);
-    ieWtAmpMod.setVisible(visible);
-    ieSsgSwEnv256.setVisible(visible);
-    ieSsgSwPEnv256g.setVisible(visible);
-    ieLfo.setVisible(visible);
-    ieUnison.setVisible(visible);
-    ieQuality.setVisible(visible);
-    ieChParam.setVisible(visible);
+    ieOpLfo.setVisible(opIeShown);
+    ieOpDetune.setVisible(opIeShown);
+    ieOpPitchEnv.setVisible(opIeShown);
+    ieOpSsgSwEnv256.setVisible(opIeShown);
+    ieOpSsgSwPEnv256.setVisible(opIeShown);
+    ieOpSsgHwPEnv.setVisible(opIeShown);
+    ieOpWtAmpMod.setVisible(opIeShown);
+    ieOpSsgHwEnv.setVisible(opIeShown);
+    ieOpWtMod.setVisible(opIeShown);
+    ieOpPcmPlay.setVisible(opIeShown);
+    ieOpChParam.setVisible(opIeShown);
+    uSep003.setVisible(chIeShown);
+    ieAmpEnvG.setVisible(chIeShown);
+    ieSsgHwEnv.setVisible(chIeShown);
+    ieSsgHwPEnv.setVisible(chIeShown);
+    ieWtMod.setVisible(chIeShown);
+    ieWtAmpMod.setVisible(chIeShown);
+    ieSsgSwEnv256.setVisible(chIeShown);
+    ieSsgSwPEnv256g.setVisible(chIeShown);
+    ieLfo.setVisible(chIeShown);
+    ieUnison.setVisible(chIeShown);
+    ieQuality.setVisible(chIeShown);
+    ieChParam.setVisible(chIeShown);
 
     if (visible)
     {
         pathRoot.layoutComponent(rect);
 
 
-        ieOpLfo.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieOpDetune.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieOpPitchEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieOpSsgSwEnv256.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieOpSsgSwPEnv256.layoutComponent(rect);
-        ieOpSsgHwPEnv.layoutComponent(rect);
-        ieOpWtAmpMod.layoutComponent(rect);
-        ieOpSsgHwEnv.layoutComponent(rect);
-        ieOpWtMod.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieOpPcmPlay.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieOpChParam.layoutComponent(rect);
+        // 出し入れのボタンは中身の上
+        opIeToggle.layoutComponent(rect);
+
+        if (opIeShown) {
+            ieOpLfo.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieOpDetune.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieOpPitchEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieOpSsgSwEnv256.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieOpSsgSwPEnv256.layoutComponent(rect);
+            ieOpSsgHwPEnv.layoutComponent(rect);
+            ieOpWtAmpMod.layoutComponent(rect);
+            ieOpSsgHwEnv.layoutComponent(rect);
+            ieOpWtMod.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieOpPcmPlay.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieOpChParam.layoutComponent(rect);
+        }
         rect.removeFromTop(4);
 
-        uSep003.layoutComponent(rect);
+        // 出し入れのボタンは区切り線の下・中身の上
+        if (chIeShown) uSep003.layoutComponent(rect);
 
-        ieAmpEnvG.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgHwEnv.layoutComponent(rect);
-        ieSsgHwPEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieWtMod.layoutComponent(rect);
-        ieWtAmpMod.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwEnv256.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwPEnv256g.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieLfo.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieUnison.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieQuality.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieChParam.layoutComponent(rect);
+        chIeToggle.layoutComponent(rect);
 
-        rect.removeFromTop(4);
+        if (chIeShown) {
+            ieAmpEnvG.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgHwEnv.layoutComponent(rect);
+            ieSsgHwPEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieWtMod.layoutComponent(rect);
+            ieWtAmpMod.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgSwEnv256.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgSwPEnv256g.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieLfo.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieUnison.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieQuality.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieChParam.layoutComponent(rect);
 
-        layoutMain({ .mainRect = rect, .component = &importFmBtn });
+            rect.removeFromTop(4);
+
+            layoutMain({ .mainRect = rect, .component = &importFmBtn });
+        }
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }

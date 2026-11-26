@@ -134,6 +134,9 @@ private:
     // パターン (4.5.0)。区分の一番下に置く
     GuiComponentPattern patternParts;
 
+    // LOOP のまとまりを出し入れするボタン (4.5.0)
+    GuiShowHideButton loopToggle;
+
     juce::String paramCode;
     bool outerEnabled = true;
     bool isLoadingValue = false;

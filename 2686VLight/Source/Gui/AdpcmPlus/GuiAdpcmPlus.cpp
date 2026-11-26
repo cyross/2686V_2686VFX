@@ -321,6 +321,7 @@ void GuiAdpcmPlus::setup()
     paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmPlusGuiText::Category::util, .enableChangeDetailVisible = true });
+    chIeToggle.setupComponent(mainGroup.contentCanvas, "CH IM/EX", tabOrder);
 
     // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
     pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
@@ -405,7 +406,7 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
 	levelComponent.layoutComponent(mRect);
 
@@ -486,7 +487,7 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
     layoutUtilityCat(mRect);
 
-    int usedHeight = 2000 - mRect.getHeight();
+    int usedHeight = CoreGuiValue::Canvas::layoutHeight - mRect.getHeight();
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
@@ -514,7 +515,7 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
     pcmGroup.setViewportCustomBounds(pgRect.translated(-pcmArea.getX(), -pcmArea.getY()));
 
-    juce::Rectangle<int> pRect(0, 0, pcmGroup.getContentWidth(), 2000);
+    juce::Rectangle<int> pRect(0, 0, pcmGroup.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
     // SLOT と TARGET は畳めない場所へ置く。下の区分をすべて束ねるつまみなので、
     // 隠れてしまうと選び直せなくなる。
@@ -529,7 +530,7 @@ void GuiAdpcmPlus::layout(juce::Rectangle<int> content)
 
     layoutPanCat(pRect);
 
-    int pcmUsedHeight = 2000 - pRect.getHeight();
+    int pcmUsedHeight = CoreGuiValue::Canvas::layoutHeight - pRect.getHeight();
 
     pcmGroup.setContentHeight(pcmUsedHeight + 20);
 }
@@ -705,56 +706,65 @@ void GuiAdpcmPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    // IM/EX のまとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す
+    const bool chIeShown = visible && chIeToggle.isShown();
+    chIeToggle.setVisible(visible);
+
     pathRoot.setVisible(visible);
 
-    ieToneNoise.setVisible(visible);
-    ieLfo.setVisible(visible);
-    ieDetune.setVisible(visible);
-    ieAmpEnv.setVisible(visible);
-    iePitchEnv.setVisible(visible);
-    ieSsgHwEnv.setVisible(visible);
-    ieSsgHwPEnv.setVisible(visible);
-    ieWtMod.setVisible(visible);
-    ieWtAmpMod.setVisible(visible);
-    ieSsgSwEnv256.setVisible(visible);
-    ieSsgSwPEnv256.setVisible(visible);
-    ieUnison.setVisible(visible);
-    ieQuality.setVisible(visible);
-    iePcmPlay.setVisible(visible);
-    ieChParam.setVisible(visible);
+    ieToneNoise.setVisible(chIeShown);
+    ieLfo.setVisible(chIeShown);
+    ieDetune.setVisible(chIeShown);
+    ieAmpEnv.setVisible(chIeShown);
+    iePitchEnv.setVisible(chIeShown);
+    ieSsgHwEnv.setVisible(chIeShown);
+    ieSsgHwPEnv.setVisible(chIeShown);
+    ieWtMod.setVisible(chIeShown);
+    ieWtAmpMod.setVisible(chIeShown);
+    ieSsgSwEnv256.setVisible(chIeShown);
+    ieSsgSwPEnv256.setVisible(chIeShown);
+    ieUnison.setVisible(chIeShown);
+    ieQuality.setVisible(chIeShown);
+    iePcmPlay.setVisible(chIeShown);
+    ieChParam.setVisible(chIeShown);
 
     if (visible)
     {
         pathRoot.layoutComponent(rect);
 
 
-        ieToneNoise.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieLfo.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieAmpEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        iePitchEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgHwEnv.layoutComponent(rect);
-        ieSsgHwPEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieWtMod.layoutComponent(rect);
-        ieWtAmpMod.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwEnv256.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwPEnv256.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieDetune.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieUnison.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieQuality.layoutComponent(rect);
-        rect.removeFromTop(4);
-        iePcmPlay.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieChParam.layoutComponent(rect);
+        // 出し入れのボタンは中身の上
+        chIeToggle.layoutComponent(rect);
+
+        if (chIeShown) {
+            ieToneNoise.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieLfo.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieAmpEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            iePitchEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgHwEnv.layoutComponent(rect);
+            ieSsgHwPEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieWtMod.layoutComponent(rect);
+            ieWtAmpMod.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgSwEnv256.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgSwPEnv256.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieDetune.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieUnison.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieQuality.layoutComponent(rect);
+            rect.removeFromTop(4);
+            iePcmPlay.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieChParam.layoutComponent(rect);
+        }
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }

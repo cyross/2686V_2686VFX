@@ -105,6 +105,7 @@ void GuiComponentSsgHwPEnv::setupComponent(juce::Component& parent, const juce::
     // ホールドの側だけ閉じる。
     waveHold.setupComponent(parent, code + CPK::SsgHwPEnv::holdPrefix, tabOrder,
         WaveHoldUnit::Cent, [this] { this->updatePreview(); });
+    waveHold.useShowHide(parent, tabOrder);
 
     updatePreview();
 

@@ -216,6 +216,18 @@ namespace GuiColor {
 	};
 
 	// ==========================================================
+	// 区分の中のまとまりを出し入れするボタン (4.5.0)
+	// ==========================================================
+	// 隠しているあいだの「SHOW xxx」は明るい白っぽい黄色に黒い文字で目に付くように、
+	// 出しているあいだの「HIDE xxx」は濃い青に白い文字で控えめにする
+	namespace ShowHide {
+		inline Entry ShowBg{ "ShowHide.ShowBg", []() -> juce::Colour { return juce::Colour::fromRGB(0xFF, 0xF8, 0xC8); } };
+		inline Entry ShowText{ "ShowHide.ShowText", []() -> juce::Colour { return Palette::OffBlack; } };
+		inline Entry HideBg{ "ShowHide.HideBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x1A, 0x23, 0x7E); } };
+		inline Entry HideText{ "ShowHide.HideText", []() -> juce::Colour { return Palette::OffWhite; } };
+	};
+
+	// ==========================================================
 	// 押せる見出しにマウスが乗ったとき (4.3.0)
 	// ==========================================================
 	// 区分の見出しと、畳める枠の見出しの帯を、この色へ少し寄せて描く。

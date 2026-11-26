@@ -343,6 +343,7 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
     // ホールドと部分再生。保つ値の単位は 音程 (セント)。
     waveHold.setupComponent(parent, code + CPK::WtMod::holdPrefix, tabOrder,
         WaveHoldUnit::Cent, [this] { this->updateModPreview(); });
+    waveHold.useShowHide(parent, tabOrder);
 
     fdsCat.setupSwPitchCategory({ .parent = parent, .title = juce::String("") + "FDS PITCH TABLE", .enableChangeDetailVisible = true });
 

@@ -9,6 +9,7 @@
 #include "Shared/Core/Gui/GuiContext.h"
 #include "Shared/Core/Processor/ProcessorPattern.h"
 #include "../Separator/NormalSeparator.h"
+#include "../ShowHide/ShowHide.h"
 
 // ============================================================================
 // パターンの切り替え (4.5.0)
@@ -35,7 +36,8 @@ public:
     // 束縛先を丸ごと差し替える (TARGET で指し先を切り替えるとき)
     void rebind(const juce::String& base);
 
-    // 区分の中身を出しているときだけ呼ぶ。区切り線から下を並べる
+    // 区分の中身を出しているときだけ呼ぶ。区切り線から下を並べる。
+    // まとまりを隠しているときは、SHOW のボタンだけを置く
     void layoutComponent(juce::Rectangle<int>& rect);
 
     void setPartsVisible(bool visible);
@@ -59,6 +61,9 @@ private:
     GuiSlider patterns;
     GuiSlider pattern;
     GuiToggleButton reset;
+
+    // まとまりを出し入れするボタン (「SHOW PATTERNS」「HIDE PATTERNS」)
+    GuiShowHideButton toggle;
 
     juce::Font labelFont = juce::Font(juce::FontOptions(12.0f));
 

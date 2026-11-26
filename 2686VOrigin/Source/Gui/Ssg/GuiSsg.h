@@ -4,6 +4,7 @@
 #include "Shared/Gui/Components/TapParam/TapParam.h"
 #include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
+#include "Shared/Gui/Components/ShowHide/ShowHide.h"
 #include <array>
 
 #include "Shared/Core/Gui/GuiComponents.h"
@@ -156,6 +157,9 @@ class GuiSsg : public GuiBase
 
     GuiCategoryLabel utilityCat;
 
+    // UTILITY の IM/EX のまとまりを出し入れするボタン (4.5.0)
+    GuiShowHideButton chIeToggle;
+
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
     GuiCategoryLabel pitchMajorCat;
@@ -265,6 +269,7 @@ public:
         midiComponent(context),
         editComponent(context),
         utilityCat(context),
+        chIeToggle(context),
         ampMajorCat(context),
         pitchMajorCat(context),
         tapMajorCat(context),

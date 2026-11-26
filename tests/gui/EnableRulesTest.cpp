@@ -637,16 +637,15 @@ TEST_CASE("DAC: 「適応」ボタンが区分の中に収まっている")
 
         if (root == nullptr) continue;
 
-        // QUALITY は閉じていることがあるので、開いてから並べ直す
+        // QUALITY や効果の区分 (4.5.0 から最初は閉じている) は閉じていることがあるので、
+        // 区分をすべて開いてから並べ直す
         std::vector<juce::Component*> all;
 
         collect(root, all);
 
         for (auto* c : all)
         {
-            if (auto* cat = dynamic_cast<GuiCategoryLabel*>(c)) {
-                if (cat->getText() == "QUALITY") cat->setDetailVisible(true);
-            }
+            if (auto* cat = dynamic_cast<GuiCategoryLabel*>(c)) cat->setDetailVisible(true);
         }
 
         env.ed().resized();
@@ -708,16 +707,15 @@ TEST_CASE("NR: 部品が枠の中に収まり、GATE.LV はゲートを入れた
 
         if (root == nullptr) continue;
 
-        // QUALITY は閉じていることがあるので、開いてから並べ直す
+        // QUALITY や効果の区分 (4.5.0 から最初は閉じている) は閉じていることがあるので、
+        // 区分をすべて開いてから並べ直す
         std::vector<juce::Component*> all;
 
         collect(root, all);
 
         for (auto* c : all)
         {
-            if (auto* cat = dynamic_cast<GuiCategoryLabel*>(c)) {
-                if (cat->getText() == "QUALITY") cat->setDetailVisible(true);
-            }
+            if (auto* cat = dynamic_cast<GuiCategoryLabel*>(c)) cat->setDetailVisible(true);
         }
 
         env.ed().resized();

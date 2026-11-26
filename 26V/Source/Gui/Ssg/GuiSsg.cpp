@@ -146,6 +146,7 @@ void GuiSsg::setup()
     paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::util, .enableChangeDetailVisible = true });
+    chIeToggle.setupComponent(mainGroup.contentCanvas, "CH IM/EX", tabOrder);
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::bcLevel, .textColor = GuiColor::Edit::ButtonText, .bgColor = GuiColor::Edit::MovedButtonBg });
     broadcastLevelButton.setWantsKeyboardFocus(true);
@@ -384,7 +385,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
     levelComponent.layoutComponent(mRect);
 
@@ -464,7 +465,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     layoutUtilityCat(mRect);
 
-    int usedHeight = 2000 - mRect.getHeight();
+    int usedHeight = CoreGuiValue::Canvas::layoutHeight - mRect.getHeight();
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
@@ -481,7 +482,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     auto noiseArea = waveArea.removeFromBottom(waveArea.getHeight() / 2);
 
     // 送る中身の高さを決めるための仮の長さ
-    constexpr int canvasHeight = 20000;
+    constexpr int canvasHeight = CoreGuiValue::Canvas::layoutHeight;
 
     if (waveMode == 0) // Pulse
     {
@@ -695,49 +696,58 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    // IM/EX のまとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す
+    const bool chIeShown = visible && chIeToggle.isShown();
+    chIeToggle.setVisible(visible);
 
-    ieToneNoise.setVisible(visible);
-    ieLfo.setVisible(visible);
-    ieDetune.setVisible(visible);
-    ieAmpEnv.setVisible(visible);
-    iePitchEnv.setVisible(visible);
-    ieSsgHwEnv.setVisible(visible);
-    ieSsgHwPEnv.setVisible(visible);
-    ieWtMod.setVisible(visible);
-    ieWtAmpMod.setVisible(visible);
-    ieSsgSwEnv256.setVisible(visible);
-    ieSsgSwPEnv256.setVisible(visible);
-    ieUnison.setVisible(visible);
-    ieQuality.setVisible(visible);
-    ieChParam.setVisible(visible);
+
+    ieToneNoise.setVisible(chIeShown);
+    ieLfo.setVisible(chIeShown);
+    ieDetune.setVisible(chIeShown);
+    ieAmpEnv.setVisible(chIeShown);
+    iePitchEnv.setVisible(chIeShown);
+    ieSsgHwEnv.setVisible(chIeShown);
+    ieSsgHwPEnv.setVisible(chIeShown);
+    ieWtMod.setVisible(chIeShown);
+    ieWtAmpMod.setVisible(chIeShown);
+    ieSsgSwEnv256.setVisible(chIeShown);
+    ieSsgSwPEnv256.setVisible(chIeShown);
+    ieUnison.setVisible(chIeShown);
+    ieQuality.setVisible(chIeShown);
+    ieChParam.setVisible(chIeShown);
 
     if (visible)
     {
-        ieToneNoise.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieLfo.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieAmpEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        iePitchEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgHwEnv.layoutComponent(rect);
-        ieSsgHwPEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieWtMod.layoutComponent(rect);
-        ieWtAmpMod.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwEnv256.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwPEnv256.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieDetune.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieUnison.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieQuality.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieChParam.layoutComponent(rect);
+        // 出し入れのボタンは中身の上
+        chIeToggle.layoutComponent(rect);
+
+        if (chIeShown) {
+            ieToneNoise.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieLfo.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieAmpEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            iePitchEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgHwEnv.layoutComponent(rect);
+            ieSsgHwPEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieWtMod.layoutComponent(rect);
+            ieWtAmpMod.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgSwEnv256.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgSwPEnv256.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieDetune.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieUnison.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieQuality.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieChParam.layoutComponent(rect);
+        }
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }

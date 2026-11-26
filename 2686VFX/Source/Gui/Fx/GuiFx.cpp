@@ -475,7 +475,7 @@ void GuiFx::setup()
     fxFirstChild = getNumChildComponents();
 
     // Filter Group
-    filterCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxFilter, .detailVisible = true, .enableChangeDetailVisible = true });
+    filterCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxFilter, .detailVisible = false, .enableChangeDetailVisible = true });
     const juce::String filterPrefix = code + FxPrKey::fil;
 
     flBypassBtn.setup({ .parent = *this, .id = filterPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
@@ -519,7 +519,7 @@ void GuiFx::setup()
     flWetBtn.setExplicitFocusOrder(++tabOrder);
 
     // 3Band EQ Group
-    eq3bCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxEq3B, .detailVisible = true, .enableChangeDetailVisible = true });
+    eq3bCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxEq3B, .detailVisible = false, .enableChangeDetailVisible = true });
     const juce::String eq3bPrefix = code + FxPrKey::eq3b;
 
     eq3bBypassBtn.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
@@ -567,7 +567,7 @@ void GuiFx::setup()
     eq3bWetBtn.setExplicitFocusOrder(++tabOrder);
 
     // Tremolo Group
-    tremCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxTremolo, .detailVisible = true, .enableChangeDetailVisible = true });
+    tremCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxTremolo, .detailVisible = false, .enableChangeDetailVisible = true });
     const juce::String trmPrefix = code + FxPrKey::trm;
 
     tBypassBtn.setup({ .parent = *this, .id = trmPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
@@ -607,7 +607,7 @@ void GuiFx::setup()
     tWetBtn.onClick = [&] { tMixSlider.setValue(1.0f); };
 
     // Vibrato Group
-    vibCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxVibrato, .detailVisible = true, .enableChangeDetailVisible = true });
+    vibCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxVibrato, .detailVisible = false, .enableChangeDetailVisible = true });
     const juce::String vibPrefix = code + FxPrKey::vib;
 
     vBypassBtn.setup({ .parent = *this, .id = vibPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
@@ -647,7 +647,7 @@ void GuiFx::setup()
     vWetBtn.onClick = [&] { vMixSlider.setValue(1.0f); };
 
     // Modern Bit Crusher Group
-    mbcCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxMbc, .detailVisible = true, .enableChangeDetailVisible = true });
+    mbcCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxMbc, .detailVisible = false, .enableChangeDetailVisible = true });
     const juce::String mbcPrefix = code + FxPrKey::mbc;
 
     mbcBypassBtn.setup({ .parent = *this, .id = mbcPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
@@ -690,7 +690,7 @@ void GuiFx::setup()
     mbcWetBtn.onClick = [&] { mbcMixSlider.setValue(1.0f); };
 
     // Delay Group
-    delayCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxDelay, .detailVisible = true, .enableChangeDetailVisible = true });
+    delayCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxDelay, .detailVisible = false, .enableChangeDetailVisible = true });
     const juce::String dlyPrefix = code + FxPrKey::dly;
 
     dBypassBtn.setup({ .parent = *this, .id = dlyPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
@@ -730,7 +730,7 @@ void GuiFx::setup()
     dWetBtn.onClick = [&] { dMixSlider.setValue(1.0f); };
 
     // Reverb Group
-    reverbCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxReverb, .detailVisible = true, .enableChangeDetailVisible = true });
+    reverbCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxReverb, .detailVisible = false, .enableChangeDetailVisible = true });
     const juce::String rvbPrefix = code + FxPrKey::rvb;
 
     rBypassBtn.setup({ .parent = *this, .id = rvbPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
@@ -770,7 +770,7 @@ void GuiFx::setup()
     rWetBtn.onClick = [&] { rMixSlider.setValue(1.0f); };
 
     // SFC Echo Group
-    sfceCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::sfcEcho, .detailVisible = true, .enableChangeDetailVisible = true });
+    sfceCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::sfcEcho, .detailVisible = false, .enableChangeDetailVisible = true });
     const juce::String sfcePrefix = code + FxPrKey::sfcEcho;
 
     sfceBypassBtn.setup({ .parent = *this, .id = sfcePrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
@@ -842,7 +842,7 @@ void GuiFx::setup()
     sfceWetBtn.onClick = [&] { sfceMixSlider.setValue(1.0f); };
 
     // 2686V PCM Bit Crusher
-    pcmCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxPcm, .detailVisible = true, .enableChangeDetailVisible = true });
+    pcmCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxPcm, .detailVisible = false, .enableChangeDetailVisible = true });
     const juce::String pcmPrefix = code + FxPrKey::pcm;
 
     pcmBypassBtn.setup({ .parent = *this, .id = pcmPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
@@ -898,7 +898,7 @@ void GuiFx::setup()
     pcmWetBtn.onClick = [&] { pcmMixSlider.setValue(1.0f); };
 
     // ノイズリダクション
-    nrCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxNr, .detailVisible = true, .enableChangeDetailVisible = true });
+    nrCat.setupFxCategory({ .parent = *this, .title = FxGuiText::Group::fxNr, .detailVisible = false, .enableChangeDetailVisible = true });
     const juce::String nrPrefix = code + FxPrKey::nr;
 
     nrBypassBtn.setup({ .parent = *this, .id = nrPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
@@ -1163,7 +1163,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
             group.setViewportCustomBounds(inner.translated(-colArea.getX(), -colArea.getY()));
 
-            juce::Rectangle<int> rect(0, 0, group.getContentWidth(), 4000);
+            juce::Rectangle<int> rect(0, 0, group.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
             layoutBody(rect);
 
@@ -1255,7 +1255,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
         fxGroup.setViewportCustomBounds(inner.translated(-colArea.getX(), -colArea.getY()));
 
-        juce::Rectangle<int> rect(0, 0, fxGroup.getContentWidth(), 20000);
+        juce::Rectangle<int> rect(0, 0, fxGroup.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
         for (const int type : order) layoutEffectCat(rect, type);
 

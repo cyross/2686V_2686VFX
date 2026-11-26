@@ -8,7 +8,8 @@ GuiComponentPattern::GuiComponentPattern(const GuiContext& context) :
     separator(context),
     patterns(context),
     pattern(context),
-    reset(context)
+    reset(context),
+    toggle(context)
 {
 }
 
@@ -33,6 +34,8 @@ void GuiComponentPattern::setupComponent(juce::Component& parent, const juce::St
     reset.setup({ .parent = parent, .id = base + EnvPattern::resetKey, .title = "RESET TO CHANGE", .isReset = true });
     reset.setWantsKeyboardFocus(true);
     reset.setExplicitFocusOrder(++tabOrder);
+
+    toggle.setupComponent(parent, "PATTERNS", tabOrder);
 
     seen = ctx.audioProcessor.patterns.editingPattern(base);
 
@@ -86,10 +89,14 @@ void GuiComponentPattern::setPartsVisible(bool visible)
 {
     if (!available) return;
 
-    separator.setVisible(visible);
-    patterns.setVisibleWithLabel(visible);
-    pattern.setVisibleWithLabel(visible);
-    reset.setVisible(visible);
+    // まとまりを隠しているときは、上の区切り線ごと隠す
+    const bool shown = visible && toggle.isShown();
+
+    separator.setVisible(shown);
+    patterns.setVisibleWithLabel(shown);
+    pattern.setVisibleWithLabel(shown);
+    reset.setVisible(shown);
+    toggle.setVisible(visible);
 }
 
 void GuiComponentPattern::setPartsEnabled(bool enabled, bool active)
@@ -112,9 +119,13 @@ void GuiComponentPattern::layoutComponent(juce::Rectangle<int>& rect)
 {
     if (!available) return;
 
-    separator.layoutComponent(rect);
+    if (toggle.isShown()) separator.layoutComponent(rect);
 
-    layoutMain({ .mainRect = rect, .label = &patterns.label, .component = &patterns });
-    layoutMain({ .mainRect = rect, .label = &pattern.label, .component = &pattern });
-    layoutMain({ .mainRect = rect, .component = &reset });
+    toggle.layoutComponent(rect);
+
+    if (toggle.isShown()) {
+        layoutMain({ .mainRect = rect, .label = &patterns.label, .component = &patterns });
+        layoutMain({ .mainRect = rect, .label = &pattern.label, .component = &pattern });
+        layoutMain({ .mainRect = rect, .component = &reset });
+    }
 }

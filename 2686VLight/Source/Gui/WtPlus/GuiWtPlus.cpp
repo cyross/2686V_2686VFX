@@ -221,6 +221,7 @@ void GuiWtPlus::setup() {
     paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = WtPlusGuiText::Category::util, .enableChangeDetailVisible = true });
+    chIeToggle.setupComponent(mainGroup.contentCanvas, "CH IM/EX", tabOrder);
 
     // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
     pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
@@ -287,7 +288,7 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる。
     // 32 スロットぶんの行を積むので、高さは多めに取っておく。
-    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 5000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
     levelComponent.layoutComponent(mRect);
 
@@ -363,7 +364,7 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
 
     layoutUtilityCat(mRect);
 
-    int usedHeight = 5000 - mRect.getHeight();
+    int usedHeight = CoreGuiValue::Canvas::layoutHeight - mRect.getHeight();
 
     mainGroup.setContentHeight(usedHeight + 20);
 
@@ -389,7 +390,7 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
     waveGroup.setViewportCustomBounds(wgRect.translated(-waveArea.getX(), -waveArea.getY()));
 
     // 32 行ぶん積むので、キャンバスは高めに取ってから実使用ぶんへ縮める
-    juce::Rectangle<int> wRect(0, 0, waveGroup.getContentWidth(), 5000);
+    juce::Rectangle<int> wRect(0, 0, waveGroup.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
     layoutWaveCat(wRect);
 
@@ -397,7 +398,7 @@ void GuiWtPlus::layout(juce::Rectangle<int> content) {
 
     layoutOptionalCat(wRect);
 
-    int waveUsedHeight = 5000 - wRect.getHeight();
+    int waveUsedHeight = CoreGuiValue::Canvas::layoutHeight - wRect.getHeight();
 
     waveGroup.setContentHeight(waveUsedHeight + 20);
 }
@@ -488,50 +489,59 @@ void GuiWtPlus::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    // IM/EX のまとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す
+    const bool chIeShown = visible && chIeToggle.isShown();
+    chIeToggle.setVisible(visible);
+
     pathRoot.setVisible(visible);
 
-    ieLfo.setVisible(visible);
-    ieDetune.setVisible(visible);
-    ieAmpEnv.setVisible(visible);
-    iePitchEnv.setVisible(visible);
-    ieSsgHwEnv.setVisible(visible);
-    ieSsgHwPEnv.setVisible(visible);
-    ieWtMod.setVisible(visible);
-    ieWtAmpMod.setVisible(visible);
-    ieSsgSwEnv256.setVisible(visible);
-    ieSsgSwPEnv256.setVisible(visible);
-    ieUnison.setVisible(visible);
-    ieQuality.setVisible(visible);
-    ieChParam.setVisible(visible);
+    ieLfo.setVisible(chIeShown);
+    ieDetune.setVisible(chIeShown);
+    ieAmpEnv.setVisible(chIeShown);
+    iePitchEnv.setVisible(chIeShown);
+    ieSsgHwEnv.setVisible(chIeShown);
+    ieSsgHwPEnv.setVisible(chIeShown);
+    ieWtMod.setVisible(chIeShown);
+    ieWtAmpMod.setVisible(chIeShown);
+    ieSsgSwEnv256.setVisible(chIeShown);
+    ieSsgSwPEnv256.setVisible(chIeShown);
+    ieUnison.setVisible(chIeShown);
+    ieQuality.setVisible(chIeShown);
+    ieChParam.setVisible(chIeShown);
 
     if (visible)
     {
         pathRoot.layoutComponent(rect);
 
 
-        ieLfo.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieAmpEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        iePitchEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgHwEnv.layoutComponent(rect);
-        ieSsgHwPEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieWtMod.layoutComponent(rect);
-        ieWtAmpMod.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwEnv256.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwPEnv256.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieDetune.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieUnison.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieQuality.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieChParam.layoutComponent(rect);
+        // 出し入れのボタンは中身の上
+        chIeToggle.layoutComponent(rect);
+
+        if (chIeShown) {
+            ieLfo.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieAmpEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            iePitchEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgHwEnv.layoutComponent(rect);
+            ieSsgHwPEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieWtMod.layoutComponent(rect);
+            ieWtAmpMod.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgSwEnv256.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgSwPEnv256.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieDetune.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieUnison.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieQuality.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieChParam.layoutComponent(rect);
+        }
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }

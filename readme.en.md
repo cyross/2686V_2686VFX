@@ -55,12 +55,14 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - The effect sections are in the order the effects are applied. Changing the order re-arranges them straight away
   - The section titles are off-black text on off-white (`Category.FxBg` / `Category.FxText`)
   - The FX pane is as wide as before. The group has a vertical scroll bar
+  - All sections start closed
   - Every plugin except 2686VFX
 - **2686VFX: the effects are now one "Effects" group in one column**
   - The old "Effects" frame (bypass, LEVEL, order and so on) is renamed "Main"
   - The effect groups stacked in four columns are now one "Effects" group in one column, with each effect as a section. The section titles are off-black text on off-white. They are in the order the effects are applied, and changing the order re-arranges them straight away
   - The group has a vertical scroll bar and sits left of the modulation columns
   - Folding is remembered for the one "Effects" group. The old per-effect folding is not carried over
+  - All sections start closed
 - **Envelopes and sequencers now have "patterns" that can be switched while playing**
   - Sections: SSG HW AMP ENV, SSG HW PITCH ENV, SSG SW AMP ENV[256], SSG SW PITCH ENV[256], TAP AMP SEQUENCER, TAP PITCH SEQUENCER and UNISON/HARMONY, for each channel, operator and pad
   - At the bottom of the section, below a separator, there are "PATTERNS" (how many, 1 to 32, default 1), "PATTERN" (which one to use, 1 to PATTERNS) and "RESET TO CHANGE" (default off)
@@ -71,6 +73,22 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - While the section is off (Enable off or Bypass on), PATTERNS, PATTERN and RESET TO CHANGE can't be used, like the section's other controls
   - Each pattern's values are saved in presets and the DAW state. With PATTERNS at 1, the sound and what is saved are the same as before
   - Every plugin except 2686VFX
+- **Groups of controls inside a section can be shown and hidden with "SHOW xxx" / "HIDE xxx" buttons**
+  - The button sits above its group (below the separator). While the group is hidden it reads "SHOW xxx" (bold off-black on a light, whitish yellow); while it is shown it reads "HIDE xxx" (bold off-white on dark blue). Pressing it opens the group below the button. Hiding a group also hides the separator above it
+  - The buttons are 3px lower than a row (12px), with text made smaller to match, and 2px of space above them
+  - SSG HW AMP ENV and SSG HW PITCH ENV: HOLD (HOLD, COUNT, TARGET, HOLD MIN, HOLD MAX), KEEP (KEEP, START, KEEP START, END, KEEP END) and PATTERNS
+  - SSG SW AMP ENV[256], SSG SW PITCH ENV[256] and PARAM ENV[256]: SWITCHES (KEEP, STRICT R, START NOW, T SYNC), LOOP (from LOOP to the loop list), RATE (from R.TARGET to the rate list), LEVEL (from L.TARGET to the level list), RR (from RR to RR NOTE), ENDL (Use Endl, ENDL) and PATTERNS (PARAM ENV[256] has no patterns, so no PATTERNS either)
+  - WT AMP MOD and WT PITCH MOD: HOLD and KEEP
+  - TAP AMP SEQUENCER, TAP PITCH SEQUENCER and TAP PARAM SEQUENCER: LOOP and PATTERNS (TAP PARAM SEQUENCER has no patterns, so only LOOP)
+  - LFO (OPZX7S style): PM and AM, each holding PM HOLD / PM KEEP and AM HOLD / AM KEEP inside
+  - UNISON / HARMONY: ARPEGGIO (Arpeggio, AR.FREQ, Arp Smooth), PARA-PARAM (VOICES, P-SPREAD, P-DETUNE) and PATTERNS
+  - UTILITY: per-operator / per-pad import and export (OP IM/EX, PAD IM/EX) and per-channel import and export (CH IM/EX). The per-channel side also includes [EX]OPZX7S Params and [IM]FM Params
+  - Whether a group is shown is not saved (like opening and closing sections). Everything starts hidden
+  - The colours can be changed in COLORS as `ShowHide.ShowBg`, `ShowHide.ShowText`, `ShowHide.HideBg` and `ShowHide.HideText`
+  - Every plugin except 2686VFX
+- **Fixed: with several sections open, the rest could not be reached even with the scroll bar at the bottom**
+  - For example with SSG SW PITCH ENV[256] and PARAM ENV open together. Layout stopped at a provisional height (2000px and so on), so anything below it was outside the scroll range
+  - Every plugin
 - **The version is now 4.5.0**
 
 ### 3-0-2. What v4.4.1 adds and changes

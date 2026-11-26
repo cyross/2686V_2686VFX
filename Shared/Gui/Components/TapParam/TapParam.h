@@ -14,6 +14,7 @@
 #include "../Separator/NormalSeparator.h"
 #include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../StepLoops/StepLoops.h"
+#include "../ShowHide/ShowHide.h"
 
 // ============================================================================
 // 段ごとの組を 1 行ずつ並べる (TAP PARAM SEQUENCER)
@@ -111,6 +112,9 @@ private:
     GuiToggleButton loop;
     GuiComponentStepLoops loops;
     NormalSeparator loopSeparator;
+
+    // LOOP のまとまりを出し入れするボタン (4.5.0)
+    GuiShowHideButton loopToggle;
 
     GuiSlider target;
 

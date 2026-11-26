@@ -2,6 +2,7 @@
 
 #include "Shared/Core/Gui/GuiI18n.h"
 #include <JuceHeader.h>
+#include "Shared/Gui/Components/ShowHide/ShowHide.h"
 
 #include "Shared/Gui/Components/TapSeq/TapSeq.h"
 #include "Shared/Gui/Components/TapParam/TapParam.h"
@@ -99,6 +100,10 @@ class GuiOpn : public GuiBase
     GuiComponentUnitEdit opEditComponent;
 
     GuiCategoryLabel utilityCat;
+
+    // UTILITY の IM/EX のまとまりを出し入れするボタン (4.5.0)
+    GuiShowHideButton opIeToggle;
+    GuiShowHideButton chIeToggle;
 
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
     GuiCategoryLabel ampMajorCat;
@@ -316,6 +321,8 @@ public:
         unisonComponent(context),
         n88Lfo(context),
         utilityCat(context),
+        opIeToggle(context),
+        chIeToggle(context),
         ampMajorCat(context),
         pitchMajorCat(context),
         tapMajorCat(context),

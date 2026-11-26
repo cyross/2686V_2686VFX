@@ -91,7 +91,8 @@ GuiComponentTapSeq::GuiComponentTapSeq(const GuiContext& context, Kind k) :
     increment(context),
     decrement(context),
     clearStep(context),
-    patternParts(context)
+    patternParts(context),
+    loopToggle(context)
 {
 }
 
@@ -193,6 +194,8 @@ void GuiComponentTapSeq::setupComponent(juce::Component& parent, const juce::Str
     target.setValue(1, juce::dontSendNotification);
 
     // パターン (4.5.0)。組が変わったら、表 (選んでいる組のもの) を引き直して出し直す
+    loopToggle.setupComponent(parent, "LOOP", tabOrder);
+
     patternParts.setupComponent(parent, code + spec.keys.base, tabOrder);
     patternParts.onPatternChange = [this] {
         // 区分の右クリックで写す表も、選んでいる組のものへ
@@ -417,9 +420,14 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     enable.setVisible(visible);
     enableSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
-    stepsSeparator.setVisible(visible);
-    loop.setVisible(visible);
-    loops.setVisibles(visible);
+
+    // LOOP のまとまりを隠しているときは、上の区切り線ごと隠す (4.5.0)
+    const bool lp = visible && loopToggle.isShown();
+
+    stepsSeparator.setVisible(lp);
+    loop.setVisible(lp);
+    loops.setVisibles(lp);
+    loopToggle.setVisible(visible);
     loopSeparator.setVisible(visible);
     target.setVisibleWithLabel(visible);
     value.setVisibleWithLabel(visible);
@@ -441,11 +449,19 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     layoutMain({ .mainRect = rect, .component = &enable });
     enableSeparator.layoutComponent(rect);
     layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = h });
-    stepsSeparator.layoutComponent(rect);
 
-    layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = h });
-    loops.layoutComponent(rect, h);
+    // 出し入れのボタンは区切り線の下・中身の上
+    if (lp) stepsSeparator.layoutComponent(rect);
+
+    loopToggle.layoutComponent(rect);
+
+    if (lp) {
+        layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = h });
+        loops.layoutComponent(rect, h);
+    }
+
     laidOutLoopRows = loops.getRowCount();
+
     loopSeparator.layoutComponent(rect);
 
     layoutMain({ .mainRect = rect, .label = &target.label, .component = &target, .rowHeight = h });

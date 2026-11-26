@@ -135,18 +135,30 @@ void GuiComponentWaveHold::rebind(const juce::String& idPrefix)
     keepEndBtn.rebind(idPrefix + CPK::WaveHold::keepEnd);
 }
 
+void GuiComponentWaveHold::useShowHide(juce::Component& parent, int& tabOrder, const juce::String& namePrefix)
+{
+    m_showHide = true;
+
+    holdToggle.setupComponent(parent, namePrefix + "HOLD", tabOrder);
+    keepToggle.setupComponent(parent, namePrefix + "KEEP", tabOrder);
+}
+
 void GuiComponentWaveHold::setVisibles(bool visible)
 {
-    holdSeparator.setVisible(visible);
-    holdEnableBtn.setVisible(visible);
-    holdCount.setVisibles(visible);
-    holdCountButtons.setVisibles(visible && holdCount.isVisibleNudge());
-    holdTarget.setVisibleWithLabel(visible);
-    holdMin.setVisibles(visible);
-    holdMax.setVisibles(visible);
+    // まとまりを隠しているときは、上の区切り線ごと隠す
+    const bool hold = visible && holdShown();
+    const bool keep = visible && keepShown();
 
-    const bool minNudge = visible && holdMin.isVisibleNudge();
-    const bool maxNudge = visible && holdMax.isVisibleNudge();
+    holdSeparator.setVisible(hold);
+    holdEnableBtn.setVisible(hold);
+    holdCount.setVisibles(hold);
+    holdCountButtons.setVisibles(hold && holdCount.isVisibleNudge());
+    holdTarget.setVisibleWithLabel(hold);
+    holdMin.setVisibles(hold);
+    holdMax.setVisibles(hold);
+
+    const bool minNudge = hold && holdMin.isVisibleNudge();
+    const bool maxNudge = hold && holdMax.isVisibleNudge();
 
     if ((m_unit == WaveHoldUnit::Cent)) {
         holdMinPitch.setVisibles(minNudge);
@@ -157,100 +169,135 @@ void GuiComponentWaveHold::setVisibles(bool visible)
         holdMaxNudge.setVisibles(maxNudge);
     }
 
-    keepSeparator.setVisible(visible);
-    keepEnableBtn.setVisible(visible);
-    waveStart.setVisibles(visible);
-    waveStartNudge.setVisibles(visible && waveStart.isVisibleNudge());
-    keepStartBtn.setVisible(visible);
-    waveEnd.setVisibles(visible);
-    waveEndNudge.setVisibles(visible && waveEnd.isVisibleNudge());
-    keepEndBtn.setVisible(visible);
+    keepSeparator.setVisible(keep);
+    keepEnableBtn.setVisible(keep);
+    waveStart.setVisibles(keep);
+    waveStartNudge.setVisibles(keep && waveStart.isVisibleNudge());
+    keepStartBtn.setVisible(keep);
+    waveEnd.setVisibles(keep);
+    waveEndNudge.setVisibles(keep && waveEnd.isVisibleNudge());
+    keepEndBtn.setVisible(keep);
+
+    holdToggle.setVisible(visible && m_showHide);
+    keepToggle.setVisible(visible && m_showHide);
+}
+
+void GuiComponentWaveHold::layoutHold(juce::Rectangle<int>& rect, bool row)
+{
+    // 出し入れのボタンは区切り線の下・中身の上
+    if (holdShown()) holdSeparator.layoutComponent(rect);
+
+    if (m_showHide) {
+        if (row) holdToggle.layoutComponentRow(rect);
+        else     holdToggle.layoutComponent(rect);
+    }
+
+    if (holdShown()) {
+
+        if (row) {
+            layoutRow({ .rowRect = rect, .component = &holdEnableBtn });
+
+            holdCount.layoutComponentRow(rect);
+
+            if (holdCount.isVisibleNudge()) holdCountButtons.layoutComponentRow(rect);
+
+            layoutRow({ .rowRect = rect, .label = &holdTarget.label, .component = &holdTarget });
+
+            holdMin.layoutComponentRow(rect);
+
+            if (holdMin.isVisibleNudge()) {
+                if ((m_unit == WaveHoldUnit::Cent)) holdMinPitch.layoutComponentRow(rect);
+                else          holdMinNudge.layoutComponentRow(rect);
+            }
+
+            holdMax.layoutComponentRow(rect);
+
+            if (holdMax.isVisibleNudge()) {
+                if ((m_unit == WaveHoldUnit::Cent)) holdMaxPitch.layoutComponentRow(rect);
+                else          holdMaxNudge.layoutComponentRow(rect);
+            }
+        }
+        else {
+            layoutMain({ .mainRect = rect, .component = &holdEnableBtn });
+
+            holdCount.layoutComponent(rect);
+
+            if (holdCount.isVisibleNudge()) holdCountButtons.layoutComponent(rect);
+
+            layoutMain({ .mainRect = rect, .label = &holdTarget.label, .component = &holdTarget });
+
+            holdMin.layoutComponent(rect);
+
+            if (holdMin.isVisibleNudge()) {
+                if ((m_unit == WaveHoldUnit::Cent)) holdMinPitch.layoutComponent(rect);
+                else          holdMinNudge.layoutComponent(rect);
+            }
+
+            holdMax.layoutComponent(rect);
+
+            if (holdMax.isVisibleNudge()) {
+                if ((m_unit == WaveHoldUnit::Cent)) holdMaxPitch.layoutComponent(rect);
+                else          holdMaxNudge.layoutComponent(rect);
+            }
+        }
+    }
+}
+
+void GuiComponentWaveHold::layoutKeep(juce::Rectangle<int>& rect, bool row)
+{
+    // 出し入れのボタンは区切り線の下・中身の上
+    if (keepShown()) keepSeparator.layoutComponent(rect);
+
+    if (m_showHide) {
+        if (row) keepToggle.layoutComponentRow(rect);
+        else     keepToggle.layoutComponent(rect);
+    }
+
+    if (keepShown()) {
+
+        if (row) {
+            layoutRow({ .rowRect = rect, .component = &keepEnableBtn });
+
+            waveStart.layoutComponentRow(rect);
+
+            if (waveStart.isVisibleNudge()) waveStartNudge.layoutComponentRow(rect);
+
+            layoutRow({ .rowRect = rect, .component = &keepStartBtn });
+
+            waveEnd.layoutComponentRow(rect);
+
+            if (waveEnd.isVisibleNudge()) waveEndNudge.layoutComponentRow(rect);
+
+            layoutRow({ .rowRect = rect, .component = &keepEndBtn });
+        }
+        else {
+            layoutMain({ .mainRect = rect, .component = &keepEnableBtn });
+
+            waveStart.layoutComponent(rect);
+
+            if (waveStart.isVisibleNudge()) waveStartNudge.layoutComponent(rect);
+
+            layoutMain({ .mainRect = rect, .component = &keepStartBtn });
+
+            waveEnd.layoutComponent(rect);
+
+            if (waveEnd.isVisibleNudge()) waveEndNudge.layoutComponent(rect);
+
+            layoutMain({ .mainRect = rect, .component = &keepEndBtn });
+        }
+    }
 }
 
 void GuiComponentWaveHold::layoutComponent(juce::Rectangle<int>& rect)
 {
-    holdSeparator.layoutComponent(rect);
-
-    layoutMain({ .mainRect = rect, .component = &holdEnableBtn });
-
-    holdCount.layoutComponent(rect);
-
-    if (holdCount.isVisibleNudge()) holdCountButtons.layoutComponent(rect);
-
-    layoutMain({ .mainRect = rect, .label = &holdTarget.label, .component = &holdTarget });
-
-    holdMin.layoutComponent(rect);
-
-    if (holdMin.isVisibleNudge()) {
-        if ((m_unit == WaveHoldUnit::Cent)) holdMinPitch.layoutComponent(rect);
-        else          holdMinNudge.layoutComponent(rect);
-    }
-
-    holdMax.layoutComponent(rect);
-
-    if (holdMax.isVisibleNudge()) {
-        if ((m_unit == WaveHoldUnit::Cent)) holdMaxPitch.layoutComponent(rect);
-        else          holdMaxNudge.layoutComponent(rect);
-    }
-
-    keepSeparator.layoutComponent(rect);
-
-    layoutMain({ .mainRect = rect, .component = &keepEnableBtn });
-
-    waveStart.layoutComponent(rect);
-
-    if (waveStart.isVisibleNudge()) waveStartNudge.layoutComponent(rect);
-
-    layoutMain({ .mainRect = rect, .component = &keepStartBtn });
-
-    waveEnd.layoutComponent(rect);
-
-    if (waveEnd.isVisibleNudge()) waveEndNudge.layoutComponent(rect);
-
-    layoutMain({ .mainRect = rect, .component = &keepEndBtn });
+    layoutHold(rect, false);
+    layoutKeep(rect, false);
 }
 
 void GuiComponentWaveHold::layoutComponentRow(juce::Rectangle<int>& rect)
 {
-    holdSeparator.layoutComponent(rect);
-
-    layoutRow({ .rowRect = rect, .component = &holdEnableBtn });
-
-    holdCount.layoutComponentRow(rect);
-
-    if (holdCount.isVisibleNudge()) holdCountButtons.layoutComponentRow(rect);
-
-    layoutRow({ .rowRect = rect, .label = &holdTarget.label, .component = &holdTarget });
-
-    holdMin.layoutComponentRow(rect);
-
-    if (holdMin.isVisibleNudge()) {
-        if ((m_unit == WaveHoldUnit::Cent)) holdMinPitch.layoutComponentRow(rect);
-        else          holdMinNudge.layoutComponentRow(rect);
-    }
-
-    holdMax.layoutComponentRow(rect);
-
-    if (holdMax.isVisibleNudge()) {
-        if ((m_unit == WaveHoldUnit::Cent)) holdMaxPitch.layoutComponentRow(rect);
-        else          holdMaxNudge.layoutComponentRow(rect);
-    }
-
-    keepSeparator.layoutComponent(rect);
-
-    layoutRow({ .rowRect = rect, .component = &keepEnableBtn });
-
-    waveStart.layoutComponentRow(rect);
-
-    if (waveStart.isVisibleNudge()) waveStartNudge.layoutComponentRow(rect);
-
-    layoutRow({ .rowRect = rect, .component = &keepStartBtn });
-
-    waveEnd.layoutComponentRow(rect);
-
-    if (waveEnd.isVisibleNudge()) waveEndNudge.layoutComponentRow(rect);
-
-    layoutRow({ .rowRect = rect, .component = &keepEndBtn });
+    layoutHold(rect, true);
+    layoutKeep(rect, true);
 }
 
 void GuiComponentWaveHold::setEnables(bool enabled)

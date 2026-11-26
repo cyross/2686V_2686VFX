@@ -148,7 +148,13 @@ GuiComponentStepEnv::GuiComponentStepEnv(const GuiContext& context, const Spec& 
     endLevelEnable(context),
     endLevel(context),
     levelSteps(context),
-    patternParts(context)
+    patternParts(context),
+    switchesToggle(context),
+    loopToggle(context),
+    rateToggle(context),
+    levelToggle(context),
+    rrToggle(context),
+    endlToggle(context)
 {
 }
 
@@ -469,6 +475,14 @@ void GuiComponentStepEnv::setupComponent(juce::Component& parent, const juce::St
 
     // パターン (4.5.0)。SSG SW AMP / PITCH ENV[256] だけが持つ (ほかの区分には置かれない)。
     // 組が変わったら、表 (選んでいる組のもの) を引き直して出し直す
+    // まとまりの出し入れ (4.5.0)
+    switchesToggle.setupComponent(parent, "SWITCHES", tabOrder);
+    loopToggle.setupComponent(parent, "LOOP", tabOrder);
+    rateToggle.setupComponent(parent, "RATE", tabOrder);
+    levelToggle.setupComponent(parent, "LEVEL", tabOrder);
+    rrToggle.setupComponent(parent, "RR", tabOrder);
+    endlToggle.setupComponent(parent, "ENDL", tabOrder);
+
     patternParts.setupComponent(parent, code + spec.tableKey, tabOrder);
     patternParts.onPatternChange = [this] { if (paramCode.isNotEmpty()) rebind(paramCode); changed(); };
 
@@ -1092,53 +1106,72 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
 
     patternParts.setPartsVisible(visible);
 
+    // まとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す。
+    // 区切り線はそれぞれ下のまとまりの上に付いているものとして扱う:
+    //   stepsSeparator → SWITCHES (無ければ LOOP)、keepSeparator → LOOP、
+    //   loopSeparator → RATE、rateSeparator → LEVEL、releaseSeparator → RR、
+    //   endLevelSeparator → ENDL
+    const bool heads = hasHeadToggles();
+    const bool sw = visible && heads && switchesToggle.isShown();
+    const bool lp = visible && loopToggle.isShown();
+    const bool rt = visible && rateToggle.isShown();
+    const bool lv = visible && levelToggle.isShown();
+    const bool rr = visible && rrToggle.isShown();
+    const bool el = visible && endlToggle.isShown();
+
     flag.setVisible(visible);
     flagSeparator.setVisible(visible);
     targetBox.setVisibleWithLabel(visible && isParam());
     targetSeparator.setVisible(visible && isParam());
     steps.setVisibleWithLabel(visible);
-    stepsSeparator.setVisible(visible);
-    keep.setVisible(visible && hasKeep());
-    strictRate.setVisible(visible && hasStrictRate());
-    startNow.setVisible(visible && hasStartNow());
-    tickSync.setVisible(visible && hasTickSync());
-    keepSeparator.setVisible(visible && hasHeadToggles());
-    loop.setVisible(visible);
-    loopMode.setVisibleWithLabel(visible);
-    loopTo.setVisibleWithLabel(visible && !isRich());
-    loopCount.setVisibleWithLabel(visible && !isRich());
-    loops.setVisibles(visible && isRich());
-    loopSeparator.setVisible(visible);
-    rateTarget.setVisibleWithLabel(visible);
-    rate.setVisibleWithLabel(visible);
-    rateNudge.setVisibles(visible && rate.isVisibleNudge());
-    rateMode.setVisibleWithLabel(visible);
-    delta.setVisibleWithLabel(visible);
-    deltaBtns.setVisibles(visible && rate.isVisibleNudge());
-    tick.setVisibleWithLabel(visible);
-    tickBtns.setVisibles(visible && rate.isVisibleNudge());
-    tickNote.setVisibleWithLabel(visible);
-    rateValues.setVisible(visible);
-    rateSeparator.setVisible(visible);
-    levelTarget.setVisibleWithLabel(visible);
-    level.setVisibleWithLabel(visible);
-    levelSteps.setVisibleWithLabel(visible && hasLevelSteps());
-    ampBtns.setVisibles(visible && usesUnitButtons() && level.isVisibleNudge());
-    pitchBtns.setVisibles(visible && isPitch() && level.isVisibleNudge());
-    valueBtns.setVisibles(visible && usesValueButtons() && level.isVisibleNudge());
-    levelValues.setVisible(visible);
-    releaseSeparator.setVisible(visible);
-    releaseRate.setVisibleWithLabel(visible);
-    releaseLevel.setVisibleWithLabel(visible);
-    releaseRateBtns.setVisibles(visible && rate.isVisibleNudge());
-    releaseLevelBtns.setVisibles(visible && hasReleaseLevelButtons() && level.isVisibleNudge());
-    releaseMode.setVisibleWithLabel(visible);
-    releaseDelta.setVisibleWithLabel(visible);
-    releaseTick.setVisibleWithLabel(visible);
-    releaseTickNote.setVisibleWithLabel(visible);
-    endLevelSeparator.setVisible(visible);
-    endLevelEnable.setVisible(visible);
-    endLevel.setVisibleWithLabel(visible);
+    stepsSeparator.setVisible(heads ? sw : lp);
+    keep.setVisible(sw && hasKeep());
+    strictRate.setVisible(sw && hasStrictRate());
+    startNow.setVisible(sw && hasStartNow());
+    tickSync.setVisible(sw && hasTickSync());
+    switchesToggle.setVisible(visible && heads);
+    keepSeparator.setVisible(heads && lp);
+    loop.setVisible(lp);
+    loopMode.setVisibleWithLabel(lp);
+    loopTo.setVisibleWithLabel(lp && !isRich());
+    loopCount.setVisibleWithLabel(lp && !isRich());
+    loops.setVisibles(lp && isRich());
+    loopToggle.setVisible(visible);
+    loopSeparator.setVisible(rt);
+    rateTarget.setVisibleWithLabel(rt);
+    rate.setVisibleWithLabel(rt);
+    rateNudge.setVisibles(rt && rate.isVisibleNudge());
+    rateMode.setVisibleWithLabel(rt);
+    delta.setVisibleWithLabel(rt);
+    deltaBtns.setVisibles(rt && rate.isVisibleNudge());
+    tick.setVisibleWithLabel(rt);
+    tickBtns.setVisibles(rt && rate.isVisibleNudge());
+    tickNote.setVisibleWithLabel(rt);
+    rateValues.setVisible(rt);
+    rateToggle.setVisible(visible);
+    rateSeparator.setVisible(lv);
+    levelTarget.setVisibleWithLabel(lv);
+    level.setVisibleWithLabel(lv);
+    levelSteps.setVisibleWithLabel(lv && hasLevelSteps());
+    ampBtns.setVisibles(lv && usesUnitButtons() && level.isVisibleNudge());
+    pitchBtns.setVisibles(lv && isPitch() && level.isVisibleNudge());
+    valueBtns.setVisibles(lv && usesValueButtons() && level.isVisibleNudge());
+    levelValues.setVisible(lv);
+    levelToggle.setVisible(visible);
+    releaseSeparator.setVisible(rr);
+    releaseRate.setVisibleWithLabel(rr);
+    releaseLevel.setVisibleWithLabel(rr);
+    releaseRateBtns.setVisibles(rr && rate.isVisibleNudge());
+    releaseLevelBtns.setVisibles(rr && hasReleaseLevelButtons() && level.isVisibleNudge());
+    releaseMode.setVisibleWithLabel(rr);
+    releaseDelta.setVisibleWithLabel(rr);
+    releaseTick.setVisibleWithLabel(rr);
+    releaseTickNote.setVisibleWithLabel(rr);
+    rrToggle.setVisible(visible);
+    endLevelSeparator.setVisible(el);
+    endLevelEnable.setVisible(el);
+    endLevel.setVisibleWithLabel(el);
+    endlToggle.setVisible(visible);
 
     if (!visible) return;
 
@@ -1153,64 +1186,102 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     }
 
     layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = h });
-    stepsSeparator.layoutComponent(rect);
-    if (hasKeep()) layoutMain({ .mainRect = rect, .component = &keep, .rowHeight = h });
-    if (hasStrictRate()) layoutMain({ .mainRect = rect, .component = &strictRate, .rowHeight = h });
-    if (hasStartNow()) layoutMain({ .mainRect = rect, .component = &startNow, .rowHeight = h });
-    if (hasTickSync()) layoutMain({ .mainRect = rect, .component = &tickSync, .rowHeight = h });
-    if (hasHeadToggles()) keepSeparator.layoutComponent(rect);
-    layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = h });
-    layoutMain({ .mainRect = rect, .label = &loopMode.label, .component = &loopMode, .rowHeight = h });
 
-    if (isRich()) {
-        loops.layoutComponent(rect, h);
-    }
-    else {
-        layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = h });
-        layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = h });
+    // 出し入れのボタンは、まとまりの区切り線の下・中身の上に置く。
+    // 隠しているあいだは区切り線ごと消え、ボタンだけが残る
+    if (heads) {
+        if (sw) stepsSeparator.layoutComponent(rect);
+
+        switchesToggle.layoutComponent(rect);
+
+        if (sw) {
+            if (hasKeep()) layoutMain({ .mainRect = rect, .component = &keep, .rowHeight = h });
+            if (hasStrictRate()) layoutMain({ .mainRect = rect, .component = &strictRate, .rowHeight = h });
+            if (hasStartNow()) layoutMain({ .mainRect = rect, .component = &startNow, .rowHeight = h });
+            if (hasTickSync()) layoutMain({ .mainRect = rect, .component = &tickSync, .rowHeight = h });
+        }
     }
 
-    loopSeparator.layoutComponent(rect);
+    if (lp) {
+        if (heads) keepSeparator.layoutComponent(rect);
+        else       stepsSeparator.layoutComponent(rect);
+    }
+
+    loopToggle.layoutComponent(rect);
+
+    if (lp) {
+        layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = h });
+        layoutMain({ .mainRect = rect, .label = &loopMode.label, .component = &loopMode, .rowHeight = h });
+
+        if (isRich()) {
+            loops.layoutComponent(rect, h);
+        }
+        else {
+            layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = h });
+            layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = h });
+        }
+    }
 
     // 対象 → 値 → 各段の値、の順。
-    layoutMain({ .mainRect = rect, .label = &rateTarget.label, .component = &rateTarget, .rowHeight = h });
-    rate.layoutComponent(rect, h);
-    if (rate.isVisibleNudge()) rateNudge.layoutComponent(rect, h);
-    layoutMain({ .mainRect = rect, .label = &rateMode.label, .component = &rateMode, .rowHeight = h });
-    layoutMain({ .mainRect = rect, .label = &delta.label, .component = &delta, .rowHeight = h });
-    if (rate.isVisibleNudge()) deltaBtns.layoutComponent(rect, h);
-    layoutMain({ .mainRect = rect, .label = &tick.label, .component = &tick, .rowHeight = h });
-    if (rate.isVisibleNudge()) tickBtns.layoutComponent(rect, h);
-    layoutMain({ .mainRect = rect, .label = &tickNote.label, .component = &tickNote, .rowHeight = h });
-    layoutStrip(rect, rateValues);
-    rateSeparator.layoutComponent(rect);
+    if (rt) loopSeparator.layoutComponent(rect);
 
-    layoutMain({ .mainRect = rect, .label = &levelTarget.label, .component = &levelTarget, .rowHeight = h });
-    level.layoutComponent(rect, h);
+    rateToggle.layoutComponent(rect);
 
-    if (hasLevelSteps()) levelSteps.layoutComponent(rect, h);
-
-    if (level.isVisibleNudge()) {
-        if (usesUnitButtons()) ampBtns.layoutComponent(rect, h);
-        else if (usesValueButtons()) valueBtns.layoutComponent(rect, h);
-        else if (isPitch()) pitchBtns.layoutComponent(rect, h);
+    if (rt) {
+        layoutMain({ .mainRect = rect, .label = &rateTarget.label, .component = &rateTarget, .rowHeight = h });
+        rate.layoutComponent(rect, h);
+        if (rate.isVisibleNudge()) rateNudge.layoutComponent(rect, h);
+        layoutMain({ .mainRect = rect, .label = &rateMode.label, .component = &rateMode, .rowHeight = h });
+        layoutMain({ .mainRect = rect, .label = &delta.label, .component = &delta, .rowHeight = h });
+        if (rate.isVisibleNudge()) deltaBtns.layoutComponent(rect, h);
+        layoutMain({ .mainRect = rect, .label = &tick.label, .component = &tick, .rowHeight = h });
+        if (rate.isVisibleNudge()) tickBtns.layoutComponent(rect, h);
+        layoutMain({ .mainRect = rect, .label = &tickNote.label, .component = &tickNote, .rowHeight = h });
+        layoutStrip(rect, rateValues);
     }
 
-    layoutStrip(rect, levelValues);
+    if (lv) rateSeparator.layoutComponent(rect);
 
-    releaseSeparator.layoutComponent(rect);
-    layoutMain({ .mainRect = rect, .label = &releaseRate.label, .component = &releaseRate, .rowHeight = h });
-    if (rate.isVisibleNudge()) releaseRateBtns.layoutComponent(rect, h);
-    layoutMain({ .mainRect = rect, .label = &releaseLevel.label, .component = &releaseLevel, .rowHeight = h });
-    if (hasReleaseLevelButtons() && level.isVisibleNudge()) releaseLevelBtns.layoutComponent(rect, h);
-    layoutMain({ .mainRect = rect, .label = &releaseMode.label, .component = &releaseMode, .rowHeight = h });
-    layoutMain({ .mainRect = rect, .label = &releaseDelta.label, .component = &releaseDelta, .rowHeight = h });
-    layoutMain({ .mainRect = rect, .label = &releaseTick.label, .component = &releaseTick, .rowHeight = h });
-    layoutMain({ .mainRect = rect, .label = &releaseTickNote.label, .component = &releaseTickNote, .rowHeight = h });
+    levelToggle.layoutComponent(rect);
 
-    endLevelSeparator.layoutComponent(rect);
-    layoutMain({ .mainRect = rect, .component = &endLevelEnable, .rowHeight = h });
-    layoutMain({ .mainRect = rect, .label = &endLevel.label, .component = &endLevel, .rowHeight = h });
+    if (lv) {
+        layoutMain({ .mainRect = rect, .label = &levelTarget.label, .component = &levelTarget, .rowHeight = h });
+        level.layoutComponent(rect, h);
+
+        if (hasLevelSteps()) levelSteps.layoutComponent(rect, h);
+
+        if (level.isVisibleNudge()) {
+            if (usesUnitButtons()) ampBtns.layoutComponent(rect, h);
+            else if (usesValueButtons()) valueBtns.layoutComponent(rect, h);
+            else if (isPitch()) pitchBtns.layoutComponent(rect, h);
+        }
+
+        layoutStrip(rect, levelValues);
+    }
+
+    if (rr) releaseSeparator.layoutComponent(rect);
+
+    rrToggle.layoutComponent(rect);
+
+    if (rr) {
+        layoutMain({ .mainRect = rect, .label = &releaseRate.label, .component = &releaseRate, .rowHeight = h });
+        if (rate.isVisibleNudge()) releaseRateBtns.layoutComponent(rect, h);
+        layoutMain({ .mainRect = rect, .label = &releaseLevel.label, .component = &releaseLevel, .rowHeight = h });
+        if (hasReleaseLevelButtons() && level.isVisibleNudge()) releaseLevelBtns.layoutComponent(rect, h);
+        layoutMain({ .mainRect = rect, .label = &releaseMode.label, .component = &releaseMode, .rowHeight = h });
+        layoutMain({ .mainRect = rect, .label = &releaseDelta.label, .component = &releaseDelta, .rowHeight = h });
+        layoutMain({ .mainRect = rect, .label = &releaseTick.label, .component = &releaseTick, .rowHeight = h });
+        layoutMain({ .mainRect = rect, .label = &releaseTickNote.label, .component = &releaseTickNote, .rowHeight = h });
+    }
+
+    if (el) endLevelSeparator.layoutComponent(rect);
+
+    endlToggle.layoutComponent(rect);
+
+    if (el) {
+        layoutMain({ .mainRect = rect, .component = &endLevelEnable, .rowHeight = h });
+        layoutMain({ .mainRect = rect, .label = &endLevel.label, .component = &endLevel, .rowHeight = h });
+    }
 
     // パターン (4.5.0)。区分の一番下
     patternParts.layoutComponent(rect);

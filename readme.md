@@ -55,12 +55,14 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
   - 効果の区分は、かける順に並べる。順番の設定を変えると、その場で並び直す
   - 区分の見出しはオフホワイトの地にオフブラックの文字 (`Category.FxBg` / `Category.FxText`)
   - FX ペインの幅は変えていない。グループに縦のスクロールバーを付けた
+  - 区分は最初はすべて閉じておく
   - 2686VFX を除く全プラグイン
 - **2686VFX: 効果を 1 つの「エフェクト」グループ・1 列にまとめた**
   - これまでの「エフェクター」の枠 (バイパス・LEVEL・順番など) の名前を「メイン」に改めた
   - 4 列に積んでいた効果のグループを「エフェクト」グループ 1 列にし、それぞれの効果を区分にまとめ直した。区分の見出しはオフホワイトの地にオフブラックの文字。かける順に並べ、順番の設定を変えるとその場で並び直す
   - グループに縦のスクロールバーを付けた。変調の列の左に置く
   - 枠の畳み具合は「エフェクト」グループ 1 つで覚える。これまでの効果ごとの畳み具合は引き継がない
+  - 区分は最初はすべて閉じておく
 - **エンベロープ・シーケンサーに「パターン」を追加し、演奏中に切り替えられるようにした**
   - 対象の区分: SSG HW AMP ENV・SSG HW PITCH ENV・SSG SW AMP ENV[256]・SSG SW PITCH ENV[256]・TAP AMP SEQUENCER・TAP PITCH SEQUENCER・UNISON/HARMONY。チャンネル・オペレーター・パッドの区分ごと
   - 区分の一番下に区切り線を引いて、「PATTERNS」(組の数、1〜32、初期値 1)・「PATTERN」(使う組、1〜PATTERNS)・「RESET TO CHANGE」(初期値 切) を置いた
@@ -71,6 +73,22 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
   - 区分を切っている (Enable 切・Bypass 入) あいだは、ほかのつまみと同じく PATTERNS・PATTERN・RESET TO CHANGE も押せない
   - 組ごとの値はプリセット・DAW の状態へ保存する。PATTERNS が 1 のときはこれまでと同じ鳴り・同じ保存内容
   - 全プラグイン (2686VFX を除く)
+- **区分の中のまとまりを「SHOW xxx」「HIDE xxx」のボタンで出し入れできるようにした**
+  - ボタンはまとまりの上 (区切り線の下) に置く。隠しているあいだは「SHOW xxx」(明るい白っぽい黄色の地にオフブラックの太字)、出しているあいだは「HIDE xxx」(濃い青の地にオフホワイトの太字)。押すと、まとまりはボタンの下に出る。隠すと、まとまりの上の区切り線も隠す
+  - ボタンは行より 3px 低く (12px)、文字もそのぶん小さくした。ボタンの上は 2px 空ける
+  - SSG HW AMP ENV・SSG HW PITCH ENV: HOLD (HOLD・COUNT・TARGET・HOLD MIN・HOLD MAX)・KEEP (KEEP・START・KEEP START・END・KEEP END)・PATTERNS
+  - SSG SW AMP ENV[256]・SSG SW PITCH ENV[256]・PARAM ENV[256]: SWITCHES (KEEP・STRICT R・START NOW・T SYNC)・LOOP (LOOP からループの一覧まで)・RATE (R.TARGET からレートの一覧まで)・LEVEL (L.TARGET からレベルの一覧まで)・RR (RR から RR NOTE まで)・ENDL (Use Endl・ENDL)・PATTERNS (PARAM ENV[256] にはパターンが無いので、PATTERNS も無い)
+  - WT AMP MOD・WT PITCH MOD: HOLD・KEEP
+  - TAP AMP SEQUENCER・TAP PITCH SEQUENCER・TAP PARAM SEQUENCER: LOOP・PATTERNS (TAP PARAM SEQUENCER にはパターンが無いので LOOP だけ)
+  - LFO (OPZX7S 系): PM・AM。それぞれの中に PM HOLD・PM KEEP / AM HOLD・AM KEEP を入れ子で持つ
+  - UNISON / HARMONY: ARPEGGIO (Arpeggio・AR.FREQ・Arp Smooth)・PARA-PARAM (VOICES・P-SPREAD・P-DETUNE)・PATTERNS
+  - UTILITY: オペレーター・パッド単位のインポート・エクスポート (OP IM/EX・PAD IM/EX) と、チャンネル単位のインポート・エクスポート (CH IM/EX)。チャンネル単位の側には [EX]OPZX7S Params・[IM]FM Params も含む
+  - 出し入れの状態は保存しない (区分の開閉と同じ)。最初はすべて隠している
+  - 色は COLORS の `ShowHide.ShowBg`・`ShowHide.ShowText`・`ShowHide.HideBg`・`ShowHide.HideText` で変えられる
+  - 全プラグイン (2686VFX を除く)
+- **区分をいくつも開いていると、スクロールバーを一番下にしても残りが出ないのを修正**
+  - SSG SW PITCH ENV[256] と PARAM ENV を同時に開いたときなど。並べるときの仮の高さ (2000px など) で打ち切られ、そこから下がスクロールの範囲に入っていなかった
+  - 全プラグイン
 - **版数を 4.5.0 にした**
 
 ### 3-0-2. v4.4.1での追加・変更

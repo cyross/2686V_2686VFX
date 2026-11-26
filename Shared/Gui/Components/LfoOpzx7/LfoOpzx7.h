@@ -17,6 +17,7 @@
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/WaveHold/WaveHold.h"
 #include "../WavePreview/WavePreview.h"
+#include "../ShowHide/ShowHide.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "Shared/Core/Gui/GuiCopyObj.h"
@@ -53,6 +54,14 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiSlider ams;
     GuiSlider amd;
     GuiComponentWaveHold amWaveHold;
+
+    // PM・AM のまとまりを出し入れするボタン (4.5.0)。HOLD・KEEP はその中に入れ子で持つ
+    GuiShowHideButton pmToggle;
+    GuiShowHideButton amToggle;
+
+    // 見出しから下を並べる。row は ParamGroup 向け (layoutComponentRow)
+    void layoutParts(juce::Rectangle<int>& rect, bool row);
+
     std::unique_ptr<juce::FileChooser> fileChooser;
 public:
     // 区分の見出し。右クリックの IMPORT / EXPORT をつなぐのに使う
@@ -109,7 +118,9 @@ public:
         amPreview(context),
         ams(context),
         amd(context),
-        amWaveHold(context)
+        amWaveHold(context),
+        pmToggle(context),
+        amToggle(context)
     {
     }
 

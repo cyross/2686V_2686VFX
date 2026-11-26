@@ -267,6 +267,14 @@ private:
     // パターン (4.5.0)。区分の一番下に置く
     GuiComponentPattern patternParts;
 
+    // まとまりを出し入れするボタン (4.5.0)
+    GuiShowHideButton switchesToggle;  // KEEP・STRICT R・START NOW・T SYNC
+    GuiShowHideButton loopToggle;      // LOOP からループの一覧まで
+    GuiShowHideButton rateToggle;      // R.TARGET からレートの一覧まで
+    GuiShowHideButton levelToggle;     // L.TARGET からレベルの一覧まで
+    GuiShowHideButton rrToggle;        // RR から RR NOTE まで
+    GuiShowHideButton endlToggle;      // Use Endl・ENDL
+
     juce::String paramCode;
     juce::String m_flagKey;
 

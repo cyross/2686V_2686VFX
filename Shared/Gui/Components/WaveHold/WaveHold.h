@@ -17,6 +17,7 @@
 #include "../NudgeSlider/NudgeSliderInt.h"
 #include "../PitchButtons/PitchButtons.h"
 #include "../Separator/NormalSeparator.h"
+#include "../ShowHide/ShowHide.h"
 
 // ==========================================================
 // ホールドと部分再生
@@ -77,6 +78,18 @@ class GuiComponentWaveHold : public GuiBase {
     GuiComponentNudgeButtons waveEndNudge;
     GuiToggleButton keepEndBtn;
 
+    // HOLD・KEEP のまとまりを出し入れするボタン (4.5.0)。useShowHide を
+    // 呼んだ区分だけが持つ
+    GuiShowHideButton holdToggle;
+    GuiShowHideButton keepToggle;
+    bool m_showHide = false;
+
+    bool holdShown() const { return !m_showHide || holdToggle.isShown(); }
+    bool keepShown() const { return !m_showHide || keepToggle.isShown(); }
+
+    void layoutHold(juce::Rectangle<int>& rect, bool row);
+    void layoutKeep(juce::Rectangle<int>& rect, bool row);
+
     // START と END が互いを押すときの、入れ子呼び出しを弾くための印
     bool isClampingWindow = false;
 
@@ -107,7 +120,9 @@ public:
         keepStartBtn(context),
         waveEnd(context),
         waveEndNudge(context),
-        keepEndBtn(context)
+        keepEndBtn(context),
+        holdToggle(context),
+        keepToggle(context)
     {
     }
 
@@ -119,6 +134,11 @@ public:
     // 束ねる先を差し替える。対象を選ぶつまみで値の組を
     // 切り替えるチャンネル (WT+ など) で使う。
     void rebind(const juce::String& idPrefix);
+
+    // HOLD・KEEP のまとまりを SHOW / HIDE のボタンで出し入れできるようにする (4.5.0)。
+    // setupComponent のあとで呼ぶ。namePrefix は LFO の「PM 」「AM 」のように
+    // ボタンの名前の頭へ付ける (「SHOW PM HOLD」など)
+    void useShowHide(juce::Component& parent, int& tabOrder, const juce::String& namePrefix = {});
 
     void setVisibles(bool visible);
 

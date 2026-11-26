@@ -476,7 +476,7 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
             group.setViewportCustomBounds(inner.translated(-colArea.getX(), -colArea.getY()));
 
-            juce::Rectangle<int> rect(0, 0, group.getContentWidth(), 20000);
+            juce::Rectangle<int> rect(0, 0, group.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
             body(rect);
 
@@ -1336,6 +1336,8 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     midiComponent(context),
     editComponent(context),
     utilityCat(context),
+    padIeToggle(context),
+    chIeToggle(context),
     pathRoot(context),
     broadcastLevelButton(context),
     ieToneNoise(context),
@@ -1403,6 +1405,8 @@ void GuiRhythm::setup()
     paramEnv.category().onExport = [this] { paramEnv.exportParams(); };
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::util, .enableChangeDetailVisible = true });
+    padIeToggle.setupComponent(mainGroup.contentCanvas, "PAD IM/EX", tabOrder);
+    chIeToggle.setupComponent(mainGroup.contentCanvas, "CH IM/EX", tabOrder);
 
     // 音声・波形ファイルの場所をどこからの相対で書くか (環境設定)
     pathRoot.setupComponent(mainGroup.contentCanvas, tabOrder);
@@ -1578,7 +1582,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), CoreGuiValue::Canvas::layoutHeight);
 
     levelComponent.layoutComponent(mRect);
 
@@ -1611,7 +1615,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     layoutUtilityCat(mRect);
 
-    int usedHeight = 2000 - mRect.getHeight();
+    int usedHeight = CoreGuiValue::Canvas::layoutHeight - mRect.getHeight();
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
@@ -1640,61 +1644,77 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
+    // IM/EX のまとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す
+    const bool padIeShown = visible && padIeToggle.isShown();
+    const bool chIeShown = visible && chIeToggle.isShown();
+    padIeToggle.setVisible(visible);
+    chIeToggle.setVisible(visible);
+
     pathRoot.setVisible(visible);
 
-    ieToneNoise.setVisible(visible);
-    ieLfo.setVisible(visible);
-    ieDetune.setVisible(visible);
-    ieAmpEnv.setVisible(visible);
-    iePitchEnv.setVisible(visible);
-    ieSsgHwEnv.setVisible(visible);
-    ieSsgHwPEnv.setVisible(visible);
-    ieWtMod.setVisible(visible);
-    ieWtAmpMod.setVisible(visible);
-    ieSsgSwEnv256.setVisible(visible);
-    ieSsgSwPEnv256.setVisible(visible);
-    ieChPadParam.setVisible(visible);
-    ieUnison.setVisible(visible);
-    ieQuality.setVisible(visible);
-    iePcmPlay.setVisible(visible);
-    ieChParam.setVisible(visible);
-    uSep003.setVisible(visible);
+    ieToneNoise.setVisible(padIeShown);
+    ieLfo.setVisible(padIeShown);
+    ieDetune.setVisible(padIeShown);
+    ieAmpEnv.setVisible(padIeShown);
+    iePitchEnv.setVisible(padIeShown);
+    ieSsgHwEnv.setVisible(padIeShown);
+    ieSsgHwPEnv.setVisible(padIeShown);
+    ieWtMod.setVisible(padIeShown);
+    ieWtAmpMod.setVisible(padIeShown);
+    ieSsgSwEnv256.setVisible(padIeShown);
+    ieSsgSwPEnv256.setVisible(padIeShown);
+    ieChPadParam.setVisible(padIeShown);
+    ieUnison.setVisible(chIeShown);
+    ieQuality.setVisible(padIeShown);
+    iePcmPlay.setVisible(padIeShown);
+    ieChParam.setVisible(chIeShown);
+    uSep003.setVisible(chIeShown);
 
     if (visible)
     {
         pathRoot.layoutComponent(rect);
 
-        ieToneNoise.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieLfo.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieAmpEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        iePitchEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgHwEnv.layoutComponent(rect);
-        ieSsgHwPEnv.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieWtMod.layoutComponent(rect);
-        ieWtAmpMod.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwEnv256.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieSsgSwPEnv256.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieDetune.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieQuality.layoutComponent(rect);
-        rect.removeFromTop(4);
-        iePcmPlay.layoutComponent(rect);
-        rect.removeFromTop(4);
-		ieChPadParam.layoutComponent(rect);
+        // 出し入れのボタンは中身の上
+        padIeToggle.layoutComponent(rect);
 
-        uSep003.layoutComponent(rect);
+        if (padIeShown) {
+            ieToneNoise.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieLfo.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieAmpEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            iePitchEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgHwEnv.layoutComponent(rect);
+            ieSsgHwPEnv.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieWtMod.layoutComponent(rect);
+            ieWtAmpMod.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgSwEnv256.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieSsgSwPEnv256.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieDetune.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieQuality.layoutComponent(rect);
+            rect.removeFromTop(4);
+            iePcmPlay.layoutComponent(rect);
+            rect.removeFromTop(4);
+    		ieChPadParam.layoutComponent(rect);
+        }
 
-        ieUnison.layoutComponent(rect);
-        rect.removeFromTop(4);
-        ieChParam.layoutComponent(rect);
+        // 出し入れのボタンは区切り線の下・中身の上
+        if (chIeShown) uSep003.layoutComponent(rect);
+
+        chIeToggle.layoutComponent(rect);
+
+        if (chIeShown) {
+            ieUnison.layoutComponent(rect);
+            rect.removeFromTop(4);
+            ieChParam.layoutComponent(rect);
+        }
 
         rect.removeFromTop(CoreGuiValue::Category::gapBelow);
     }

@@ -180,6 +180,7 @@ void GuiComponentWtAmpMod::setupComponent(juce::Component& parent, const juce::S
     // ホールドと部分再生。保つ値の単位は 音量 (倍率)。
     waveHold.setupComponent(parent, code + CPK::WtAmpMod::holdPrefix, tabOrder,
         WaveHoldUnit::Level, [this] { this->updateModPreview(); });
+    waveHold.useShowHide(parent, tabOrder);
 
     fdsCat.setupSwAmpCategory({ .parent = parent, .title = juce::String("") + "FDS AMP TABLE", .enableChangeDetailVisible = true });
 

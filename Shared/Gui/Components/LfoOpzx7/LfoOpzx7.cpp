@@ -147,6 +147,12 @@ void GuiComponentLfoOpzx7::setupComponent(
     amWaveHold.setupComponent(parent, code + CPK::Opzx7Lfo::amHoldPrefix, tabOrder,
         WaveHoldUnit::Bipolar, [this] { this->updatePreviews(); });
 
+    // PM・AM と、その中の HOLD・KEEP を出し入れする (4.5.0)
+    pmWaveHold.useShowHide(parent, tabOrder, "PM ");
+    pmToggle.setupComponent(parent, "PM", tabOrder);
+    amWaveHold.useShowHide(parent, tabOrder, "AM ");
+    amToggle.setupComponent(parent, "AM", tabOrder);
+
     pmPreview.setup(parent, GuiColor::WavePreview::Lfo);
     amPreview.setup(parent, GuiColor::WavePreview::Lfo);
 
@@ -220,144 +226,121 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .component = &cat });
 
-    bool visible = cat.isDetailVisible();
-
-    pmLabel.setVisible(visible);
-    pmEnable.setVisible(visible);
-    pmFreq.setVisibleWithLabel(visible);
-    pmSyncDelay.setVisibleWithLabel(visible);
-    pmSDToZero.setVisible(visible);
-    pmSDToOne.setVisible(visible);
-    pgShape.setVisibleWithLabel(visible);
-    pmPreview.setVisible(visible);
-    pms.setVisibleWithLabel(visible);
-    pmd.setVisibleWithLabel(visible);
-    pmAmSeparator.setVisible(visible);
-    amLabel.setVisible(visible);
-    amEnable.setVisible(visible);
-    amFreq.setVisibleWithLabel(visible);
-    amSyncDelay.setVisibleWithLabel(visible);
-    amSDToZero.setVisible(visible);
-    amSDToOne.setVisible(visible);
-    egShape.setVisibleWithLabel(visible);
-    amSmRt.setVisibleWithLabel(visible);
-    amPreview.setVisible(visible);
-    ams.setVisibleWithLabel(visible);
-    amd.setVisibleWithLabel(visible);
-    pmWaveHold.setVisibles(visible);
-    amWaveHold.setVisibles(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &pmLabel, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .component = &pmEnable, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .label = &pmFreq.label, .component = &pmFreq, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .label = &pmSyncDelay.label, .component = &pmSyncDelay, .rowHeight = 12 });
-        layoutMainTwoComps({ .rect = rect, .comp1 = &pmSDToZero, .comp2 = &pmSDToOne, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .label = &pgShape.label, .component = &pgShape, .rowHeight = 12 });
-
-        pmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
-        rect.removeFromTop(2);
-
-        layoutMain({ .mainRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
-
-        // ホールドと部分再生 (PM)
-        pmWaveHold.layoutComponent(rect);
-
-		pmAmSeparator.layoutComponent(rect);
-
-        layoutMain({ .mainRect = rect, .component = &amLabel, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .component = &amEnable, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .label = &amFreq.label, .component = &amFreq, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .label = &amSyncDelay.label, .component = &amSyncDelay, .rowHeight = 12 });
-        layoutMainTwoComps({ .rect = rect, .comp1 = &amSDToZero, .comp2 = &amSDToOne, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .label = &egShape.label, .component = &egShape, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .label = &amSmRt.label, .component = &amSmRt, .rowHeight = 12 });
-
-        amPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
-        rect.removeFromTop(2);
-
-        layoutMain({ .mainRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
-
-        // ホールドと部分再生 (AM)
-        amWaveHold.layoutComponent(rect);
-
-        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
-    }
+    layoutParts(rect, false);
 }
 
 void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .component = &cat });
 
-    bool visible = cat.isDetailVisible();
+    layoutParts(rect, true);
+}
 
-    pmLabel.setVisible(visible);
-    pmEnable.setVisible(visible);
-    pmFreq.setVisibleWithLabel(visible);
-    pmSyncDelay.setVisibleWithLabel(visible);
-    pmSDToZero.setVisible(visible);
-    pmSDToOne.setVisible(visible);
-    pgShape.setVisibleWithLabel(visible);
-    pmPreview.setVisible(visible);
-    pms.setVisibleWithLabel(visible);
-    pmd.setVisibleWithLabel(visible);
-    pmAmSeparator.setVisible(visible);
-    amLabel.setVisible(visible);
-    amEnable.setVisible(visible);
-    amFreq.setVisibleWithLabel(visible);
-    amSyncDelay.setVisibleWithLabel(visible);
-    amSDToZero.setVisible(visible);
-    amSDToOne.setVisible(visible);
-    egShape.setVisibleWithLabel(visible);
-    amSmRt.setVisibleWithLabel(visible);
-    amPreview.setVisible(visible);
-    ams.setVisibleWithLabel(visible);
-    amd.setVisibleWithLabel(visible);
-    pmWaveHold.setVisibles(visible);
-    amWaveHold.setVisibles(visible);
+void GuiComponentLfoOpzx7::layoutParts(juce::Rectangle<int>& rect, bool row)
+{
+    const bool visible = cat.isDetailVisible();
 
-    if (visible)
+    // PM・AM を隠しているときは、中の HOLD・KEEP ごと隠す。AM は上の区切り線も隠す
+    const bool pm = visible && pmToggle.isShown();
+    const bool am = visible && amToggle.isShown();
+
+    pmLabel.setVisible(pm);
+    pmEnable.setVisible(pm);
+    pmFreq.setVisibleWithLabel(pm);
+    pmSyncDelay.setVisibleWithLabel(pm);
+    pmSDToZero.setVisible(pm);
+    pmSDToOne.setVisible(pm);
+    pgShape.setVisibleWithLabel(pm);
+    pmPreview.setVisible(pm);
+    pms.setVisibleWithLabel(pm);
+    pmd.setVisibleWithLabel(pm);
+    pmWaveHold.setVisibles(pm);
+    pmToggle.setVisible(visible);
+
+    pmAmSeparator.setVisible(am);
+    amLabel.setVisible(am);
+    amEnable.setVisible(am);
+    amFreq.setVisibleWithLabel(am);
+    amSyncDelay.setVisibleWithLabel(am);
+    amSDToZero.setVisible(am);
+    amSDToOne.setVisible(am);
+    egShape.setVisibleWithLabel(am);
+    amSmRt.setVisibleWithLabel(am);
+    amPreview.setVisible(am);
+    ams.setVisibleWithLabel(am);
+    amd.setVisibleWithLabel(am);
+    amWaveHold.setVisibles(am);
+    amToggle.setVisible(visible);
+
+    if (!visible) return;
+
+    auto one = [&](GuiLabel* label, juce::Component* component) {
+        if (row) layoutRow({ .rowRect = rect, .label = label, .component = component, .rowHeight = 12 });
+        else     layoutMain({ .mainRect = rect, .label = label, .component = component, .rowHeight = 12 });
+    };
+
+    auto two = [&](juce::Component* comp1, juce::Component* comp2) {
+        if (row) layoutRowTwoComps({ .rect = rect, .comp1 = comp1, .comp2 = comp2, .rowHeight = 12 });
+        else     layoutMainTwoComps({ .rect = rect, .comp1 = comp1, .comp2 = comp2, .rowHeight = 12 });
+    };
+
+    auto hold = [&](GuiComponentWaveHold& waveHold) {
+        if (row) waveHold.layoutComponentRow(rect);
+        else     waveHold.layoutComponent(rect);
+    };
+
+    auto toggle = [&](GuiShowHideButton& button) {
+        if (row) button.layoutComponentRow(rect);
+        else     button.layoutComponent(rect);
+    };
+
+    // 出し入れのボタンは区切り線の下・中身の上
+    toggle(pmToggle);
+
+    if (pm)
     {
-        layoutRow({ .rowRect = rect, .component = &pmLabel, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .component = &pmEnable, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &pmFreq.label, .component = &pmFreq, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &pmSyncDelay.label, .component = &pmSyncDelay, .rowHeight = 12 });
-        layoutRowTwoComps({ .rect = rect, .comp1 = &pmSDToZero, .comp2 = &pmSDToOne, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &pgShape.label, .component = &pgShape, .rowHeight = 12 });
+        one(nullptr, &pmLabel);
+        one(nullptr, &pmEnable);
+        one(&pmFreq.label, &pmFreq);
+        one(&pmSyncDelay.label, &pmSyncDelay);
+        two(&pmSDToZero, &pmSDToOne);
+        one(&pgShape.label, &pgShape);
 
         pmPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
         rect.removeFromTop(2);
 
-        layoutRow({ .rowRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
+        one(&pms.label, &pms);
+        one(&pmd.label, &pmd);
 
         // ホールドと部分再生 (PM)
-        pmWaveHold.layoutComponentRow(rect);
+        hold(pmWaveHold);
+    }
 
-        pmAmSeparator.layoutComponent(rect);
+    if (am) pmAmSeparator.layoutComponent(rect);
 
-        layoutRow({ .rowRect = rect, .component = &amLabel, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .component = &amEnable, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &amFreq.label, .component = &amFreq, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &amSyncDelay.label, .component = &amSyncDelay, .rowHeight = 12 });
-        layoutRowTwoComps({ .rect = rect, .comp1 = &amSDToZero, .comp2 = &amSDToOne, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &egShape.label, .component = &egShape, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &amSmRt.label, .component = &amSmRt, .rowHeight = 12 });
+    toggle(amToggle);
+
+    if (am)
+    {
+        one(nullptr, &amLabel);
+        one(nullptr, &amEnable);
+        one(&amFreq.label, &amFreq);
+        one(&amSyncDelay.label, &amSyncDelay);
+        two(&amSDToZero, &amSDToOne);
+        one(&egShape.label, &egShape);
+        one(&amSmRt.label, &amSmRt);
 
         amPreview.setBounds(rect.removeFromTop(GuiWavePreview::defaultHeight));
         rect.removeFromTop(2);
 
-        layoutRow({ .rowRect = rect, .label = &ams.label, .component = &ams, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &amd.label, .component = &amd, .rowHeight = 12 });
+        one(&ams.label, &ams);
+        one(&amd.label, &amd);
 
         // ホールドと部分再生 (AM)
-        amWaveHold.layoutComponentRow(rect);
-
-        rect.removeFromTop(CoreGuiValue::Category::gapBelow);
+        hold(amWaveHold);
     }
+
+    rect.removeFromTop(CoreGuiValue::Category::gapBelow);
 }
 
 void GuiComponentLfoOpzx7::setEnabled(bool enabled) {

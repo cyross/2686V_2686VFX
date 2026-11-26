@@ -5,6 +5,7 @@
 #include "Shared/Gui/Components/RatioEnv/RatioEnv.h"
 #include "Shared/Gui/Components/ToneNoiseValue/ToneNoiseValue.h"
 #include <JuceHeader.h>
+#include "Shared/Gui/Components/ShowHide/ShowHide.h"
 #include <array>
 
 #include "Shared/Gui/Components/PathRoot/PathRoot.h"
@@ -168,6 +169,9 @@ class GuiAdpcmPlus : public GuiBase
     void openTargetsDialog(GuiTargetsDialog::Mode mode);
 
     GuiCategoryLabel utilityCat;
+
+    // UTILITY の IM/EX のまとまりを出し入れするボタン (4.5.0)
+    GuiShowHideButton chIeToggle;
     GuiComponentPathRoot pathRoot;
 
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
@@ -287,6 +291,7 @@ public:
         editComponent(context),
         targetsDialog(context),
         utilityCat(context),
+        chIeToggle(context),
         pathRoot(context),
         ampMajorCat(context),
         pitchMajorCat(context),

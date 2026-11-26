@@ -18,6 +18,23 @@ namespace CoreGuiValue
 		static inline constexpr int horizontal = 12;
 	}
 
+	// 区分の中のまとまりを出し入れする SHOW / HIDE のボタン (4.5.0)。
+	// 行 (15px) より 3px 低くし、文字もそのぶん小さくする。上は 2px 空ける
+	namespace ShowHide
+	{
+		static inline constexpr int height = 12;
+		static inline constexpr float fontSize = 10.5f;
+		static inline constexpr int gapAbove = 2;
+	}
+
+	// 欄の中身を上から積むときの、仮の高さ。積み終えたところまでを中身の丈にする。
+	// 区分をいくつも開くと 2000px などでは足りず、そこで打ち切られて下の区分へ
+	// 送れなかった (4.5.0 で直した) ので、届かないほど大きくとる。
+	namespace Canvas
+	{
+		static inline constexpr int layoutHeight = 1000000;
+	}
+
 
 	namespace MVol
 	{

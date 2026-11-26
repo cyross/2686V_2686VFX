@@ -5,6 +5,7 @@
 #include "Shared/Gui/Components/PathRoot/PathRoot.h"
 #include "Shared/Core/Gui/GuiI18n.h"
 #include <JuceHeader.h>
+#include "Shared/Gui/Components/ShowHide/ShowHide.h"
 
 #include "Shared/Core/Io/ParamFile.h"
 #include "Shared/Gui/Components/FmToOpzx7/FmToOpzx7.h"
@@ -127,6 +128,10 @@ class GuiOpzx7 : public GuiBase
     void duplicateOpsParams(const GuiComponentEdit::OpGroup& from, const GuiComponentEdit::OpGroup& to);
 
     GuiCategoryLabel utilityCat;
+
+    // UTILITY の IM/EX のまとまりを出し入れするボタン (4.5.0)
+    GuiShowHideButton opIeToggle;
+    GuiShowHideButton chIeToggle;
     GuiComponentPathRoot pathRoot;
 
     // 大区分。[[AMP ENV]] と [[PITCH ENV]]
