@@ -325,6 +325,10 @@ void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::Stri
         this->reapplyWaveFiles();
         };
 
+    // SLOT のまとまりの区切り線と出し入れのボタン (4.5.0)
+    slotSeparator.setupComponent(parent);
+    slotToggle.setupComponent(parent, "SLOT", tabOrder);
+
     // 使うスロットの切り替え。パラメータなので演奏中でも動かせる。
     waveSlotSlider.setup({ .parent = parent, .id = code + CPK::WtMod::waveSlot, .title = "SLOT", .isReset = true });
     waveSlotSlider.setWantsKeyboardFocus(true);
@@ -403,15 +407,20 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     speedSlider.setVisibleWithLabel(visible);
     shapeSelector.setVisibleWithLabel(visible);
     waveSmoothBtn.setVisible(visible);
-    waveSlotSlider.setVisibleWithLabel(visible);
     modPreview.setVisible(visible);
 
-    slotTarget.setVisibleWithLabel(visible);
-    slotWtBtn.setVisible(visible);
-    slotWt2Btn.setVisible(visible);
-    slotClearBtn.setVisible(visible);
-    slotFileNameLabel.setVisible(visible);
-    slotPreviews.setVisible(visible);
+    // SLOT のまとまり (4.5.0)。隠しているときは上の区切り線ごと隠す
+    const bool slotShown = visible && slotToggle.isShown();
+
+    slotSeparator.setVisible(slotShown);
+    slotToggle.setVisible(visible);
+    waveSlotSlider.setVisibleWithLabel(slotShown);
+    slotTarget.setVisibleWithLabel(slotShown);
+    slotWtBtn.setVisible(slotShown);
+    slotWt2Btn.setVisible(slotShown);
+    slotClearBtn.setVisible(slotShown);
+    slotFileNameLabel.setVisible(slotShown);
+    slotPreviews.setVisible(slotShown);
 
     waveHold.setVisibles(visible);
 
@@ -428,19 +437,27 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
         rect.removeFromTop(2);
 
         layoutMain({ .mainRect = rect, .component = &waveSmoothBtn });
-        layoutMain({ .mainRect = rect, .label = &waveSlotSlider.label, .component = &waveSlotSlider });
 
-        // 読み込み行とプレビューを 1 組にして、スロットの数だけ並べる
-        layoutMain({ .mainRect = rect, .label = &slotTarget.label, .component = &slotTarget });
+        // SLOT のまとまり。出し入れのボタンは区切り線の下・中身の上
+        if (slotShown) slotSeparator.layoutComponent(rect);
 
-        layoutMainWtFiles({ .rect = rect,
-                            .loadWtBtn = &slotWtBtn,
-                            .loadWt2Btn = &slotWt2Btn,
-                            .fileNameLabel = &slotFileNameLabel,
-                            .clearBtn = &slotClearBtn });
+        slotToggle.layoutComponent(rect);
 
-        slotPreviews.setBounds(rect.removeFromTop(slotPreviews.getNaturalHeight()));
-        rect.removeFromTop(2);
+        if (slotShown) {
+            layoutMain({ .mainRect = rect, .label = &waveSlotSlider.label, .component = &waveSlotSlider });
+
+            // 読み込み行とプレビューを 1 組にして、スロットの数だけ並べる
+            layoutMain({ .mainRect = rect, .label = &slotTarget.label, .component = &slotTarget });
+
+            layoutMainWtFiles({ .rect = rect,
+                                .loadWtBtn = &slotWtBtn,
+                                .loadWt2Btn = &slotWt2Btn,
+                                .fileNameLabel = &slotFileNameLabel,
+                                .clearBtn = &slotClearBtn });
+
+            slotPreviews.setBounds(rect.removeFromTop(slotPreviews.getNaturalHeight()));
+            rect.removeFromTop(2);
+        }
 
         // ホールドと部分再生
         waveHold.layoutComponent(rect);
@@ -457,6 +474,7 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     speedSlider.setEnabledWithLabel(isMod);
     shapeSelector.setEnabledWithLabel(isMod);
     waveSmoothBtn.setEnabled(isMod);
+    slotSeparator.setEnabled(isMod);
     waveSlotSlider.setEnabledWithLabel(isMod);
 
     slotTarget.setEnabledWithLabel(isMod);

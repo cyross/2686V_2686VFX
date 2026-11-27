@@ -71,6 +71,11 @@ class GuiComponentWtAmpMod : public GuiBase {
     // ホールドと部分再生
     GuiComponentWaveHold waveHold;
 
+    // SLOT のまとまり (SLOT・TARGET・読み込み行・波形の一覧) の上の区切り線と、
+    // その出し入れのボタン (4.5.0)
+    NormalSeparator slotSeparator;
+    GuiShowHideButton slotToggle;
+
     // APVTS のプレフィックス。つまみの id を組み立てるのに使う。
     juce::String m_code;
 
@@ -154,6 +159,8 @@ public:
         slotPreviews(context),
         modPreview(context),
         waveHold(context),
+        slotSeparator(context),
+        slotToggle(context),
         fdsCat(context),
         fdsEditor(context),
         fdsPresetBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) }

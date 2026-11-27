@@ -78,7 +78,7 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
   - ボタンは行より 3px 低く (12px)、文字もそのぶん小さくした。ボタンの上は 2px 空ける
   - SSG HW AMP ENV・SSG HW PITCH ENV: HOLD (HOLD・COUNT・TARGET・HOLD MIN・HOLD MAX)・KEEP (KEEP・START・KEEP START・END・KEEP END)・PATTERNS
   - SSG SW AMP ENV[256]・SSG SW PITCH ENV[256]・PARAM ENV[256]: SWITCHES (KEEP・STRICT R・START NOW・T SYNC)・LOOP (LOOP からループの一覧まで)・RATE (R.TARGET からレートの一覧まで)・LEVEL (L.TARGET からレベルの一覧まで)・RR (RR から RR NOTE まで)・ENDL (Use Endl・ENDL)・PATTERNS (PARAM ENV[256] にはパターンが無いので、PATTERNS も無い)
-  - WT AMP MOD・WT PITCH MOD: HOLD・KEEP
+  - WT AMP MOD・WT PITCH MOD: SLOT (SLOT・TARGET・.wt / .wt2 の読み込み行・波形の一覧。上に区切り線を足した)・HOLD・KEEP
   - TAP AMP SEQUENCER・TAP PITCH SEQUENCER・TAP PARAM SEQUENCER: LOOP・PATTERNS (TAP PARAM SEQUENCER にはパターンが無いので LOOP だけ)
   - LFO (OPZX7S 系): PM・AM。それぞれの中に PM HOLD・PM KEEP / AM HOLD・AM KEEP を入れ子で持つ
   - UNISON / HARMONY: ARPEGGIO (Arpeggio・AR.FREQ・Arp Smooth)・PARA-PARAM (VOICES・P-SPREAD・P-DETUNE)・PATTERNS
@@ -89,6 +89,9 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
 - **区分をいくつも開いていると、スクロールバーを一番下にしても残りが出ないのを修正**
   - SSG SW PITCH ENV[256] と PARAM ENV を同時に開いたときなど。並べるときの仮の高さ (2000px など) で打ち切られ、そこから下がスクロールの範囲に入っていなかった
   - 全プラグイン
+- **(開発向け) `tools/run_tests.py` で、終わらない切れがあっても全体が止まらないようにした**
+  - 切れごとに 15 分の時間切れを設け、過ぎたら止めて 1 度だけやり直す。やり直して通ったものは最後に「時間切れでやり直した切れ」として名前を出し、やり直しても終わらなければ失敗に数える
+  - ごくまれに、テストの exe が 1 本終わらずに残り、全体が待ち続けることがあったため (どの切れで起きるかは決まっていない)
 - **版数を 4.5.0 にした**
 
 ### 3-0-2. v4.4.1での追加・変更

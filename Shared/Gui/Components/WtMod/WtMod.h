@@ -99,6 +99,11 @@ class GuiComponentWtMod : public GuiBase {
     // ホールドと部分再生
     GuiComponentWaveHold waveHold;
 
+    // SLOT のまとまり (SLOT・TARGET・読み込み行・波形の一覧) の上の区切り線と、
+    // その出し入れのボタン (4.5.0)
+    NormalSeparator slotSeparator;
+    GuiShowHideButton slotToggle;
+
     // どのチャンネルの持ち分かを覚えておく。
     // 変調波形の実データはプロセッサが持っており、これが引き当ての鍵になる。
     juce::String m_code;
@@ -176,6 +181,8 @@ public:
         slotPreviews(context),
         modPreview(context),
         waveHold(context),
+        slotSeparator(context),
+        slotToggle(context),
         fdsCat(context),
         fdsEditor(context),
         fdsPresetBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) }

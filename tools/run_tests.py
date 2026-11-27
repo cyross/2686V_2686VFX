@@ -15,6 +15,10 @@ doctest の --first / --last で 1 本の exe を何切れかに分け、全部�
 
 切れが 1 つ終わるたびに 1 行出す (どこまで進んだか分かるように)。
 落ちたものがあれば、最後にその切れの出力をまとめて出し、終了コードを 1 にする。
+
+ごくまれに、テストの exe が終わらずに残ることがある (どの切れかは決まって
+いない)。そのまま待つと全体が止まるので、切れごとに時間切れを設け、過ぎたら
+止めて 1 度だけやり直す。やり直して通ったものは最後に名前を出す。
 """
 import argparse
 import concurrent.futures
@@ -29,6 +33,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 1 切れに入れるテストの数。小さいほど散らばるが、exe を立ち上げる手間が増える
 CHUNK = 6
+
+# 1 切れの時間切れ (秒)。重い切れでも混んでいて 5 分ほどなので、十分に余裕を見る
+TIMEOUT = 15 * 60
 
 COUNT_RE = re.compile(rb"passing the current filters:\s*(\d+)")
 RESULT_RE = re.compile(rb"test cases:\s*(\d+)\s*\|\s*(\d+) passed\s*\|\s*(\d+) failed")
@@ -54,19 +61,40 @@ def count_cases(exe):
     return int(m.group(1)) if m else 0
 
 
-def run_chunk(exe, first, last):
+def run_once(exe, first, last, timeout):
+    """1 度走らせる。時間切れなら止めて (None, 途中までの出力) を返す"""
+    try:
+        proc = subprocess.run([exe, f"--first={first}", f"--last={last}"], capture_output=True, timeout=timeout)
+    except subprocess.TimeoutExpired as e:
+        return None, (e.stdout or b"") + (e.stderr or b"")
+
+    return proc.returncode, proc.stdout + proc.stderr
+
+
+def run_chunk(exe, first, last, timeout):
     started = time.time()
-    proc = subprocess.run([exe, f"--first={first}", f"--last={last}"], capture_output=True)
-    out = proc.stdout + proc.stderr
+    timed_out = False
+    rc, out = run_once(exe, first, last, timeout)
+
+    if rc is None:
+        # 時間切れ。止めて 1 度だけやり直す
+        timed_out = True
+        rc, out = run_once(exe, first, last, timeout)
+
+        if rc is None:
+            note = f"(時間切れ: {timeout} 秒たっても終わらず、やり直しても終わらなかった)"
+            out += ("\n" + note + "\n").encode("utf-8")
+            rc = -1
+
     m = RESULT_RE.search(out)
 
     # 締めの「test cases」は --first / --last で外したものまで通過に数えるので、
     # 通過の数は切れの範囲から出す。失敗の数は走らせたものだけが数えられる。
     failed = int(m.group(3)) if m else -1
-    ok = proc.returncode == 0 and failed == 0
+    ok = rc == 0 and failed == 0
     passed = (last - first + 1) if ok else 0
 
-    return exe, first, last, passed, failed, ok, time.time() - started, out
+    return exe, first, last, passed, failed, ok, timed_out, time.time() - started, out
 
 
 def main():
@@ -75,6 +103,7 @@ def main():
     parser.add_argument("--build-dir", default=os.path.join(ROOT, "out", "b"))
     parser.add_argument("--config", default="Debug")
     parser.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 4) - 4))
+    parser.add_argument("--timeout", type=int, default=TIMEOUT, help="1 切れの時間切れ (秒)")
     args = parser.parse_args()
 
     exes = find_exes(args.build_dir, args.config, args.names)
@@ -105,13 +134,14 @@ def main():
     done = 0
     passed_total = 0
     failures = []
+    retried = []
     per_exe = {}
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        futures = [pool.submit(run_chunk, *c) for c in chunks]
+        futures = [pool.submit(run_chunk, *c, args.timeout) for c in chunks]
 
         for f in concurrent.futures.as_completed(futures):
-            exe, first, last, passed, failed, ok, secs, out = f.result()
+            exe, first, last, passed, failed, ok, timed_out, secs, out = f.result()
             done += 1
             passed_total += passed
 
@@ -121,7 +151,11 @@ def main():
             per_exe[name][1] += max(0, failed) if failed >= 0 else 1
 
             mark = "OK" if ok else "NG"
-            print(f"[{done}/{len(chunks)} {time.time() - started:5.0f}s] {mark} {name} #{first}-{last} ({secs:.0f}s)", flush=True)
+            note = " (時間切れでやり直し)" if timed_out else ""
+            print(f"[{done}/{len(chunks)} {time.time() - started:5.0f}s] {mark} {name} #{first}-{last} ({secs:.0f}s){note}", flush=True)
+
+            if timed_out and ok:
+                retried.append((name, first, last))
 
             if not ok:
                 failures.append((name, first, last, out))
@@ -133,6 +167,12 @@ def main():
         print(f"  {name}: {p} 件通過" + (f" / {fl} 件失敗" if fl else ""))
 
     print(f"合計 {passed_total} 件通過、失敗 {len(failures)} 切れ、{time.time() - started:.0f} 秒", flush=True)
+
+    if retried:
+        print("時間切れでやり直した切れ (やり直しでは通った):")
+
+        for name, first, last in retried:
+            print(f"  {name} #{first}-{last}")
 
     for name, first, last, out in failures:
         print(f"\n===== {name} #{first}-{last} =====")
