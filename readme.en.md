@@ -51,6 +51,9 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - Tone mode takes priority. While tone mode is on, 1 sec mode and its fit settings are unavailable
   - Per OPZX7 operator (when WS is PCM file), ADPCM (PCM in 86V) and per ADPCM+ slot (TARGET). 2686V, 2686VLight, 86V, OPZX7S, PCMV
   - Saved to the parameter files as `pcmOneSec` / `pcmOneSecLong` / `pcmOneSecShort`, and included in the OPZX7 operator section copy
+- **Added separators to the PCM settings**
+  - OPZX7 operator (when WS is PCM file): between "P.RATIO" and "Fixed speed", "Fixed speed" and "Tone mode", "Fit" and "1 sec mode", and "If shorter" and "Loop Point Enable"
+  - ADPCM (PCM in 86V) and ADPCM+: between "P.RATIO" and "Tone mode", and "Fit" and "1 sec mode"
 - **Groups can now be hidden**
   - Right-clicking a group's title shows "Hide group". Clicking it hides that group. Below it, after a separator, the checklist of that group's sections (next item) is also shown
   - Right-clicking an empty spot of the strip where groups line up shows a checklist of the groups. Groups that are shown are ticked. Ticking a group shows it (folded), unticking hides it. "Show all groups" and "Hide all groups" are also there. Clicking does not close the checklist; press ESC or click outside it to close it

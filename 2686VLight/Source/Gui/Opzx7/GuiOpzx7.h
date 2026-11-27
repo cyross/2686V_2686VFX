@@ -240,6 +240,12 @@ class GuiOpzx7 : public GuiBase
     GuiComboBox ws;
     NormalSeparator wsSeparator;
 
+    // PCM の等速・音色モード・1 秒モード・ループポイントの上の区切り線 (4.5.0)
+    NormalSeparator pcmFixedSpeedSeparator;
+    NormalSeparator pcmToneSeparator;
+    NormalSeparator pcmOneSecSeparator;
+    NormalSeparator pcmLoopPointSeparator;
+
     // 選んでいる WS の波形を見せるプレビュー
     GuiWavePreview wsPreview;
     GuiTextButton loadPcmBtn;

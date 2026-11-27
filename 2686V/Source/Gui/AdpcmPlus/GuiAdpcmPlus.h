@@ -74,6 +74,10 @@ class GuiAdpcmPlus : public GuiBase
     // OPTIONAL の「Loop」を挟む区切り線。
     // 上は再生位置・倍率、下はループの話で、まとまりが変わる。
     NormalSeparator optLoopSepTop;
+
+    // 音色モード・1 秒モードの上の区切り線 (4.5.0)
+    NormalSeparator optToneSeparator;
+    NormalSeparator optOneSecSeparator;
     NormalSeparator optLoopSepBottom;
 
     GuiCategoryLabel optionalCat;
@@ -251,6 +255,8 @@ public:
         fileNameLabel(context),
         formSeparator(context),
         optLoopSepTop(context),
+        optToneSeparator(context),
+        optOneSecSeparator(context),
         optLoopSepBottom(context),
         optionalCat(context),
         samplePreview(context),

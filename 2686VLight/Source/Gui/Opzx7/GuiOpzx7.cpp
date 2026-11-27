@@ -472,6 +472,10 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     catWaveShape(context),
     ws(context),
     wsSeparator(context),
+    pcmFixedSpeedSeparator(context),
+    pcmToneSeparator(context),
+    pcmOneSecSeparator(context),
+    pcmLoopPointSeparator(context),
     wsPreview(context),
     loadPcmBtn(context),
     clearPcmBtn(context),
@@ -1169,6 +1173,10 @@ void GuiOpzx7::setup()
         };
 
     wsSeparator.setupComponent(colWs.contentCanvas);
+    pcmFixedSpeedSeparator.setupComponent(colWs.contentCanvas);
+    pcmToneSeparator.setupComponent(colWs.contentCanvas);
+    pcmOneSecSeparator.setupComponent(colWs.contentCanvas);
+    pcmLoopPointSeparator.setupComponent(colWs.contentCanvas);
 
     wsPreview.setup(colWs.contentCanvas, GuiColor::WavePreview::WaveMemory);
 
@@ -1985,6 +1993,10 @@ void GuiOpzx7::updateOnWsChange()
         pcmOffset.setVisibleWithLabel(false);
         pcmRatio.setVisibleWithLabel(false);
         pcmFixedSpeed.setVisible(false);
+        pcmFixedSpeedSeparator.setVisible(false);
+        pcmToneSeparator.setVisible(false);
+        pcmOneSecSeparator.setVisible(false);
+        pcmLoopPointSeparator.setVisible(false);
         pcmTone.setVisible(false);
         pcmToneFit.setVisibleWithLabel(false);
         pcmOneSec.setVisible(false);
@@ -2013,6 +2025,10 @@ void GuiOpzx7::updateOnWsChange()
         pcmOffset.setVisibleWithLabel(false);
         pcmRatio.setVisibleWithLabel(false);
         pcmFixedSpeed.setVisible(false);
+        pcmFixedSpeedSeparator.setVisible(false);
+        pcmToneSeparator.setVisible(false);
+        pcmOneSecSeparator.setVisible(false);
+        pcmLoopPointSeparator.setVisible(false);
         pcmTone.setVisible(false);
         pcmToneFit.setVisibleWithLabel(false);
         pcmOneSec.setVisible(false);
@@ -2041,6 +2057,10 @@ void GuiOpzx7::updateOnWsChange()
         pcmOffset.setVisibleWithLabel(visible);
         pcmRatio.setVisibleWithLabel(visible);
         pcmFixedSpeed.setVisible(visible);
+        pcmFixedSpeedSeparator.setVisible(visible);
+        pcmToneSeparator.setVisible(visible);
+        pcmOneSecSeparator.setVisible(visible);
+        pcmLoopPointSeparator.setVisible(visible);
         pcmTone.setVisible(visible);
         pcmToneFit.setVisibleWithLabel(visible);
         pcmOneSec.setVisible(visible);
@@ -2068,6 +2088,10 @@ void GuiOpzx7::updateOnWsChange()
         pcmOffset.setVisibleWithLabel(false);
         pcmRatio.setVisibleWithLabel(false);
         pcmFixedSpeed.setVisible(false);
+        pcmFixedSpeedSeparator.setVisible(false);
+        pcmToneSeparator.setVisible(false);
+        pcmOneSecSeparator.setVisible(false);
+        pcmLoopPointSeparator.setVisible(false);
         pcmTone.setVisible(false);
         pcmToneFit.setVisibleWithLabel(false);
         pcmOneSec.setVisible(false);
@@ -3061,6 +3085,10 @@ void GuiOpzx7::layoutOpWsCat(juce::Rectangle<int>& rect, int selectedWs) {
     pcmOffset.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmRatio.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmFixedSpeed.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmFixedSpeedSeparator.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmToneSeparator.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmOneSecSeparator.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmLoopPointSeparator.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmTone.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmToneFit.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmOneSec.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
@@ -3094,12 +3122,16 @@ void GuiOpzx7::layoutOpWsCat(juce::Rectangle<int>& rect, int selectedWs) {
             if (loopCount.isVisibleNudge()) loopCountButtons.layoutComponentRow(rect);
             layoutRow({ .rowRect = rect, .label = &pcmOffset.label, .component = &pcmOffset });
             layoutRow({ .rowRect = rect, .label = &pcmRatio.label, .component = &pcmRatio });
+            pcmFixedSpeedSeparator.layoutComponent(rect);
             layoutRow({ .rowRect = rect, .component = &pcmFixedSpeed });
+            pcmToneSeparator.layoutComponent(rect);
             layoutRow({ .rowRect = rect, .component = &pcmTone });
             layoutRow({ .rowRect = rect, .label = &pcmToneFit.label, .component = &pcmToneFit });
+            pcmOneSecSeparator.layoutComponent(rect);
             layoutRow({ .rowRect = rect, .component = &pcmOneSec });
             layoutRow({ .rowRect = rect, .label = &pcmOneSecLong.label, .component = &pcmOneSecLong });
             layoutRow({ .rowRect = rect, .label = &pcmOneSecShort.label, .component = &pcmOneSecShort });
+            pcmLoopPointSeparator.layoutComponent(rect);
             layoutRow({ .rowRect = rect, .component = &loopPointEnable });
             layoutRow({ .rowRect = rect, .label = &loopPointStart.label, .component = &loopPointStart, });
             layoutRow({ .rowRect = rect, .label = &loopPointEnd.label, .component = &loopPointEnd, });

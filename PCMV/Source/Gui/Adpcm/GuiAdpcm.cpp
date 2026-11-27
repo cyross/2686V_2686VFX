@@ -271,6 +271,8 @@ void GuiAdpcm::setup()
 
     formSeparator.setupComponent(mainGroup.contentCanvas);
     optLoopSepTop.setupComponent(mainGroup.contentCanvas);
+    optToneSeparator.setupComponent(mainGroup.contentCanvas);
+    optOneSecSeparator.setupComponent(mainGroup.contentCanvas);
     optLoopSepBottom.setupComponent(mainGroup.contentCanvas);
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
@@ -716,8 +718,10 @@ void GuiAdpcm::layoutOptionalCat(juce::Rectangle<int>& rect) {
     optCountSeparator.setVisible(visible);
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
+    optToneSeparator.setVisible(visible);
     pcmToneButton.setVisible(visible);
     pcmToneFitSelector.setVisibleWithLabel(visible);
+    optOneSecSeparator.setVisible(visible);
     pcmOneSecButton.setVisible(visible);
     pcmOneSecLongSelector.setVisibleWithLabel(visible);
     pcmOneSecShortSelector.setVisibleWithLabel(visible);
@@ -736,8 +740,10 @@ void GuiAdpcm::layoutOptionalCat(juce::Rectangle<int>& rect) {
         optCountSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
         layoutMain({ .mainRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+        optToneSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &pcmToneButton });
         layoutMain({ .mainRect = rect, .label = &pcmToneFitSelector.label, .component = &pcmToneFitSelector });
+        optOneSecSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &pcmOneSecButton });
         layoutMain({ .mainRect = rect, .label = &pcmOneSecLongSelector.label, .component = &pcmOneSecLongSelector });
         layoutMain({ .mainRect = rect, .label = &pcmOneSecShortSelector.label, .component = &pcmOneSecShortSelector });
