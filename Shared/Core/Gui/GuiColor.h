@@ -218,12 +218,12 @@ namespace GuiColor {
 	// ==========================================================
 	// 区分の中のまとまりを出し入れするボタン (4.5.0)
 	// ==========================================================
-	// 隠しているあいだの「SHOW xxx」は明るい白っぽい黄色に黒い文字で目に付くように、
-	// 出しているあいだの「HIDE xxx」は濃い青に白い文字で控えめにする
+	// 隠しているあいだの「SHOW xxx」は明るく白っぽいライトブルーに黒い文字で目に付くように、
+	// 出しているあいだの「HIDE xxx」は暗めのダークブルーに白い文字で控えめにする
 	namespace ShowHide {
-		inline Entry ShowBg{ "ShowHide.ShowBg", []() -> juce::Colour { return juce::Colour::fromRGB(0xFF, 0xF8, 0xC8); } };
+		inline Entry ShowBg{ "ShowHide.ShowBg", []() -> juce::Colour { return juce::Colour::fromRGB(0xD8, 0xEC, 0xFF); } };
 		inline Entry ShowText{ "ShowHide.ShowText", []() -> juce::Colour { return Palette::OffBlack; } };
-		inline Entry HideBg{ "ShowHide.HideBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x1A, 0x23, 0x7E); } };
+		inline Entry HideBg{ "ShowHide.HideBg", []() -> juce::Colour { return juce::Colour::fromRGB(0x0E, 0x16, 0x4A); } };
 		inline Entry HideText{ "ShowHide.HideText", []() -> juce::Colour { return Palette::OffWhite; } };
 	};
 
