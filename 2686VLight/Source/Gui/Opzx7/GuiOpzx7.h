@@ -259,6 +259,9 @@ class GuiOpzx7 : public GuiBase
     GuiToggleButton pcmFixedSpeed;
     GuiToggleButton pcmTone;
     GuiComboBox pcmToneFit;
+    GuiToggleButton pcmOneSec;
+    GuiComboBox pcmOneSecLong;
+    GuiComboBox pcmOneSecShort;
 
     // 音色モードではループポイントと等速が効かないので、使えない表示にする
     void updatePcmToneEnabled();

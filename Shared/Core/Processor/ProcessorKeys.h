@@ -72,6 +72,11 @@ namespace CPK
 	static inline const juce::String pcmTone = "_PCM_TONE";
 	static inline const juce::String pcmToneFit = "_PCM_TONE_FIT";
 
+	// 1 秒モードと、長いとき・短いときのまとめ方 (4.5.0)
+	static inline const juce::String pcmOneSec = "_PCM_ONE_SEC";
+	static inline const juce::String pcmOneSecLong = "_PCM_ONE_SEC_LONG";
+	static inline const juce::String pcmOneSecShort = "_PCM_ONE_SEC_SHORT";
+
 	static inline const juce::String lpEnable = "_LOOPPOINT_EN";
 	static inline const juce::String lpStart = "_LOOPPOINT_ST";
 	static inline const juce::String lpEnd = "_LOOPPOINT_END";

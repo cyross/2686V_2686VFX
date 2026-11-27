@@ -1,5 +1,6 @@
 ﻿#include "./SynthOpzx7Op.h"
 #include "Shared/Core/Processor/ProcessorValues.h"
+#include "Shared/Core/Synth/PcmOneSec.h"
 
 void Opzx7Operator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
@@ -99,6 +100,9 @@ void Opzx7Operator::updateFrequency()
         if (playSize < 1) playSize = 1;
 
         float originalHz = (float)m_hostSampleRate / (float)playSize;
+
+        // 1 秒モード (4.5.0)。区間を 1 秒の素材にまとめるので、素材の速さでは 1 秒に 1 周
+        if (isOneSec()) originalHz = 1.0f;
 
         m_toneCycleFrac = 1.0;
 
@@ -487,6 +491,9 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
 
         float originalHz = (float)m_hostSampleRate / (float)playSize;
 
+        // 1 秒モード (4.5.0) では 1 秒に 1 周
+        if (isOneSec()) originalHz = 1.0f;
+
         float scale = originalHz / 261.625565f;
         scale = std::max(scale, 0.005f);
         fmModIndex *= scale;
@@ -509,8 +516,8 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // m_phase の更新とラップアラウンドもラジアンで行う
     m_phase += currentPhaseDelta * m_params.pcm.speed;
 
-    // 音色モードではループポイントを使わない (4.5.0)
-    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_loopPointEnable && !m_params.pcm.tone && !m_isReleased && !m_lpDone) {
+    // 音色モード・1 秒モードではループポイントを使わない (4.5.0)
+    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_loopPointEnable && !m_params.pcm.tone && !isOneSec() && !m_isReleased && !m_lpDone) {
         // ループポイントは 0.0〜1.0 なので、そのままサイクル単位で扱える
         double loopStart = m_loopPointStart;
         double loopEnd = m_loopPointEnd;
@@ -566,7 +573,9 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
             if (playSize < 1) playSize = 1;
 
             // 音色モード (4.5.0)。スライスでは 1 周期に入る長さだけを使い、ループポイントは使わない
-            const bool loopPoint = m_loopPointEnable && !m_params.pcm.tone;
+            // 1 秒モード (4.5.0) でもループポイントは使わない
+            const bool oneSec = isOneSec();
+            const bool loopPoint = m_loopPointEnable && !m_params.pcm.tone && !oneSec;
 
             if (m_params.pcm.tone) playSize = std::max<size_t>(1, (size_t)((double)playSize * m_toneCycleFrac));
 
@@ -588,6 +597,23 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
 
             // normPhase (0.0 ~ 1.0) を playSize にマッピングし、offsetを足す
             float floatIndex = (float)offsetSamples + normPhase * (float)playSize;
+
+            // 1 秒モード (4.5.0)。normPhase は 1 秒の素材の上の位置。元の素材の位置へ移す
+            PcmOneSec::Fit oneSecFit;
+
+            if (oneSec) {
+                const double oneSecond = (double)m_hostSampleRate;
+
+                oneSecFit = PcmOneSec::fit((double)playSize, oneSecond, m_params.pcm.oneSecLong, m_params.pcm.oneSecShort);
+
+                bool silent = false;
+                const double pos = PcmOneSec::map(oneSecFit, (double)normPhase * oneSecond, (double)playSize, silent);
+
+                // 無音: 区間の終わりから 1 秒までは鳴らさない
+                if (silent) return 0.0f;
+
+                floatIndex = (float)((double)offsetSamples + pos);
+            }
             int index1 = (int)floatIndex;
 
             if (index1 >= totalSize) index1 = totalSize - 1;

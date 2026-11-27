@@ -174,6 +174,16 @@ struct PcmParams {
 
     // 音色モードの端折り方。0: 間引き、1: スライス (CPV::Pcm::ToneFit)
     int toneFit = 0;
+
+    // 1 秒モード (4.5.0)。再生区間 (OFFSET・RATIO) を 1 秒の素材にまとめてから
+    // いつもどおり (キー・等速で) 鳴らす。ループポイントは使わない。音色モードが優先
+    bool oneSec = false;
+
+    // 区間が 1 秒より長いとき。0: 間引き、1: スライス (CPV::Pcm::OneSecLong)
+    int oneSecLong = 0;
+
+    // 区間が 1 秒より短いとき。0: 拡張、1: 繰り返し、2: 無音 (CPV::Pcm::OneSecShort)
+    int oneSecShort = 0;
 };
 
 struct LoopPointParams {

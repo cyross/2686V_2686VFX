@@ -71,6 +71,9 @@ namespace AdpcmPlusGuiText
 		// 音色モード (4.5.0)
 		static inline const I18n::Text pcmTone{ u8"音色モード", u8"Tone mode" };
 		static inline const I18n::Text pcmToneFit{ u8"端折り方", u8"Fit" };
+		static inline const I18n::Text pcmOneSec{ u8"1秒モード", u8"1 sec mode" };
+		static inline const I18n::Text pcmOneSecLong{ u8"長いとき", u8"If longer" };
+		static inline const I18n::Text pcmOneSecShort{ u8"短いとき", u8"If shorter" };
 		static inline const juce::String loopPointStart = u8"LP.START";
 		static inline const juce::String loopPointEnd = u8"LP.END";
 		static inline const juce::String pcmOffset = u8"P.OFFSET";

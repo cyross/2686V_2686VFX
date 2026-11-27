@@ -9,6 +9,7 @@
 #include "Shared/Generator/Pcm/Adpcm/GenAdpcm.h"
 #include "Shared/Generator/Pcm/Dpcm/GenDpcm.h"
 #include "Shared/Generator/Pcm/Helper/GenPcmHelper.h"
+#include "Shared/Core/Synth/PcmOneSec.h"
 
 void AdpcmPlusCore::prepare(double sampleRate)
 {
@@ -79,6 +80,9 @@ void AdpcmPlusCore::setParameters(const SynthCoreParams& params)
     m_speed = chipParams.pcm.speed;
     m_toneMode = chipParams.pcm.tone;
     m_toneFit = chipParams.pcm.toneFit;
+    m_oneSec = chipParams.pcm.oneSec;
+    m_oneSecLong = chipParams.pcm.oneSecLong;
+    m_oneSecShort = chipParams.pcm.oneSecShort;
     m_loopPointEnable = chipParams.lp.enable;
     m_lpCount = chipParams.lp.count;
     m_loopPointStart = std::clamp(chipParams.lp.start, 0.0f, 0.999999f);
@@ -162,7 +166,7 @@ void AdpcmPlusCore::followBufferRate(double rate)
         m_pitchRatio = (float)(m_pitchRatio * scale);
 
         // 高域カットの上端も進む量で決まる
-        m_noiseReducer.setup(m_sampleRate, m_pitchRatio, m_nrGate, m_nrGateDb, m_nrLpf);
+        m_noiseReducer.setup(m_sampleRate, (float)(m_pitchRatio * m_oneSecScale), m_nrGate, m_nrGateDb, m_nrLpf);
     }
 
     m_playRate = rate;
@@ -208,9 +212,28 @@ void AdpcmPlusCore::updateFrequency()
         }
     }
 
+    // 1 秒モード (4.5.0)。間引き・拡張では、素材を読む量がまとめた分だけ増え・減る。
+    // 音色モードが優先
+    m_oneSecScale = 1.0;
+
+    if (m_oneSec && !m_toneMode && m_pcm != nullptr && m_playRate > 0.0) {
+        const bool encoded = GenPcmHelper::isEncodedMode(m_qualityMode);
+        const double totalSize = (double)(encoded ? m_pcm->encoded.size() : m_pcm->raw.size());
+
+        if (totalSize > 0.0) {
+            double offsetSamples = (m_pcmOffset / 1000.0) * m_playRate;
+
+            if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+
+            const double playSize = std::max(1.0, (totalSize - offsetSamples) * m_pcmRatio);
+
+            m_oneSecScale = PcmOneSec::fit(playSize, m_playRate, m_oneSecLong, m_oneSecShort).scale;
+        }
+    }
+
     // QUALITY のノイズリダクション (再生側)。高域カットの上端は、素材が
-    // 出力の 1 標本あたりに進む量 (m_pitchRatio) で決まる。
-    m_noiseReducer.setup(m_sampleRate, m_pitchRatio, m_nrGate, m_nrGateDb, m_nrLpf);
+    // 出力の 1 標本あたりに進む量 (m_pitchRatio。1 秒モードではまとめた分も) で決まる。
+    m_noiseReducer.setup(m_sampleRate, (float)(m_pitchRatio * m_oneSecScale), m_nrGate, m_nrGateDb, m_nrLpf);
 }
 
 void AdpcmPlusCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
@@ -434,6 +457,14 @@ float AdpcmPlusCore::getSample()
         // 音色モード (4.5.0)。スライスでは 1 周期に入る長さだけを頭から使う
         if (m_toneMode) playSize = std::max(1.0, playSize * m_toneCycleFrac);
 
+        // 1 秒モード (4.5.0)。区間を 1 秒の素材にまとめ、その上を進む。
+        // 終わり・ループはこの 1 秒で数え、ループポイントは使わない。音色モードが優先
+        const bool oneSec = m_oneSec && !m_toneMode;
+        const double regionSize = playSize;
+        const PcmOneSec::Fit oneSecFit = PcmOneSec::fit(regionSize, currentBufferRate, m_oneSecLong, m_oneSecShort);
+
+        if (oneSec) playSize = std::max(1.0, currentBufferRate);
+
         double endPosition = offsetSamples + playSize;
         double loopStartPos = offsetSamples + playSize * m_loopPointStart;
         double loopEndPos = offsetSamples + playSize * m_loopPointEnd;
@@ -441,7 +472,7 @@ float AdpcmPlusCore::getSample()
         // =========================================================
         // ループ・終了判定
         // =========================================================
-        if (m_loopPointEnable && !m_toneMode) {
+        if (m_loopPointEnable && !m_toneMode && !oneSec) {
             if (!m_isReleased && !m_lpDone) {
                 // リリース前：ループポイント間をループ
                 if (m_position >= loopEndPos) {
@@ -486,16 +517,25 @@ float AdpcmPlusCore::getSample()
         // =========================================================
         // 補間用の4点インデックス (過去1、現在、未来2) を計算
         // =========================================================
-        int idx_0 = (int)m_position;
+        // 1 秒モードでは、1 秒の素材の上の位置を元の素材の位置へ移して読む
+        bool oneSecSilent = false;
+        const double readPos = oneSec
+            ? offsetSamples + PcmOneSec::map(oneSecFit, m_position - offsetSamples, regionSize, oneSecSilent)
+            : m_position;
+        const bool wrapRead = oneSec ? oneSecFit.repeat : (m_isLooping || m_toneMode);
+        const double readEnd = oneSec ? offsetSamples + regionSize : endPosition;
+        const double readSize = oneSec ? regionSize : playSize;
+
+        int idx_0 = (int)readPos;
         int idx_1 = idx_0 + 1;
         int idx_2 = idx_0 + 2;
         int idx_m1 = idx_0 - 1;
 
         // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
-        if (m_isLooping || m_toneMode) {
-            if (idx_m1 < (int)offsetSamples) idx_m1 += (int)playSize;
-            if (idx_1 >= (int)endPosition) idx_1 -= (int)playSize;
-            if (idx_2 >= (int)endPosition) idx_2 -= (int)playSize;
+        if (wrapRead) {
+            if (idx_m1 < (int)offsetSamples) idx_m1 += (int)readSize;
+            if (idx_1 >= (int)readEnd) idx_1 -= (int)readSize;
+            if (idx_2 >= (int)readEnd) idx_2 -= (int)readSize;
         }
         else {
             if (idx_m1 < 0) idx_m1 = 0;
@@ -523,7 +563,7 @@ float AdpcmPlusCore::getSample()
         // =========================================================
         // 補間処理 (Interpolation)
         // =========================================================
-        float frac = (float)(m_position - idx_0);
+        float frac = (float)(readPos - idx_0);
 
         switch (m_interpolationMode) {
         case 0: // 0: Nearest (補間なし・エイリアスノイズが出るオールドスクール)
@@ -570,6 +610,9 @@ float AdpcmPlusCore::getSample()
             break;
         }
         }
+
+        // 1 秒モードの無音: 区間の終わりから 1 秒までは鳴らさない
+        if (oneSecSilent) output = 0.0f;
     }
     else if (!isEncodedMode && !m_pcm->raw.empty()) {
         if (m_hasFinished) return 0.0f;
@@ -591,6 +634,14 @@ float AdpcmPlusCore::getSample()
         // 音色モード (4.5.0)。スライスでは 1 周期に入る長さだけを頭から使う
         if (m_toneMode) playSize = std::max(1.0, playSize * m_toneCycleFrac);
 
+        // 1 秒モード (4.5.0)。区間を 1 秒の素材にまとめ、その上を進む。
+        // 終わり・ループはこの 1 秒で数え、ループポイントは使わない。音色モードが優先
+        const bool oneSec = m_oneSec && !m_toneMode;
+        const double regionSize = playSize;
+        const PcmOneSec::Fit oneSecFit = PcmOneSec::fit(regionSize, currentBufferRate, m_oneSecLong, m_oneSecShort);
+
+        if (oneSec) playSize = std::max(1.0, currentBufferRate);
+
         double endPosition = offsetSamples + playSize;
         double loopStartPos = offsetSamples + playSize * m_loopPointStart;
         double loopEndPos = offsetSamples + playSize * m_loopPointEnd;
@@ -598,7 +649,7 @@ float AdpcmPlusCore::getSample()
         // =========================================================
         // ループ・終了判定
         // =========================================================
-        if (m_loopPointEnable && !m_toneMode) {
+        if (m_loopPointEnable && !m_toneMode && !oneSec) {
             if (!m_isReleased && !m_lpDone) {
                 // リリース前：ループポイント間をループ
                 if (m_position >= loopEndPos) {
@@ -643,16 +694,25 @@ float AdpcmPlusCore::getSample()
         // =========================================================
         // 補間用の4点インデックス (過去1、現在、未来2) を計算
         // =========================================================
-        int idx_0 = (int)m_position;
+        // 1 秒モードでは、1 秒の素材の上の位置を元の素材の位置へ移して読む
+        bool oneSecSilent = false;
+        const double readPos = oneSec
+            ? offsetSamples + PcmOneSec::map(oneSecFit, m_position - offsetSamples, regionSize, oneSecSilent)
+            : m_position;
+        const bool wrapRead = oneSec ? oneSecFit.repeat : (m_isLooping || m_toneMode);
+        const double readEnd = oneSec ? offsetSamples + regionSize : endPosition;
+        const double readSize = oneSec ? regionSize : playSize;
+
+        int idx_0 = (int)readPos;
         int idx_1 = idx_0 + 1;
         int idx_2 = idx_0 + 2;
         int idx_m1 = idx_0 - 1;
 
         // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
-        if (m_isLooping || m_toneMode) {
-            if (idx_m1 < (int)offsetSamples) idx_m1 += (int)playSize;
-            if (idx_1 >= (int)endPosition) idx_1 -= (int)playSize;
-            if (idx_2 >= (int)endPosition) idx_2 -= (int)playSize;
+        if (wrapRead) {
+            if (idx_m1 < (int)offsetSamples) idx_m1 += (int)readSize;
+            if (idx_1 >= (int)readEnd) idx_1 -= (int)readSize;
+            if (idx_2 >= (int)readEnd) idx_2 -= (int)readSize;
         }
         else {
             if (idx_m1 < 0) idx_m1 = 0;
@@ -680,7 +740,7 @@ float AdpcmPlusCore::getSample()
         // =========================================================
         // 補間処理 (Interpolation)
         // =========================================================
-        float frac = (float)(m_position - idx_0);
+        float frac = (float)(readPos - idx_0);
 
         switch (m_interpolationMode) {
         case 0: // 0: Nearest (補間なし・エイリアスノイズが出るオールドスクール)
@@ -727,6 +787,9 @@ float AdpcmPlusCore::getSample()
             break;
         }
         }
+
+        // 1 秒モードの無音: 区間の終わりから 1 秒までは鳴らさない
+        if (oneSecSilent) output = 0.0f;
 
         // Raw/BitCrusher モード時のビットリダクション
         output = GenPcmHelper::bitReduction(output, m_qualityMode);

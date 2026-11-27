@@ -172,6 +172,32 @@ void GuiAdpcmPlus::setup()
     pcmToneFitSelector.setWantsKeyboardFocus(true);
     pcmToneFitSelector.setExplicitFocusOrder(++tabOrder);
 
+    // 1 秒モードと、長いとき・短いときのまとめ方 (4.5.0)
+    pcmOneSecButton.setup({ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::pcmOneSec, .title = AdpcmPlusGuiText::Adpcm::pcmOneSec, .isReset = true });
+    pcmOneSecButton.setWantsKeyboardFocus(true);
+    pcmOneSecButton.setExplicitFocusOrder(++tabOrder);
+    pcmOneSecButton.onStateChange = [this] { updatePcmToneEnabled(); };
+
+    {
+        // 値は CPV::Pcm::OneSecLong / OneSecShort の並び
+        std::vector<SelectItem> longItems = {
+            {.name = I18n::pick(u8"間引き", u8"Decimate"), .value = 1 },
+            {.name = I18n::pick(u8"スライス", u8"Slice"), .value = 2 }
+        };
+        std::vector<SelectItem> shortItems = {
+            {.name = I18n::pick(u8"拡張", u8"Stretch"), .value = 1 },
+            {.name = I18n::pick(u8"繰り返し", u8"Repeat"), .value = 2 },
+            {.name = I18n::pick(u8"無音", u8"Silence"), .value = 3 }
+        };
+
+        pcmOneSecLongSelector.setup(GuiComboBox::Config{ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::pcmOneSecLong, .title = AdpcmPlusGuiText::Adpcm::pcmOneSecLong, .items = longItems, .isReset = true });
+        pcmOneSecShortSelector.setup(GuiComboBox::Config{ .parent = pcmGroup.contentCanvas, .id = slot0 + CPK::pcmOneSecShort, .title = AdpcmPlusGuiText::Adpcm::pcmOneSecShort, .items = shortItems, .isReset = true });
+    }
+    pcmOneSecLongSelector.setWantsKeyboardFocus(true);
+    pcmOneSecLongSelector.setExplicitFocusOrder(++tabOrder);
+    pcmOneSecShortSelector.setWantsKeyboardFocus(true);
+    pcmOneSecShortSelector.setExplicitFocusOrder(++tabOrder);
+
     // 切り出しとループの設定が変わったら、プレビューも合わせる。
     // 各コンポーネントの setup() より後に付けること。setup() は APVTS との
     // 束縛を張り直すので、先に付けると束縛が壊れて操作できなくなる。
@@ -554,6 +580,9 @@ void GuiAdpcmPlus::rebindSlot()
     pcmRatioSlider.rebind(prefix + CPK::pcmRatio);
     pcmToneButton.rebind(prefix + CPK::pcmTone);
     pcmToneFitSelector.rebind(prefix + CPK::pcmToneFit);
+    pcmOneSecButton.rebind(prefix + CPK::pcmOneSec);
+    pcmOneSecLongSelector.rebind(prefix + CPK::pcmOneSecLong);
+    pcmOneSecShortSelector.rebind(prefix + CPK::pcmOneSecShort);
     loopButton.rebind(prefix + CPK::loop);
     loopPointEnableButton.rebind(prefix + CPK::lpEnable);
     loopPointStartSlider.rebind(prefix + CPK::lpStart);
@@ -861,6 +890,9 @@ void GuiAdpcmPlus::layoutOptionalCat(juce::Rectangle<int>& rect) {
     pcmRatioSlider.setVisibleWithLabel(visible);
     pcmToneButton.setVisible(visible);
     pcmToneFitSelector.setVisibleWithLabel(visible);
+    pcmOneSecButton.setVisible(visible);
+    pcmOneSecLongSelector.setVisibleWithLabel(visible);
+    pcmOneSecShortSelector.setVisibleWithLabel(visible);
     loopButton.setVisible(visible);
     optLoopSepTop.setVisible(visible);
     optLoopSepBottom.setVisible(visible);
@@ -878,6 +910,9 @@ void GuiAdpcmPlus::layoutOptionalCat(juce::Rectangle<int>& rect) {
         layoutMain({ .mainRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
         layoutMain({ .mainRect = rect, .component = &pcmToneButton });
         layoutMain({ .mainRect = rect, .label = &pcmToneFitSelector.label, .component = &pcmToneFitSelector });
+        layoutMain({ .mainRect = rect, .component = &pcmOneSecButton });
+        layoutMain({ .mainRect = rect, .label = &pcmOneSecLongSelector.label, .component = &pcmOneSecLongSelector });
+        layoutMain({ .mainRect = rect, .label = &pcmOneSecShortSelector.label, .component = &pcmOneSecShortSelector });
         optLoopSepTop.layoutComponent(rect);
 
         layoutMain({ .mainRect = rect, .component = &loopButton });
@@ -1239,6 +1274,9 @@ void GuiAdpcmPlus::applyPcmPlayParamFile(const juce::File& file)
     pcmRatioSlider.setValue(reader->getFloat("pcmRatio", (float)pcmRatioSlider.getValue()), juce::sendNotification);
     pcmToneButton.setToggleState(reader->getBool("pcmTone", pcmToneButton.getToggleState()), juce::sendNotification);
     pcmToneFitSelector.setSelectedId(reader->getInt("pcmToneFit", pcmToneFitSelector.getSelectedId() - 1) + 1, juce::sendNotification);
+    pcmOneSecButton.setToggleState(reader->getBool("pcmOneSec", pcmOneSecButton.getToggleState()), juce::sendNotification);
+    pcmOneSecLongSelector.setSelectedId(reader->getInt("pcmOneSecLong", pcmOneSecLongSelector.getSelectedId() - 1) + 1, juce::sendNotification);
+    pcmOneSecShortSelector.setSelectedId(reader->getInt("pcmOneSecShort", pcmOneSecShortSelector.getSelectedId() - 1) + 1, juce::sendNotification);
     loopPointEnableButton.setToggleState(reader->getBool("loopPointEnable", loopPointEnableButton.getToggleState()), juce::sendNotification);
     loopPointStartSlider.setValue(reader->getFloat("loopPointStart", (float)loopPointStartSlider.getValue()), juce::sendNotification);
     loopPointEndSlider.setValue(reader->getFloat("loopPointEnd", (float)loopPointEndSlider.getValue()), juce::sendNotification);
@@ -1354,6 +1392,12 @@ void GuiAdpcmPlus::applyChParamFile(const juce::File& file) {
             r.getBool("pcmTone", getParamValue(slotPrefix + CPK::pcmTone) > CPV::boolThread) ? 1.0f : 0.0f);
         setParamValue(slotPrefix + CPK::pcmToneFit,
             (float)r.getInt("pcmToneFit", (int)getParamValue(slotPrefix + CPK::pcmToneFit)));
+        setParamValue(slotPrefix + CPK::pcmOneSec,
+            r.getBool("pcmOneSec", getParamValue(slotPrefix + CPK::pcmOneSec) > CPV::boolThread) ? 1.0f : 0.0f);
+        setParamValue(slotPrefix + CPK::pcmOneSecLong,
+            (float)r.getInt("pcmOneSecLong", (int)getParamValue(slotPrefix + CPK::pcmOneSecLong)));
+        setParamValue(slotPrefix + CPK::pcmOneSecShort,
+            (float)r.getInt("pcmOneSecShort", (int)getParamValue(slotPrefix + CPK::pcmOneSecShort)));
         setParamValue(slotPrefix + CPK::loop,
             r.getBool("loop", getParamValue(slotPrefix + CPK::loop) > CPV::boolThread) ? 1.0f : 0.0f);
         setParamValue(slotPrefix + CPK::lpEnable,
@@ -1450,6 +1494,9 @@ void GuiAdpcmPlus::writeChParams(Io::ParamWriter& writer) {
         w.set("pcmRatio", getParamValue(slotPrefix + CPK::pcmRatio));
         w.set("pcmTone", getParamValue(slotPrefix + CPK::pcmTone) > CPV::boolThread);
         w.set("pcmToneFit", (int)getParamValue(slotPrefix + CPK::pcmToneFit));
+        w.set("pcmOneSec", getParamValue(slotPrefix + CPK::pcmOneSec) > CPV::boolThread);
+        w.set("pcmOneSecLong", (int)getParamValue(slotPrefix + CPK::pcmOneSecLong));
+        w.set("pcmOneSecShort", (int)getParamValue(slotPrefix + CPK::pcmOneSecShort));
         w.set("loop", getParamValue(slotPrefix + CPK::loop) > CPV::boolThread);
         w.set("loopPointEnable", getParamValue(slotPrefix + CPK::lpEnable) > CPV::boolThread);
         w.set("loopPointStart", getParamValue(slotPrefix + CPK::lpStart));
@@ -1555,6 +1602,9 @@ void GuiAdpcmPlus::writePcmPlayParams(Io::ParamWriter& writer) {
 	writer.set("pcmRatio", (float)pcmRatioSlider.getValue());
 	writer.set("pcmTone", pcmToneButton.getToggleState());
 	writer.set("pcmToneFit", pcmToneFitSelector.getSelectedId() - 1);
+	writer.set("pcmOneSec", pcmOneSecButton.getToggleState());
+	writer.set("pcmOneSecLong", pcmOneSecLongSelector.getSelectedId() - 1);
+	writer.set("pcmOneSecShort", pcmOneSecShortSelector.getSelectedId() - 1);
 	writer.set("loopPointEnable", loopPointEnableButton.getToggleState());
 	writer.set("loopPointStart", (float)loopPointStartSlider.getValue());
 	writer.set("loopPointEnd", (float)loopPointEndSlider.getValue());
@@ -1696,16 +1746,23 @@ void GuiAdpcmPlus::openTargetsDialog(GuiTargetsDialog::Mode mode)
 }
 
 // 音色モード (4.5.0) では、ループ・ループポイント・ループカウンターが効かない。
-// 端折り方は音色モードのときだけ使える
+// 端折り方は音色モードのときだけ使える。
+// 1 秒モード (4.5.0) では、ループポイントとループカウンターが効かない (ループは 1 秒ごと)。
+// 音色モードが優先するので、音色モードのあいだは 1 秒モードも使えない
 void GuiAdpcmPlus::updatePcmToneEnabled()
 {
     const bool tone = pcmToneButton.getToggleState();
+    const bool oneSec = !tone && pcmOneSecButton.getToggleState();
+    const bool loopPoint = !tone && !oneSec;
 
     pcmToneFitSelector.setEnabledWithLabel(tone);
+    pcmOneSecButton.setEnabled(!tone);
+    pcmOneSecLongSelector.setEnabledWithLabel(oneSec);
+    pcmOneSecShortSelector.setEnabledWithLabel(oneSec);
     loopButton.setEnabled(!tone);
-    loopPointEnableButton.setEnabled(!tone);
-    loopPointStartSlider.setEnabledWithLabel(!tone);
-    loopPointEndSlider.setEnabledWithLabel(!tone);
-    loopCountSlider.setEnabledWithLabel(!tone);
-    loopCountButtons.setEnables(!tone);
+    loopPointEnableButton.setEnabled(loopPoint);
+    loopPointStartSlider.setEnabledWithLabel(loopPoint);
+    loopPointEndSlider.setEnabledWithLabel(loopPoint);
+    loopCountSlider.setEnabledWithLabel(loopPoint);
+    loopCountButtons.setEnables(loopPoint);
 }

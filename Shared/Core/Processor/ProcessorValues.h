@@ -451,6 +451,40 @@ namespace CPV
 			inline constexpr int max = slice;
 			inline constexpr int initial = decimate;
 		}
+
+		// 1 秒モード (4.5.0)。再生区間を 1 秒の素材にまとめてから、いつもどおり鳴らす
+		namespace OneSec
+		{
+			inline constexpr bool initial = false;
+		}
+
+		// 1 秒モードで、区間が 1 秒より長いときのまとめ方 (4.5.0)
+		namespace OneSecLong
+		{
+			// 間引き (間を置いて拾い、区間全体を 1 秒へ縮める)
+			inline constexpr int decimate = 0;
+			// スライス (頭から 1 秒だけ抜き出す)
+			inline constexpr int slice = 1;
+
+			inline constexpr int min = decimate;
+			inline constexpr int max = slice;
+			inline constexpr int initial = decimate;
+		}
+
+		// 1 秒モードで、区間が 1 秒より短いときのまとめ方 (4.5.0)
+		namespace OneSecShort
+		{
+			// 拡張 (区間全体を 1 秒へ引き伸ばす)
+			inline constexpr int stretch = 0;
+			// 繰り返し (区間の終わりまで来たら頭へ戻る)
+			inline constexpr int repeat = 1;
+			// 無音 (区間の終わりから 1 秒までは鳴らさない)
+			inline constexpr int silence = 2;
+
+			inline constexpr int min = stretch;
+			inline constexpr int max = silence;
+			inline constexpr int initial = stretch;
+		}
 	}
 
 	namespace Lp

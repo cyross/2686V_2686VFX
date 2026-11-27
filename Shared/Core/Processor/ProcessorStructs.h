@@ -290,6 +290,11 @@ struct PrPtrsPcm {
     std::atomic<float>* fixedSpeed = nullptr;
     std::atomic<float>* tone = nullptr;
     std::atomic<float>* toneFit = nullptr;
+
+    // 1 秒モードと、長いとき・短いときのまとめ方 (4.5.0)。同じく登録していなければ切
+    std::atomic<float>* oneSec = nullptr;
+    std::atomic<float>* oneSecLong = nullptr;
+    std::atomic<float>* oneSecShort = nullptr;
 };
 
 struct PrPtrsLp {

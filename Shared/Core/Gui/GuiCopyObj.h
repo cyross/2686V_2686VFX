@@ -329,6 +329,11 @@ struct CopyPcm {
 	bool fixedSpeed = false;
 	bool tone = false;
 	int toneFit = 1;
+
+	// 1 秒モードと、長いとき・短いときのまとめ方 (4.5.0)。まとめ方は選択肢の ID (1 始まり)
+	bool oneSec = false;
+	int oneSecLong = 1;
+	int oneSecShort = 1;
 };
 
 struct CopyWt {

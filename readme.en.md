@@ -42,6 +42,15 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - "Fit" decides what to do with a sample too long for one cycle. "Decimate" (the default) shrinks the whole range into one cycle (the same as changing the speed). "Slice" keeps the sample's own speed and takes only as much from the start as fits in one cycle. When the range is shorter than one cycle, both stretch it
   - Per OPZX7 operator (when WS is PCM file), ADPCM (PCM in 86V) and per ADPCM+ slot (TARGET). 2686V, 2686VLight, 86V, OPZX7S, PCMV
   - Saved to the parameter files as `pcmTone` / `pcmToneFit`
+- **PCM: added "1 sec mode" with "If longer" / "If shorter"**
+  - When on, the range cut out by the start position (P.OFFSET) and length (P.RATIO) is first fitted into a one-second sample, which is then played. Off by default
+  - The playback speed works as before: it changes with the key pressed (unity at C3; for ADPCM and ADPCM+, unity at the ROOT key). With "Fixed speed" on an OPZX7 operator, every key plays at unity
+  - "If longer" decides how a range longer than one second is fitted. "Decimate" (the default) picks samples at intervals and shrinks the whole range into one second. "Slice" takes just the first second
+  - "If shorter" decides how a range shorter than one second is fitted. "Stretch" (the default) stretches the whole range to one second. "Repeat" goes back to the start when it reaches the end of the range. "Silence" stays silent from the end of the range up to one second
+  - Loop points and the loop counter are not used (they are shown as unavailable while 1 sec mode is on). LOOP on ADPCM and ADPCM+ still works and repeats the one-second sample
+  - Tone mode takes priority. While tone mode is on, 1 sec mode and its fit settings are unavailable
+  - Per OPZX7 operator (when WS is PCM file), ADPCM (PCM in 86V) and per ADPCM+ slot (TARGET). 2686V, 2686VLight, 86V, OPZX7S, PCMV
+  - Saved to the parameter files as `pcmOneSec` / `pcmOneSecLong` / `pcmOneSecShort`, and included in the OPZX7 operator section copy
 - **Groups can now be hidden**
   - Right-clicking a group's title shows "Hide group". Clicking it hides that group. Below it, after a separator, the checklist of that group's sections (next item) is also shown
   - Right-clicking an empty spot of the strip where groups line up shows a checklist of the groups. Groups that are shown are ticked. Ticking a group shows it (folded), unticking hides it. "Show all groups" and "Hide all groups" are also there. Clicking does not close the checklist; press ESC or click outside it to close it

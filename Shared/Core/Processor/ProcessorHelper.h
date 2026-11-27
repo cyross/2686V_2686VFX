@@ -452,6 +452,9 @@ namespace PrHelper {
 		ptPtrs.fixedSpeed = apvts.getRawParameterValue(prefix + CPK::pcmFixedSpeed);
 		ptPtrs.tone = apvts.getRawParameterValue(prefix + CPK::pcmTone);
 		ptPtrs.toneFit = apvts.getRawParameterValue(prefix + CPK::pcmToneFit);
+		ptPtrs.oneSec = apvts.getRawParameterValue(prefix + CPK::pcmOneSec);
+		ptPtrs.oneSecLong = apvts.getRawParameterValue(prefix + CPK::pcmOneSecLong);
+		ptPtrs.oneSecShort = apvts.getRawParameterValue(prefix + CPK::pcmOneSecShort);
 	}
 
 	static inline void setupLp(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsLp& ptPtrs){
@@ -1089,6 +1092,9 @@ namespace PrHelper {
 		params.fixedSpeed = ptPtrs.fixedSpeed != nullptr && getBool(ptPtrs.fixedSpeed);
 		params.tone = ptPtrs.tone != nullptr && getBool(ptPtrs.tone);
 		params.toneFit = ptPtrs.toneFit != nullptr ? getInt(ptPtrs.toneFit) : CPV::Pcm::ToneFit::initial;
+		params.oneSec = ptPtrs.oneSec != nullptr && getBool(ptPtrs.oneSec);
+		params.oneSecLong = ptPtrs.oneSecLong != nullptr ? getInt(ptPtrs.oneSecLong) : CPV::Pcm::OneSecLong::initial;
+		params.oneSecShort = ptPtrs.oneSecShort != nullptr ? getInt(ptPtrs.oneSecShort) : CPV::Pcm::OneSecShort::initial;
 	}
 
 	static inline void applyLp(PrPtrsLp& ptPtrs, LoopPointParams& params){
@@ -3325,10 +3331,13 @@ namespace PrHelper {
 		);
 	}
 
-	// 音色モードと端折り方 (4.5.0)。ADPCM・ADPCM+ のスロット・OPZX7 のオペレーター
+	// 音色モードと端折り方・1 秒モードとまとめ方 (4.5.0)。ADPCM・ADPCM+ のスロット・OPZX7 のオペレーター
 	static inline void addPcmToneParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
 		PrHelper::addBool(layout, prefix + CPK::pcmTone, prefixName + CPN::pcmTone, CPV::Pcm::Tone::initial);
 		PrHelper::addInt(layout, prefix + CPK::pcmToneFit, prefixName + CPN::pcmToneFit, CPV::Pcm::ToneFit::min, CPV::Pcm::ToneFit::max, CPV::Pcm::ToneFit::initial);
+		PrHelper::addBool(layout, prefix + CPK::pcmOneSec, prefixName + CPN::pcmOneSec, CPV::Pcm::OneSec::initial);
+		PrHelper::addInt(layout, prefix + CPK::pcmOneSecLong, prefixName + CPN::pcmOneSecLong, CPV::Pcm::OneSecLong::min, CPV::Pcm::OneSecLong::max, CPV::Pcm::OneSecLong::initial);
+		PrHelper::addInt(layout, prefix + CPK::pcmOneSecShort, prefixName + CPN::pcmOneSecShort, CPV::Pcm::OneSecShort::min, CPV::Pcm::OneSecShort::max, CPV::Pcm::OneSecShort::initial);
 	}
 
 	static inline void addOpPcmParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix) {

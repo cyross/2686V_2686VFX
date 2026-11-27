@@ -96,6 +96,9 @@ private:
 
 	// 音色モードのスライスで、1 周期に使う長さの再生区間に対する割合 (4.5.0)
 	double m_toneCycleFrac = 1.0;
+
+	// 1 秒モード (4.5.0) か。音色モードが優先
+	bool isOneSec() const { return m_params.pcm.oneSec && !m_params.pcm.tone; }
 	// OPZX7 の波形データ用
 	std::vector<float>* m_wtBuffer = nullptr;
 	std::vector<float>* m_wt2Buffer = nullptr;

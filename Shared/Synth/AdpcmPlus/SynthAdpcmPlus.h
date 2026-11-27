@@ -125,6 +125,14 @@ private:
 
     // 1 周期に使う長さの、再生区間に対する割合 (スライスで 1 未満になる)
     double m_toneCycleFrac = 1.0;
+
+    // 1 秒モード (4.5.0)
+    bool m_oneSec = false;
+    int m_oneSecLong = 0;
+    int m_oneSecShort = 0;
+
+    // 1 秒の素材の上を 1 標本進むあいだに、元の素材を何標本進むか (間引き・拡張で 1 以外)
+    double m_oneSecScale = 1.0;
     FixMode m_fixMode;
     Opzx7LfoCore m_lfo;
     SsgNoiseGen m_noiseGen;

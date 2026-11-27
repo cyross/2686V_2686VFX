@@ -83,6 +83,9 @@ class GuiAdpcm : public GuiBase
     // 音色モードと、その端折り方 (4.5.0)
     GuiToggleButton pcmToneButton;
     GuiComboBox pcmToneFitSelector;
+    GuiToggleButton pcmOneSecButton;
+    GuiComboBox pcmOneSecLongSelector;
+    GuiComboBox pcmOneSecShortSelector;
 
     // 音色モードではループとループポイントが効かないので、使えない表示にする
     void updatePcmToneEnabled();
@@ -231,6 +234,9 @@ public:
         pcmRatioSlider(context),
         pcmToneButton(context),
         pcmToneFitSelector(context),
+        pcmOneSecButton(context),
+        pcmOneSecLongSelector(context),
+        pcmOneSecShortSelector(context),
         levelComponent(context),
         toneSlider(context),
         noiseSlider(context),

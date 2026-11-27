@@ -310,6 +310,25 @@ static std::vector<SelectItem> pcmToneFitItems()
     };
 }
 
+// 1 秒モードで、区間が 1 秒より長いとき・短いときのまとめ方 (4.5.0)。
+// 値は CPV::Pcm::OneSecLong / OneSecShort の並び
+static std::vector<SelectItem> pcmOneSecLongItems()
+{
+    return {
+        {.name = I18n::pick(u8"間引き", u8"Decimate"), .value = 1 },
+        {.name = I18n::pick(u8"スライス", u8"Slice"), .value = 2 }
+    };
+}
+
+static std::vector<SelectItem> pcmOneSecShortItems()
+{
+    return {
+        {.name = I18n::pick(u8"拡張", u8"Stretch"), .value = 1 },
+        {.name = I18n::pick(u8"繰り返し", u8"Repeat"), .value = 2 },
+        {.name = I18n::pick(u8"無音", u8"Silence"), .value = 3 }
+    };
+}
+
 static std::vector<SelectItem> ksModeItems = {
     {.name = "0: MA7", .value = 1 },
     {.name = "1: OPZ", .value = 2 },
@@ -465,6 +484,9 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     pcmFixedSpeed(context),
     pcmTone(context),
     pcmToneFit(context),
+    pcmOneSec(context),
+    pcmOneSecLong(context),
+    pcmOneSecShort(context),
     loopPointEnable(context),
     loopPointStart(context),
     loopPointEnd(context),
@@ -1229,6 +1251,20 @@ void GuiOpzx7::setup()
     pcmToneFit.setWantsKeyboardFocus(true);
     pcmToneFit.setExplicitFocusOrder(++tabOrder);
 
+    // 1 秒モードと、長いとき・短いときのまとめ方 (4.5.0)
+    pcmOneSec.setup({ .parent = colWs.contentCanvas, .id = paramPrefix + CPK::pcmOneSec, .title = Opzx7GuiText::Fm::Op::pcmOneSec, .isReset = true });
+    pcmOneSec.setWantsKeyboardFocus(true);
+    pcmOneSec.setExplicitFocusOrder(++tabOrder);
+    pcmOneSec.onStateChange = [this] { updatePcmToneEnabled(); };
+
+    pcmOneSecLong.setup(GuiComboBox::Config{ .parent = colWs.contentCanvas, .id = paramPrefix + CPK::pcmOneSecLong, .title = Opzx7GuiText::Fm::Op::pcmOneSecLong, .items = pcmOneSecLongItems(), .isReset = true });
+    pcmOneSecLong.setWantsKeyboardFocus(true);
+    pcmOneSecLong.setExplicitFocusOrder(++tabOrder);
+
+    pcmOneSecShort.setup(GuiComboBox::Config{ .parent = colWs.contentCanvas, .id = paramPrefix + CPK::pcmOneSecShort, .title = Opzx7GuiText::Fm::Op::pcmOneSecShort, .items = pcmOneSecShortItems(), .isReset = true });
+    pcmOneSecShort.setWantsKeyboardFocus(true);
+    pcmOneSecShort.setExplicitFocusOrder(++tabOrder);
+
     loopPointEnable.setup({ .parent = colWs.contentCanvas, .id = paramPrefix + CPK::lpEnable, .title = Opzx7GuiText::Fm::Op::loopPointEnable, .isReset = true });
     loopPointEnable.setWantsKeyboardFocus(true);
     loopPointEnable.setExplicitFocusOrder(++tabOrder);
@@ -1770,6 +1806,9 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     pcmFixedSpeed.setEnabled(enable);
     pcmTone.setEnabled(enable);
     pcmToneFit.setEnabledWithLabel(enable);
+    pcmOneSec.setEnabled(enable);
+    pcmOneSecLong.setEnabledWithLabel(enable);
+    pcmOneSecShort.setEnabledWithLabel(enable);
     if (enable) updatePcmToneEnabled();
     loadWtBtn.setEnabled(enable);
     clearWtBtn.setEnabled(enable);
@@ -1908,18 +1947,25 @@ void GuiOpzx7::fillWsPreview(GuiWavePreview& preview, int opIndex)
 }
 
 // 音色モード (4.5.0) では等速とループポイントが効かないので、使えない表示にする。
-// 端折り方は音色モードのときだけ使える
+// 端折り方は音色モードのときだけ使える。
+// 1 秒モード (4.5.0) ではループポイントが効かない (等速は効く)。
+// 音色モードが優先するので、音色モードのあいだは 1 秒モードも使えない
 void GuiOpzx7::updatePcmToneEnabled()
 {
     const bool tone = pcmTone.getToggleState();
+    const bool oneSec = !tone && pcmOneSec.getToggleState();
+    const bool loopPoint = !tone && !oneSec;
 
     pcmFixedSpeed.setEnabled(!tone);
     pcmToneFit.setEnabledWithLabel(tone);
-    loopPointEnable.setEnabled(!tone);
-    loopPointStart.setEnabledWithLabel(!tone);
-    loopPointEnd.setEnabledWithLabel(!tone);
-    loopCount.setEnabledWithLabel(!tone);
-    loopCountButtons.setEnables(!tone);
+    pcmOneSec.setEnabled(!tone);
+    pcmOneSecLong.setEnabledWithLabel(oneSec);
+    pcmOneSecShort.setEnabledWithLabel(oneSec);
+    loopPointEnable.setEnabled(loopPoint);
+    loopPointStart.setEnabledWithLabel(loopPoint);
+    loopPointEnd.setEnabledWithLabel(loopPoint);
+    loopCount.setEnabledWithLabel(loopPoint);
+    loopCountButtons.setEnables(loopPoint);
 }
 
 void GuiOpzx7::updateOnWsChange()
@@ -1943,6 +1989,9 @@ void GuiOpzx7::updateOnWsChange()
         pcmFixedSpeed.setVisible(false);
         pcmTone.setVisible(false);
         pcmToneFit.setVisibleWithLabel(false);
+        pcmOneSec.setVisible(false);
+        pcmOneSecLong.setVisibleWithLabel(false);
+        pcmOneSecShort.setVisibleWithLabel(false);
         loopPointEnable.setVisible(false);
         loopPointStart.setVisibleWithLabel(false);
         loopPointEnd.setVisibleWithLabel(false);
@@ -1968,6 +2017,9 @@ void GuiOpzx7::updateOnWsChange()
         pcmFixedSpeed.setVisible(false);
         pcmTone.setVisible(false);
         pcmToneFit.setVisibleWithLabel(false);
+        pcmOneSec.setVisible(false);
+        pcmOneSecLong.setVisibleWithLabel(false);
+        pcmOneSecShort.setVisibleWithLabel(false);
         loopPointEnable.setVisible(false);
         loopPointStart.setVisibleWithLabel(false);
         loopPointEnd.setVisibleWithLabel(false);
@@ -1993,6 +2045,9 @@ void GuiOpzx7::updateOnWsChange()
         pcmFixedSpeed.setVisible(visible);
         pcmTone.setVisible(visible);
         pcmToneFit.setVisibleWithLabel(visible);
+        pcmOneSec.setVisible(visible);
+        pcmOneSecLong.setVisibleWithLabel(visible);
+        pcmOneSecShort.setVisibleWithLabel(visible);
         loopPointEnable.setVisible(visible);
         loopPointStart.setVisibleWithLabel(visible);
         loopPointEnd.setVisibleWithLabel(visible);
@@ -2017,6 +2072,9 @@ void GuiOpzx7::updateOnWsChange()
         pcmFixedSpeed.setVisible(false);
         pcmTone.setVisible(false);
         pcmToneFit.setVisibleWithLabel(false);
+        pcmOneSec.setVisible(false);
+        pcmOneSecLong.setVisibleWithLabel(false);
+        pcmOneSecShort.setVisibleWithLabel(false);
         loopPointEnable.setVisible(false);
         loopPointStart.setVisibleWithLabel(false);
         loopPointEnd.setVisibleWithLabel(false);
@@ -2156,6 +2214,9 @@ void GuiOpzx7::rebind(int opIndex)
     pcmFixedSpeed.rebind(code + CPK::pcmFixedSpeed);
     pcmTone.rebind(code + CPK::pcmTone);
     pcmToneFit.rebind(code + CPK::pcmToneFit);
+    pcmOneSec.rebind(code + CPK::pcmOneSec);
+    pcmOneSecLong.rebind(code + CPK::pcmOneSecLong);
+    pcmOneSecShort.rebind(code + CPK::pcmOneSecShort);
     loopPointEnable.rebind(code + CPK::lpEnable);
     loopPointStart.rebind(code + CPK::lpStart);
     loopPointEnd.rebind(code + CPK::lpEnd);
@@ -3007,6 +3068,9 @@ void GuiOpzx7::layoutOpWsCat(juce::Rectangle<int>& rect, int selectedWs) {
     pcmFixedSpeed.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmTone.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     pcmToneFit.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmOneSec.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmOneSecLong.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmOneSecShort.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loopPointEnable.setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loopPointStart.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
     loopPointEnd.setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
@@ -3038,6 +3102,9 @@ void GuiOpzx7::layoutOpWsCat(juce::Rectangle<int>& rect, int selectedWs) {
             layoutRow({ .rowRect = rect, .component = &pcmFixedSpeed });
             layoutRow({ .rowRect = rect, .component = &pcmTone });
             layoutRow({ .rowRect = rect, .label = &pcmToneFit.label, .component = &pcmToneFit });
+            layoutRow({ .rowRect = rect, .component = &pcmOneSec });
+            layoutRow({ .rowRect = rect, .label = &pcmOneSecLong.label, .component = &pcmOneSecLong });
+            layoutRow({ .rowRect = rect, .label = &pcmOneSecShort.label, .component = &pcmOneSecShort });
             layoutRow({ .rowRect = rect, .component = &loopPointEnable });
             layoutRow({ .rowRect = rect, .label = &loopPointStart.label, .component = &loopPointStart, });
             layoutRow({ .rowRect = rect, .label = &loopPointEnd.label, .component = &loopPointEnd, });
@@ -3407,6 +3474,9 @@ void GuiOpzx7::copyOpParams(int p, CopyOpzx7Op& copyObj) {
     copyObj.pcm.fixedSpeed = pcmFixedSpeed.getToggleState();
     copyObj.pcm.tone = pcmTone.getToggleState();
     copyObj.pcm.toneFit = pcmToneFit.getSelectedId();
+    copyObj.pcm.oneSec = pcmOneSec.getToggleState();
+    copyObj.pcm.oneSecLong = pcmOneSecLong.getSelectedId();
+    copyObj.pcm.oneSecShort = pcmOneSecShort.getSelectedId();
     copyObj.ssgEg.ssgEg = se.getSelectedId();
     copyObj.ssgEg.fmSsgEgFreq = seFreq.getValue();
     copyObj.mask.mask = mask.getToggleState();
@@ -3478,6 +3548,9 @@ void GuiOpzx7::pasteOpParams(int p, CopyOpzx7Op& copyObj) {
     pcmFixedSpeed.setToggleState(copyObj.pcm.fixedSpeed, juce::sendNotification);
     pcmTone.setToggleState(copyObj.pcm.tone, juce::sendNotification);
     pcmToneFit.setSelectedId(copyObj.pcm.toneFit, juce::sendNotification);
+    pcmOneSec.setToggleState(copyObj.pcm.oneSec, juce::sendNotification);
+    pcmOneSecLong.setSelectedId(copyObj.pcm.oneSecLong, juce::sendNotification);
+    pcmOneSecShort.setSelectedId(copyObj.pcm.oneSecShort, juce::sendNotification);
     se.setSelectedId(copyObj.ssgEg.ssgEg, juce::sendNotification);
     seFreq.setValue(copyObj.ssgEg.fmSsgEgFreq, juce::sendNotification);
     mask.setToggleState(copyObj.mask.mask, juce::sendNotification);
@@ -3652,6 +3725,9 @@ void GuiOpzx7::applyOpPcmPlayParamFile(int opIndex, const juce::File& file)
     pcmFixedSpeed.setToggleState(reader->getBool("pcmFixedSpeed", pcmFixedSpeed.getToggleState()), juce::sendNotification);
     pcmTone.setToggleState(reader->getBool("pcmTone", pcmTone.getToggleState()), juce::sendNotification);
     pcmToneFit.setSelectedId(reader->getInt("pcmToneFit", pcmToneFit.getSelectedId() - 1) + 1, juce::sendNotification);
+    pcmOneSec.setToggleState(reader->getBool("pcmOneSec", pcmOneSec.getToggleState()), juce::sendNotification);
+    pcmOneSecLong.setSelectedId(reader->getInt("pcmOneSecLong", pcmOneSecLong.getSelectedId() - 1) + 1, juce::sendNotification);
+    pcmOneSecShort.setSelectedId(reader->getInt("pcmOneSecShort", pcmOneSecShort.getSelectedId() - 1) + 1, juce::sendNotification);
     loopPointEnable.setToggleState(reader->getBool("loopPointEnable", loopPointEnable.getToggleState()), juce::sendNotification);
     loopPointStart.setValue(reader->getFloat("loopPointStart", (float)loopPointStart.getValue()), juce::sendNotification);
     loopPointEnd.setValue(reader->getFloat("loopPointEnd", (float)loopPointEnd.getValue()), juce::sendNotification);
@@ -4052,6 +4128,9 @@ void GuiOpzx7::readOpParams(int opIndex, const Io::ParamReader& r) {
     pcmFixedSpeed.setToggleState(r.getBool("pcmFixedSpeed", pcmFixedSpeed.getToggleState()), juce::sendNotification);
     pcmTone.setToggleState(r.getBool("pcmTone", pcmTone.getToggleState()), juce::sendNotification);
     pcmToneFit.setSelectedId(r.getInt("pcmToneFit", pcmToneFit.getSelectedId() - 1) + 1, juce::sendNotification);
+    pcmOneSec.setToggleState(r.getBool("pcmOneSec", pcmOneSec.getToggleState()), juce::sendNotification);
+    pcmOneSecLong.setSelectedId(r.getInt("pcmOneSecLong", pcmOneSecLong.getSelectedId() - 1) + 1, juce::sendNotification);
+    pcmOneSecShort.setSelectedId(r.getInt("pcmOneSecShort", pcmOneSecShort.getSelectedId() - 1) + 1, juce::sendNotification);
     loopPointEnable.setToggleState(r.getBool("loopPointEnable", loopPointEnable.getToggleState()), juce::sendNotification);
     loopPointStart.setValue(r.getFloat("loopPointStart", (float)loopPointStart.getValue()), juce::sendNotification);
     loopPointEnd.setValue(r.getFloat("loopPointEnd", (float)loopPointEnd.getValue()), juce::sendNotification);
@@ -4132,6 +4211,9 @@ void GuiOpzx7::writeOpParams(int opIndex, Io::ParamWriter& w) {
     w.set("pcmFixedSpeed", pcmFixedSpeed.getToggleState());
     w.set("pcmTone", pcmTone.getToggleState());
     w.set("pcmToneFit", pcmToneFit.getSelectedId() - 1);
+    w.set("pcmOneSec", pcmOneSec.getToggleState());
+    w.set("pcmOneSecLong", pcmOneSecLong.getSelectedId() - 1);
+    w.set("pcmOneSecShort", pcmOneSecShort.getSelectedId() - 1);
     w.set("loopPointEnable", loopPointEnable.getToggleState());
     w.set("loopPointStart", (float)loopPointStart.getValue());
     w.set("loopPointEnd", (float)loopPointEnd.getValue());
@@ -4401,6 +4483,9 @@ writer.set("speed", (float)speed.getValue());
 	writer.set("pcmFixedSpeed", pcmFixedSpeed.getToggleState());
 	writer.set("pcmTone", pcmTone.getToggleState());
 	writer.set("pcmToneFit", pcmToneFit.getSelectedId() - 1);
+	writer.set("pcmOneSec", pcmOneSec.getToggleState());
+	writer.set("pcmOneSecLong", pcmOneSecLong.getSelectedId() - 1);
+	writer.set("pcmOneSecShort", pcmOneSecShort.getSelectedId() - 1);
 	writer.set("loopPointEnable", loopPointEnable.getToggleState());
 	writer.set("loopPointStart", (float)loopPointStart.getValue());
 	writer.set("loopPointEnd", (float)loopPointEnd.getValue());
