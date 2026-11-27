@@ -409,10 +409,10 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     waveSmoothBtn.setVisible(visible);
     modPreview.setVisible(visible);
 
-    // SLOT のまとまり (4.5.0)。隠しているときは上の区切り線ごと隠す
+    // SLOT のまとまり (4.5.0)。隠しても上の区切り線は残す
     const bool slotShown = visible && slotToggle.isShown();
 
-    slotSeparator.setVisible(slotShown);
+    slotSeparator.setVisible(visible);
     slotToggle.setVisible(visible);
     waveSlotSlider.setVisibleWithLabel(slotShown);
     slotTarget.setVisibleWithLabel(slotShown);
@@ -439,7 +439,7 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &waveSmoothBtn });
 
         // SLOT のまとまり。出し入れのボタンは区切り線の下・中身の上
-        if (slotShown) slotSeparator.layoutComponent(rect);
+        slotSeparator.layoutComponent(rect);
 
         slotToggle.layoutComponent(rect);
 

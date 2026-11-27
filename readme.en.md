@@ -74,7 +74,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - Each pattern's values are saved in presets and the DAW state. With PATTERNS at 1, the sound and what is saved are the same as before
   - Every plugin except 2686VFX
 - **Groups of controls inside a section can be shown and hidden with "SHOW xxx" / "HIDE xxx" buttons**
-  - The button sits above its group (below the separator). While the group is hidden it reads "SHOW xxx" (bold off-black on a light, whitish yellow); while it is shown it reads "HIDE xxx" (bold off-white on dark blue). Pressing it opens the group below the button. Hiding a group also hides the separator above it
+  - The button sits above its group (below the separator). While the group is hidden it reads "SHOW xxx" (bold off-black on a light, whitish yellow); while it is shown it reads "HIDE xxx" (bold off-white on dark blue). Pressing it opens the group below the button. The separator above the group stays while it is hidden, so the button does not move when pressed
   - The buttons are 3px lower than a row (12px), with text made smaller to match, and 2px of space above them
   - SSG HW AMP ENV and SSG HW PITCH ENV: HOLD (HOLD, COUNT, TARGET, HOLD MIN, HOLD MAX), KEEP (KEEP, START, KEEP START, END, KEEP END) and PATTERNS
   - SSG SW AMP ENV[256], SSG SW PITCH ENV[256] and PARAM ENV[256]: SWITCHES (KEEP, STRICT R, START NOW, T SYNC), LOOP (from LOOP to the loop list), RATE (from R.TARGET to the rate list), LEVEL (from L.TARGET to the level list), RR (from RR to RR NOTE), ENDL (Use Endl, ENDL) and PATTERNS (PARAM ENV[256] has no patterns, so no PATTERNS either)

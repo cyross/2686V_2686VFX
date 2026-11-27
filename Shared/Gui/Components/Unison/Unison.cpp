@@ -130,16 +130,16 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
     detuneButtons.setVisibles(visible && detune.isVisibleNudge());
     spread.setVisibleWithLabel(visible);
 
-    // まとまりを隠しているときは、上の区切り線ごと隠す (4.5.0)
+    // まとまりを隠しても、上の区切り線は残す (4.5.0)
     const bool arp = visible && arpToggle.isShown();
     const bool para = visible && paraToggle.isShown();
 
-    arpSeparator.setVisible(arp);
+    arpSeparator.setVisible(visible);
     arpEnable.setVisible(arp);
     arpFreq.setVisibleWithLabel(arp);
     arpSmooth.setVisible(arp);
     arpToggle.setVisible(visible);
-    paraSeparator.setVisible(para);
+    paraSeparator.setVisible(visible);
     targetVoice.setVisibleWithLabel(para);
     paraDistance.setVisibleWithLabel(para);
     paraDetune.setVisibleWithLabel(para);
@@ -153,7 +153,7 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
         detune.layoutComponent(rect);
         if (detune.isVisibleNudge()) detuneButtons.layoutComponent(rect);
         // 出し入れのボタンは区切り線の下・中身の上
-        if (arp) arpSeparator.layoutComponent(rect);
+        arpSeparator.layoutComponent(rect);
 
         arpToggle.layoutComponent(rect);
 
@@ -163,7 +163,7 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
             layoutMain({ .mainRect = rect, .component = &arpSmooth });
         }
 
-        if (para) paraSeparator.layoutComponent(rect);
+        paraSeparator.layoutComponent(rect);
 
         paraToggle.layoutComponent(rect);
 

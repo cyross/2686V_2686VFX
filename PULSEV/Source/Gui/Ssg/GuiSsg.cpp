@@ -698,7 +698,7 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    // IM/EX のまとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す
+    // IM/EX のまとまりの出し入れ (4.5.0)。隠しても、まとまりの上の区切り線は残す
     const bool chIeShown = visible && chIeToggle.isShown();
     chIeToggle.setVisible(visible);
 

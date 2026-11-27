@@ -145,11 +145,11 @@ void GuiComponentWaveHold::useShowHide(juce::Component& parent, int& tabOrder, c
 
 void GuiComponentWaveHold::setVisibles(bool visible)
 {
-    // まとまりを隠しているときは、上の区切り線ごと隠す
+    // まとまりを隠しても、上の区切り線は残す (押してもボタンが動かないように)
     const bool hold = visible && holdShown();
     const bool keep = visible && keepShown();
 
-    holdSeparator.setVisible(hold);
+    holdSeparator.setVisible(visible);
     holdEnableBtn.setVisible(hold);
     holdCount.setVisibles(hold);
     holdCountButtons.setVisibles(hold && holdCount.isVisibleNudge());
@@ -169,7 +169,7 @@ void GuiComponentWaveHold::setVisibles(bool visible)
         holdMaxNudge.setVisibles(maxNudge);
     }
 
-    keepSeparator.setVisible(keep);
+    keepSeparator.setVisible(visible);
     keepEnableBtn.setVisible(keep);
     waveStart.setVisibles(keep);
     waveStartNudge.setVisibles(keep && waveStart.isVisibleNudge());
@@ -185,7 +185,7 @@ void GuiComponentWaveHold::setVisibles(bool visible)
 void GuiComponentWaveHold::layoutHold(juce::Rectangle<int>& rect, bool row)
 {
     // 出し入れのボタンは区切り線の下・中身の上
-    if (holdShown()) holdSeparator.layoutComponent(rect);
+    holdSeparator.layoutComponent(rect);
 
     if (m_showHide) {
         if (row) holdToggle.layoutComponentRow(rect);
@@ -246,7 +246,7 @@ void GuiComponentWaveHold::layoutHold(juce::Rectangle<int>& rect, bool row)
 void GuiComponentWaveHold::layoutKeep(juce::Rectangle<int>& rect, bool row)
 {
     // 出し入れのボタンは区切り線の下・中身の上
-    if (keepShown()) keepSeparator.layoutComponent(rect);
+    keepSeparator.layoutComponent(rect);
 
     if (m_showHide) {
         if (row) keepToggle.layoutComponentRow(rect);

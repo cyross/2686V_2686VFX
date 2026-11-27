@@ -2552,7 +2552,7 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    // IM/EX のまとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す
+    // IM/EX のまとまりの出し入れ (4.5.0)。隠しても、まとまりの上の区切り線は残す
     const bool opIeShown = visible && opIeToggle.isShown();
     const bool chIeShown = visible && chIeToggle.isShown();
     opIeToggle.setVisible(visible);
@@ -2573,7 +2573,7 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpWtMod.setVisible(opIeShown);
     ieOpPcmPlay.setVisible(opIeShown);
     ieOpChParam.setVisible(opIeShown);
-    uSep003.setVisible(chIeShown);
+    uSep003.setVisible(visible);
     ieAmpEnvG.setVisible(chIeShown);
     ieSsgHwEnv.setVisible(chIeShown);
     ieSsgHwPEnv.setVisible(chIeShown);
@@ -2616,7 +2616,7 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
 
         // 出し入れのボタンは区切り線の下・中身の上
-        if (chIeShown) uSep003.layoutComponent(rect);
+        uSep003.layoutComponent(rect);
 
         chIeToggle.layoutComponent(rect);
 

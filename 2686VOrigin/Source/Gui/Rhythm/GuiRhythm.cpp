@@ -1639,7 +1639,7 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    // IM/EX のまとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す
+    // IM/EX のまとまりの出し入れ (4.5.0)。隠しても、まとまりの上の区切り線は残す
     const bool padIeShown = visible && padIeToggle.isShown();
     const bool chIeShown = visible && chIeToggle.isShown();
     padIeToggle.setVisible(visible);
@@ -1663,7 +1663,7 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieQuality.setVisible(padIeShown);
     iePcmPlay.setVisible(padIeShown);
     ieChParam.setVisible(chIeShown);
-    uSep003.setVisible(chIeShown);
+    uSep003.setVisible(visible);
 
     if (visible)
     {
@@ -1701,7 +1701,7 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         }
 
         // 出し入れのボタンは区切り線の下・中身の上
-        if (chIeShown) uSep003.layoutComponent(rect);
+        uSep003.layoutComponent(rect);
 
         chIeToggle.layoutComponent(rect);
 

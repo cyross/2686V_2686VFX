@@ -2,7 +2,7 @@
 // 区分の中のまとまりの出し入れ (4.5.0) と、送りの範囲
 // ============================================================================
 // ・初めは隠していて「SHOW xxx」。押すと「HIDE xxx」になり、まとまりの部品が
-//   ボタンの下に出る (ボタンの上には区切り線だけが出る)。もう一度押すと戻る
+//   ボタンの下に出る。上の区切り線は出したままなので、ボタンは動かない。もう一度押すと戻る
 // ・区分とまとまりをすべて開いても、送る中身の丈が部品の下端まで届いている
 //   (並べるときの仮の高さ 2000px で打ち切られて、下の区分へ送れなかった)
 #include "doctest/doctest.h"
@@ -132,10 +132,9 @@ TEST_CASE("ShowHide: 初めは隠していて、押すと SHOW と HIDE が入�
 		CHECK(button->getButtonText() == "HIDE LOOP");
 		CHECK(button->findColour(juce::TextButton::buttonColourId) == GuiColor::ShowHide::HideBg.get());
 
-		// まとまりの部品が出る。ボタンの上に出るのは区切り線だけで、ほかはボタンの下に並ぶ
+		// まとまりの部品が出る。ボタンは動かず、出た部品はすべてボタンの下に並ぶ
 		CHECK(visibleSiblings(*button) > before);
-		CHECK(button->getY() >= y);
-		CHECK(button->getY() - y <= 20);
+		CHECK(button->getY() == y);
 
 		int appeared = 0;
 		int below = 0;
@@ -146,7 +145,7 @@ TEST_CASE("ShowHide: 初めは隠していて、押すと SHOW と HIDE が入�
 			if (s->getY() >= button->getBottom()) ++below;
 		}
 		CHECK(appeared > 0);
-		CHECK(below > 0);
+		CHECK(below == appeared);
 
 		button->onClick();
 

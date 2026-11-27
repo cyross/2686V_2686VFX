@@ -74,7 +74,7 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
   - 組ごとの値はプリセット・DAW の状態へ保存する。PATTERNS が 1 のときはこれまでと同じ鳴り・同じ保存内容
   - 全プラグイン (2686VFX を除く)
 - **区分の中のまとまりを「SHOW xxx」「HIDE xxx」のボタンで出し入れできるようにした**
-  - ボタンはまとまりの上 (区切り線の下) に置く。隠しているあいだは「SHOW xxx」(明るい白っぽい黄色の地にオフブラックの太字)、出しているあいだは「HIDE xxx」(濃い青の地にオフホワイトの太字)。押すと、まとまりはボタンの下に出る。隠すと、まとまりの上の区切り線も隠す
+  - ボタンはまとまりの上 (区切り線の下) に置く。隠しているあいだは「SHOW xxx」(明るい白っぽい黄色の地にオフブラックの太字)、出しているあいだは「HIDE xxx」(濃い青の地にオフホワイトの太字)。押すと、まとまりはボタンの下に出る。まとまりの上の区切り線は隠しているあいだも残すので、押してもボタンの位置は動かない
   - ボタンは行より 3px 低く (12px)、文字もそのぶん小さくした。ボタンの上は 2px 空ける
   - SSG HW AMP ENV・SSG HW PITCH ENV: HOLD (HOLD・COUNT・TARGET・HOLD MIN・HOLD MAX)・KEEP (KEEP・START・KEEP START・END・KEEP END)・PATTERNS
   - SSG SW AMP ENV[256]・SSG SW PITCH ENV[256]・PARAM ENV[256]: SWITCHES (KEEP・STRICT R・START NOW・T SYNC)・LOOP (LOOP からループの一覧まで)・RATE (R.TARGET からレートの一覧まで)・LEVEL (L.TARGET からレベルの一覧まで)・RR (RR から RR NOTE まで)・ENDL (Use Endl・ENDL)・PATTERNS (PARAM ENV[256] にはパターンが無いので、PATTERNS も無い)

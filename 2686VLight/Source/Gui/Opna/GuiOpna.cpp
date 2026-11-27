@@ -1500,7 +1500,7 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    // IM/EX のまとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す
+    // IM/EX のまとまりの出し入れ (4.5.0)。隠しても、まとまりの上の区切り線は残す
     const bool opIeShown = visible && opIeToggle.isShown();
     const bool chIeShown = visible && chIeToggle.isShown();
     opIeToggle.setVisible(visible);
@@ -1513,7 +1513,7 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
     uSep002.setVisible(visible);
     copyHwLfoParamsBtn.setVisible(visible);
     copyHwLfoFromSlider.setVisibleWithLabel(visible);
-    uSep003.setVisible(opIeShown);
+    uSep003.setVisible(visible);
     ieHwLfo.setVisible(opIeShown);
     ieOpPitchEnv.setVisible(opIeShown);
     ieOpSsgSwEnv256.setVisible(opIeShown);
@@ -1524,7 +1524,7 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpWtMod.setVisible(opIeShown);
     ieOpChParam.setVisible(opIeShown);
     imOpnOpChParam.setVisible(opIeShown);
-    uSep005.setVisible(chIeShown);
+    uSep005.setVisible(visible);
     ieAmpEnvG.setVisible(chIeShown);
     ieSsgHwEnv.setVisible(chIeShown);
     ieSsgHwPEnv.setVisible(chIeShown);
@@ -1551,7 +1551,7 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &copyParamsToOpmBtn });
 
         // 出し入れのボタンは区切り線の下・中身の上
-        if (opIeShown) uSep003.layoutComponent(rect);
+        uSep003.layoutComponent(rect);
 
         opIeToggle.layoutComponent(rect);
 
@@ -1575,7 +1575,7 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
 
         // 出し入れのボタンは区切り線の下・中身の上
-        if (chIeShown) uSep005.layoutComponent(rect);
+        uSep005.layoutComponent(rect);
 
         chIeToggle.layoutComponent(rect);
 

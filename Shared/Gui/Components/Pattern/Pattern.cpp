@@ -89,10 +89,10 @@ void GuiComponentPattern::setPartsVisible(bool visible)
 {
     if (!available) return;
 
-    // まとまりを隠しているときは、上の区切り線ごと隠す
+    // まとまりを隠しても、上の区切り線は残す (押してもボタンが動かないように)
     const bool shown = visible && toggle.isShown();
 
-    separator.setVisible(shown);
+    separator.setVisible(visible);
     patterns.setVisibleWithLabel(shown);
     pattern.setVisibleWithLabel(shown);
     reset.setVisible(shown);
@@ -119,7 +119,7 @@ void GuiComponentPattern::layoutComponent(juce::Rectangle<int>& rect)
 {
     if (!available) return;
 
-    if (toggle.isShown()) separator.layoutComponent(rect);
+    separator.layoutComponent(rect);
 
     toggle.layoutComponent(rect);
 

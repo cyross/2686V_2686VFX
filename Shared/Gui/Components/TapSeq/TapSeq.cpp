@@ -421,10 +421,10 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     enableSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
 
-    // LOOP のまとまりを隠しているときは、上の区切り線ごと隠す (4.5.0)
+    // LOOP のまとまりを隠しても、上の区切り線は残す (4.5.0)
     const bool lp = visible && loopToggle.isShown();
 
-    stepsSeparator.setVisible(lp);
+    stepsSeparator.setVisible(visible);
     loop.setVisible(lp);
     loops.setVisibles(lp);
     loopToggle.setVisible(visible);
@@ -451,7 +451,7 @@ void GuiComponentTapSeq::layoutComponent(juce::Rectangle<int>& rect)
     layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = h });
 
     // 出し入れのボタンは区切り線の下・中身の上
-    if (lp) stepsSeparator.layoutComponent(rect);
+    stepsSeparator.layoutComponent(rect);
 
     loopToggle.layoutComponent(rect);
 

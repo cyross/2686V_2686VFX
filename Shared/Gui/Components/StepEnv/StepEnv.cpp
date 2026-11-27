@@ -1106,7 +1106,7 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
 
     patternParts.setPartsVisible(visible);
 
-    // まとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す。
+    // まとまりの出し入れ (4.5.0)。隠しても、まとまりの上の区切り線は残す。
     // 区切り線はそれぞれ下のまとまりの上に付いているものとして扱う:
     //   stepsSeparator → SWITCHES (無ければ LOOP)、keepSeparator → LOOP、
     //   loopSeparator → RATE、rateSeparator → LEVEL、releaseSeparator → RR、
@@ -1124,20 +1124,20 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     targetBox.setVisibleWithLabel(visible && isParam());
     targetSeparator.setVisible(visible && isParam());
     steps.setVisibleWithLabel(visible);
-    stepsSeparator.setVisible(heads ? sw : lp);
+    stepsSeparator.setVisible(visible);
     keep.setVisible(sw && hasKeep());
     strictRate.setVisible(sw && hasStrictRate());
     startNow.setVisible(sw && hasStartNow());
     tickSync.setVisible(sw && hasTickSync());
     switchesToggle.setVisible(visible && heads);
-    keepSeparator.setVisible(heads && lp);
+    keepSeparator.setVisible(visible && heads);
     loop.setVisible(lp);
     loopMode.setVisibleWithLabel(lp);
     loopTo.setVisibleWithLabel(lp && !isRich());
     loopCount.setVisibleWithLabel(lp && !isRich());
     loops.setVisibles(lp && isRich());
     loopToggle.setVisible(visible);
-    loopSeparator.setVisible(rt);
+    loopSeparator.setVisible(visible);
     rateTarget.setVisibleWithLabel(rt);
     rate.setVisibleWithLabel(rt);
     rateNudge.setVisibles(rt && rate.isVisibleNudge());
@@ -1149,7 +1149,7 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     tickNote.setVisibleWithLabel(rt);
     rateValues.setVisible(rt);
     rateToggle.setVisible(visible);
-    rateSeparator.setVisible(lv);
+    rateSeparator.setVisible(visible);
     levelTarget.setVisibleWithLabel(lv);
     level.setVisibleWithLabel(lv);
     levelSteps.setVisibleWithLabel(lv && hasLevelSteps());
@@ -1158,7 +1158,7 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     valueBtns.setVisibles(lv && usesValueButtons() && level.isVisibleNudge());
     levelValues.setVisible(lv);
     levelToggle.setVisible(visible);
-    releaseSeparator.setVisible(rr);
+    releaseSeparator.setVisible(visible);
     releaseRate.setVisibleWithLabel(rr);
     releaseLevel.setVisibleWithLabel(rr);
     releaseRateBtns.setVisibles(rr && rate.isVisibleNudge());
@@ -1168,7 +1168,7 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     releaseTick.setVisibleWithLabel(rr);
     releaseTickNote.setVisibleWithLabel(rr);
     rrToggle.setVisible(visible);
-    endLevelSeparator.setVisible(el);
+    endLevelSeparator.setVisible(visible);
     endLevelEnable.setVisible(el);
     endLevel.setVisibleWithLabel(el);
     endlToggle.setVisible(visible);
@@ -1188,9 +1188,9 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = h });
 
     // 出し入れのボタンは、まとまりの区切り線の下・中身の上に置く。
-    // 隠しているあいだは区切り線ごと消え、ボタンだけが残る
+    // 区切り線は隠しているあいだも残すので、押してもボタンは動かない
     if (heads) {
-        if (sw) stepsSeparator.layoutComponent(rect);
+        stepsSeparator.layoutComponent(rect);
 
         switchesToggle.layoutComponent(rect);
 
@@ -1202,10 +1202,8 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
         }
     }
 
-    if (lp) {
-        if (heads) keepSeparator.layoutComponent(rect);
-        else       stepsSeparator.layoutComponent(rect);
-    }
+    if (heads) keepSeparator.layoutComponent(rect);
+    else       stepsSeparator.layoutComponent(rect);
 
     loopToggle.layoutComponent(rect);
 
@@ -1223,7 +1221,7 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
     }
 
     // 対象 → 値 → 各段の値、の順。
-    if (rt) loopSeparator.layoutComponent(rect);
+    loopSeparator.layoutComponent(rect);
 
     rateToggle.layoutComponent(rect);
 
@@ -1240,7 +1238,7 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
         layoutStrip(rect, rateValues);
     }
 
-    if (lv) rateSeparator.layoutComponent(rect);
+    rateSeparator.layoutComponent(rect);
 
     levelToggle.layoutComponent(rect);
 
@@ -1259,7 +1257,7 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
         layoutStrip(rect, levelValues);
     }
 
-    if (rr) releaseSeparator.layoutComponent(rect);
+    releaseSeparator.layoutComponent(rect);
 
     rrToggle.layoutComponent(rect);
 
@@ -1274,7 +1272,7 @@ void GuiComponentStepEnv::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &releaseTickNote.label, .component = &releaseTickNote, .rowHeight = h });
     }
 
-    if (el) endLevelSeparator.layoutComponent(rect);
+    endLevelSeparator.layoutComponent(rect);
 
     endlToggle.layoutComponent(rect);
 

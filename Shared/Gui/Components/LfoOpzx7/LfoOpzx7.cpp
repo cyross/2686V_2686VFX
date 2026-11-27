@@ -240,7 +240,7 @@ void GuiComponentLfoOpzx7::layoutParts(juce::Rectangle<int>& rect, bool row)
 {
     const bool visible = cat.isDetailVisible();
 
-    // PM・AM を隠しているときは、中の HOLD・KEEP ごと隠す。AM は上の区切り線も隠す
+    // PM・AM を隠しているときは、中の HOLD・KEEP ごと隠す。AM の上の区切り線は残す
     const bool pm = visible && pmToggle.isShown();
     const bool am = visible && amToggle.isShown();
 
@@ -257,7 +257,7 @@ void GuiComponentLfoOpzx7::layoutParts(juce::Rectangle<int>& rect, bool row)
     pmWaveHold.setVisibles(pm);
     pmToggle.setVisible(visible);
 
-    pmAmSeparator.setVisible(am);
+    pmAmSeparator.setVisible(visible);
     amLabel.setVisible(am);
     amEnable.setVisible(am);
     amFreq.setVisibleWithLabel(am);
@@ -316,7 +316,7 @@ void GuiComponentLfoOpzx7::layoutParts(juce::Rectangle<int>& rect, bool row)
         hold(pmWaveHold);
     }
 
-    if (am) pmAmSeparator.layoutComponent(rect);
+    pmAmSeparator.layoutComponent(rect);
 
     toggle(amToggle);
 

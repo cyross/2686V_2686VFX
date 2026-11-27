@@ -935,7 +935,7 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     bool visible = utilityCat.isDetailVisible();
 
-    // IM/EX のまとまりの出し入れ (4.5.0)。隠しているまとまりは、上の区切り線ごと隠す
+    // IM/EX のまとまりの出し入れ (4.5.0)。隠しても、まとまりの上の区切り線は残す
     const bool chIeShown = visible && chIeToggle.isShown();
     chIeToggle.setVisible(visible);
 
@@ -943,7 +943,7 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     customWaveImportBtn.setVisible(visible);
     customWaveExportBtn.setVisible(visible);
-    uSep002.setVisible(chIeShown);
+    uSep002.setVisible(visible);
     ieLfo.setVisible(chIeShown);
     ieDetune.setVisible(chIeShown);
     ieAmpEnv.setVisible(chIeShown);
@@ -964,7 +964,7 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         layoutMainTwoComps({ .rect = rect, .comp1 = &customWaveImportBtn, .comp2 = &customWaveExportBtn });
         // 出し入れのボタンは区切り線の下・中身の上
-        if (chIeShown) uSep002.layoutComponent(rect);
+        uSep002.layoutComponent(rect);
 
         chIeToggle.layoutComponent(rect);
 

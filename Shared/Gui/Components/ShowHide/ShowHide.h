@@ -11,15 +11,15 @@
 // 区分の中のまとまりを出し入れするボタン (4.5.0)
 // ============================================================================
 // ボタンはまとまりの区切り線の下・中身の上に置き、出しているあいだは
-// 「HIDE xxx」、隠しているあいだは「SHOW xxx」と出す。隠すのは、まとまりと、
-// その上の区切り線。初めは隠しておく。
+// 「HIDE xxx」、隠しているあいだは「SHOW xxx」と出す。隠すのは中身だけで、
+// 上の区切り線は残す (押してもボタンが動かない)。初めは隠しておく。
 //
 // 並べる側は次のように使う:
 //
 //     const bool show = visible && holdToggle.isShown();
-//     holdSeparator.setVisible(show);   // まとまりの部品
+//     holdSeparator.setVisible(visible);
 //     holdToggle.setVisible(visible);
-//     if (show) holdSeparator.layoutComponent(rect);
+//     holdSeparator.layoutComponent(rect);
 //     holdToggle.layoutComponent(rect);
 //     if (show) { ...まとまりを並べる... }
 //
