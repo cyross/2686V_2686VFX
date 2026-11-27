@@ -1456,6 +1456,9 @@ void GuiComponentStepEnv::applyActive()
     endLevelEnable.setDimmed(!active);
     endLevel.setEnabledWithLabel(active && endLevelEnable.getToggleState());
 
+    // 出し入れのボタンも、区分を切っている (Enable 切・Bypass 入) あいだは押せなくする (4.5.0)
+    for (auto* t : { &switchesToggle, &loopToggle, &rateToggle, &levelToggle, &rrToggle, &endlToggle }) t->setEnabled(active);
+
     // パターンも区分の設定のうち。区分を切っている (Enable 切・Bypass 入) ときは押せなくする
     patternParts.setPartsEnabled(outerEnabled, active);
 }

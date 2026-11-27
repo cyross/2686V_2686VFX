@@ -475,6 +475,7 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     shapeSelector.setEnabledWithLabel(isMod);
     waveSmoothBtn.setEnabled(isMod);
     slotSeparator.setEnabled(isMod);
+    slotToggle.setEnabled(isMod);  // 出し入れのボタンも止める (4.5.0)
     waveSlotSlider.setEnabledWithLabel(isMod);
 
     slotTarget.setEnabledWithLabel(isMod);

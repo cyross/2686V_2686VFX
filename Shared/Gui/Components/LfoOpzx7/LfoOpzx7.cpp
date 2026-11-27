@@ -350,6 +350,9 @@ void GuiComponentLfoOpzx7::setEnabled(bool enabled) {
     pmLabel.setEnabled(enabled);
     amLabel.setEnabled(enabled);
     pmAmSeparator.setEnabled(enabled);
+    // PM・AM の Enable はまとまりの中にあるので、出し入れのボタンは外側の有効だけで止める (4.5.0)
+    pmToggle.setEnabled(enabled);
+    amToggle.setEnabled(enabled);
 
     applyActive();
 }

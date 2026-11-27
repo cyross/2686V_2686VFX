@@ -3,6 +3,7 @@
 // ============================================================================
 // ・初めは隠していて「SHOW xxx」。押すと「HIDE xxx」になり、まとまりの部品が
 //   ボタンの下に出る。上の区切り線は出したままなので、ボタンは動かない。もう一度押すと戻る
+// ・区分を切っている (Enable 切・Bypass 入) あいだは、ボタンも押せない
 // ・区分とまとまりをすべて開いても、送る中身の丈が部品の下端まで届いている
 //   (並べるときの仮の高さ 2000px で打ち切られて、下の区分へ送れなかった)
 #include "doctest/doctest.h"
@@ -13,6 +14,7 @@
 #include <vector>
 
 #include "Core/Processor/PluginProcessor.h"
+#include "Shared/Core/Processor/ProcessorKeys.h"
 #include "Core/Editor/PluginEditor.h"
 #include "Shared/Core/Gui/GuiComponents.h"
 #include "Shared/Core/Gui/GuiColor.h"
@@ -155,6 +157,67 @@ TEST_CASE("ShowHide: 初めは隠していて、押すと SHOW と HIDE が入�
 	}
 
 	CHECK(tried);
+}
+
+TEST_CASE("ShowHide: 区分を切っている (Enable 切・Bypass 入) あいだは、SHOW / HIDE も押せない")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	EditorTestAccess::unfoldAllGroups(processor->apvts);
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+	EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+
+	auto& tabs = EditorTestAccess::tabs(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+
+	// 札の部品と同じ親に載っている SHOW / HIDE のうち、押せるものの数
+	auto enabledButtons = [](juce::Component& flag) {
+		int n = 0;
+		for (auto* s : flag.getParentComponent()->getChildren())
+			if (auto* b = dynamic_cast<GuiShowHideButton*>(s)) { if (b->isEnabled()) ++n; }
+		return n;
+	};
+
+	int checked = 0;
+
+	for (int i = 0; i < tabs.getNumTabs(); ++i)
+	{
+		auto* root = tabs.getTabContentComponent(i);
+		if (root == nullptr) continue;
+
+		for (auto* flag : findAll<GuiToggleButton>(root))
+		{
+			const auto id = flag->getComponentID();
+			const bool isBypass = id.endsWith(CPK::SsgSwEnv256::bypass);
+			const bool isEnable = id.endsWith(CPK::SsgSwEnv256::enable);
+
+			if (!isBypass && !isEnable) continue;
+
+			auto* p = processor->apvts.getParameter(id);
+			REQUIRE(p != nullptr);
+
+			const float original = p->getValue();
+
+			INFO(tabs.getTabNames()[i].toStdString() << " / " << id.toStdString());
+
+			// 効かせる → 押せる。切る → STEP ENV の 6 つとパターンの分だけ押せなくなる
+			p->setValueNotifyingHost(isEnable ? 1.0f : 0.0f);
+			const int on = enabledButtons(*flag);
+
+			p->setValueNotifyingHost(isEnable ? 0.0f : 1.0f);
+			const int off = enabledButtons(*flag);
+
+			CHECK(on - off >= 6);
+
+			p->setValueNotifyingHost(isEnable ? 1.0f : 0.0f);
+			CHECK(enabledButtons(*flag) == on);
+
+			p->setValueNotifyingHost(original);
+
+			++checked;
+		}
+	}
+
+	CHECK(checked > 0);
 }
 
 TEST_CASE("ShowHide: 区分とまとまりをすべて開いても、送る中身の丈が部品の下端まで届く")

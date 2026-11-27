@@ -107,6 +107,8 @@ void GuiComponentPattern::setPartsEnabled(bool enabled, bool active)
 
     separator.setEnabled(partsEnabled);
     patterns.setEnabledWithLabel(partsEnabled);
+    // 出し入れのボタンも、区分を切っている (Enable 切・Bypass 入) あいだは押せなくする (4.5.0)
+    toggle.setEnabled(partsEnabled);
 
     // トグルは止めずに薄くする。止めると、そのあいだに来た値を捨ててしまう
     reset.setEnabled(enabled);

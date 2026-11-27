@@ -75,6 +75,7 @@ DAW上で、「26」と「86」を再現したような曲を作りたかった�
   - 全プラグイン (2686VFX を除く)
 - **区分の中のまとまりを「SHOW xxx」「HIDE xxx」のボタンで出し入れできるようにした**
   - ボタンはまとまりの上 (区切り線の下) に置く。隠しているあいだは「SHOW xxx」(明るく白っぽいライトブルーの地にオフブラックの太字)、出しているあいだは「HIDE xxx」(暗めのダークブルーの地にオフホワイトの太字)。押すと、まとまりはボタンの下に出る。まとまりの上の区切り線は隠しているあいだも残すので、押してもボタンの位置は動かない
+  - 区分を切っている (Enable 切・Bypass 入) あいだは、ボタンも押せなくする (中の部品と同じく薄く出る)。LFO (OPZX7) の PM・AM は Enable がまとまりの中にあるので、区分の外側が切れているときだけ止める
   - ボタンは行より 3px 低く (12px)、文字もそのぶん小さくした。ボタンの上は 2px 空ける
   - SSG HW AMP ENV・SSG HW PITCH ENV: HOLD (HOLD・COUNT・TARGET・HOLD MIN・HOLD MAX)・KEEP (KEEP・START・KEEP START・END・KEEP END)・PATTERNS
   - SSG SW AMP ENV[256]・SSG SW PITCH ENV[256]・PARAM ENV[256]: SWITCHES (KEEP・STRICT R・START NOW・T SYNC)・LOOP (LOOP からループの一覧まで)・RATE (R.TARGET からレートの一覧まで)・LEVEL (L.TARGET からレベルの一覧まで)・RR (RR から RR NOTE まで)・ENDL (Use Endl・ENDL)・PATTERNS (PARAM ENV[256] にはパターンが無いので、PATTERNS も無い)

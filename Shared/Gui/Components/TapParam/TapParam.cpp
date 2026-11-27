@@ -666,6 +666,8 @@ void GuiComponentTapParam::applyActive()
     loop.setDimmed(!active);
     loops.setEnables(active && loop.getToggleState());
     loopSeparator.setEnabled(active);
+    // 出し入れのボタンも、区分を切っている (Enable 切・Bypass 入) あいだは押せなくする (4.5.0)
+    loopToggle.setEnabled(active);
 
     // 1 段・組が 1 つ以下のときは選ぶものが無い
     const auto* t = table();

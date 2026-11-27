@@ -323,6 +323,10 @@ void GuiComponentWaveHold::applyEnables()
     const bool isHold = canHold && holdEnableBtn.getToggleState();
     const bool isKeep = enabled && keepEnableBtn.getToggleState();
 
+    // 出し入れのボタンも、持ち主の区分を切っているあいだは押せなくする (4.5.0)
+    holdToggle.setEnabled(enabled);
+    keepToggle.setEnabled(enabled);
+
     holdEnableBtn.setEnabled(canHold);
     holdCount.setEnabled(isHold);
     holdCountButtons.setEnables(isHold);
