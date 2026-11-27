@@ -94,7 +94,7 @@ private:
 	// OPZX7 の外部 PCM データ用
 	std::vector<float>* m_pcmBuffer = nullptr;
 
-	// 音色モードの足切りで、1 周期に使う長さの再生区間に対する割合 (4.5.0)
+	// 音色モードのスライスで、1 周期に使う長さの再生区間に対する割合 (4.5.0)
 	double m_toneCycleFrac = 1.0;
 	// OPZX7 の波形データ用
 	std::vector<float>* m_wtBuffer = nullptr;

@@ -123,7 +123,7 @@ private:
     bool m_toneMode = false;
     int m_toneFit = 0;
 
-    // 1 周期に使う長さの、再生区間に対する割合 (足切りで 1 未満になる)
+    // 1 周期に使う長さの、再生区間に対する割合 (スライスで 1 未満になる)
     double m_toneCycleFrac = 1.0;
     FixMode m_fixMode;
     Opzx7LfoCore m_lfo;

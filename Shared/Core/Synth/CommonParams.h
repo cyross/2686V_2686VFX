@@ -172,7 +172,7 @@ struct PcmParams {
     // キーの周波数で繰り返す。ループポイントは使わない
     bool tone = false;
 
-    // 音色モードの端折り方。0: 間引き、1: 足切り (CPV::Pcm::ToneFit)
+    // 音色モードの端折り方。0: 間引き、1: スライス (CPV::Pcm::ToneFit)
     int toneFit = 0;
 };
 

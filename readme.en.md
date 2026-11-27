@@ -39,7 +39,7 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
 - **PCM: added "Tone mode" and "Fit"**
   - When on, the loaded sample is treated as one tone (one cycle) and repeated as many times a second as the frequency of the key pressed (440 times for 440 Hz). Off by default
   - The range cut out by the start position (P.OFFSET) and length (P.RATIO) is one cycle. Loop, loop points and the loop counter are not used (they are shown as unavailable while tone mode is on)
-  - "Fit" decides what to do with a sample too long for one cycle. "Decimate" (the default) shrinks the whole range into one cycle (the same as changing the speed). "Cut" keeps the sample's own speed and takes only as much from the start as fits in one cycle. When the range is shorter than one cycle, both stretch it
+  - "Fit" decides what to do with a sample too long for one cycle. "Decimate" (the default) shrinks the whole range into one cycle (the same as changing the speed). "Slice" keeps the sample's own speed and takes only as much from the start as fits in one cycle. When the range is shorter than one cycle, both stretch it
   - Per OPZX7 operator (when WS is PCM file), ADPCM (PCM in 86V) and per ADPCM+ slot (TARGET). 2686V, 2686VLight, 86V, OPZX7S, PCMV
   - Saved to the parameter files as `pcmTone` / `pcmToneFit`
 - **Groups can now be hidden**

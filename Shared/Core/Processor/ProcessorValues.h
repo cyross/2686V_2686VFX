@@ -444,11 +444,11 @@ namespace CPV
 		{
 			// 間引き (速さを変えて区間全体を 1 周期へ縮める)
 			inline constexpr int decimate = 0;
-			// 足切り (素材の速さのまま、1 周期に入る長さだけ頭から抜き出す)
-			inline constexpr int cut = 1;
+			// スライス (素材の速さのまま、1 周期に入る長さだけ頭から抜き出す)
+			inline constexpr int slice = 1;
 
 			inline constexpr int min = decimate;
-			inline constexpr int max = cut;
+			inline constexpr int max = slice;
 			inline constexpr int initial = decimate;
 		}
 	}

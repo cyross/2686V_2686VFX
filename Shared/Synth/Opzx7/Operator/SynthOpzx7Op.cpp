@@ -104,7 +104,7 @@ void Opzx7Operator::updateFrequency()
 
         if (m_params.pcm.tone) {
             // 音色モード (4.5.0)。再生区間を 1 周期として、ほかの波形と同じく
-            // キー (または FIX) の周波数で回す。足切りでは素材の速さのまま
+            // キー (または FIX) の周波数で回す。スライスでは素材の速さのまま
             // 1 周期に入る長さだけを頭から使う
             baseFreq = m_fixMode.noteOn(frequency);
 
@@ -565,7 +565,7 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
 
             if (playSize < 1) playSize = 1;
 
-            // 音色モード (4.5.0)。足切りでは 1 周期に入る長さだけを使い、ループポイントは使わない
+            // 音色モード (4.5.0)。スライスでは 1 周期に入る長さだけを使い、ループポイントは使わない
             const bool loopPoint = m_loopPointEnable && !m_params.pcm.tone;
 
             if (m_params.pcm.tone) playSize = std::max<size_t>(1, (size_t)((double)playSize * m_toneCycleFrac));

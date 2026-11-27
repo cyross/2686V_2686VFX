@@ -139,7 +139,7 @@ void GuiAdpcm::setup()
         // 値は CPV::Pcm::ToneFit の並び
         std::vector<SelectItem> fitItems = {
             {.name = I18n::pick(u8"間引き", u8"Decimate"), .value = 1 },
-            {.name = I18n::pick(u8"足切り", u8"Cut"), .value = 2 }
+            {.name = I18n::pick(u8"スライス", u8"Slice"), .value = 2 }
         };
 
         pcmToneFitSelector.setup(GuiComboBox::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::pcmToneFit, .title = AdpcmGuiText::Adpcm::pcmToneFit, .items = fitItems, .isReset = true });

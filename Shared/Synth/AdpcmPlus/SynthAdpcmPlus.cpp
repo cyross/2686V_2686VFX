@@ -181,7 +181,7 @@ void AdpcmPlusCore::updateFrequency()
     m_pitchRatio = (float)((m_currentFrequency / m_keyRootFreq) * (m_playRate / m_sampleRate));
 
     // 音色モード (4.5.0)。再生区間を 1 周期として、1 秒に周波数の回数だけ回す。
-    // 間引きは区間全体を 1 周期へ縮め (速さを変えるのと同じ)、足切りは素材の
+    // 間引きは区間全体を 1 周期へ縮め (速さを変えるのと同じ)、スライスは素材の
     // 速さのまま 1 周期に入る長さだけを頭から使う。区間が 1 周期より短ければ
     // どちらも引き伸ばす。
     m_toneCycleFrac = 1.0;
@@ -431,7 +431,7 @@ float AdpcmPlusCore::getSample()
 
         if (playSize < 1.0) playSize = 1.0;
 
-        // 音色モード (4.5.0)。足切りでは 1 周期に入る長さだけを頭から使う
+        // 音色モード (4.5.0)。スライスでは 1 周期に入る長さだけを頭から使う
         if (m_toneMode) playSize = std::max(1.0, playSize * m_toneCycleFrac);
 
         double endPosition = offsetSamples + playSize;
@@ -588,7 +588,7 @@ float AdpcmPlusCore::getSample()
 
         if (playSize < 1.0) playSize = 1.0;
 
-        // 音色モード (4.5.0)。足切りでは 1 周期に入る長さだけを頭から使う
+        // 音色モード (4.5.0)。スライスでは 1 周期に入る長さだけを頭から使う
         if (m_toneMode) playSize = std::max(1.0, playSize * m_toneCycleFrac);
 
         double endPosition = offsetSamples + playSize;
