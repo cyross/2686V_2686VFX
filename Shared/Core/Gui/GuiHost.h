@@ -213,6 +213,15 @@ public:
     // 生成過程プレビューの窓を必ず最前面にする (SETTINGS。4.4.1。既定は切)
     bool stageAlwaysOnTop = false;
 
+    // 生成過程プレビューを作り終えたら、すぐに再生する (SETTINGS。4.5.0。既定は入 = これまでどおり)。
+    // 切ると、作り終えたところで頭のコマに止めておく
+    bool stageAutoPlay = true;
+
+    // 生成過程プレビューの窓の壁紙 (SETTINGS。4.5.0)。並べ方はプラグインの画面の壁紙と同じ
+    // (0=Stretch, 1=Fill, 2=Fit, 3=Original)。空なら壁紙を出さない
+    juce::String stageWallpaperPath;
+    int stageWallpaperMode = 0;
+
     // 非表示にした枠 (4.5.0。GuiGroupFolds)。タブ (GuiGroupFoldKey) ごとに、隠した枠の
     // 名前を | でつないで持つ。設定ファイルへ保存する
     std::map<juce::String, juce::String> hiddenGroups;

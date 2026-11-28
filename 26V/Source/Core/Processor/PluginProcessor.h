@@ -658,6 +658,9 @@ public:
         visit(SettingsKey::stageAutoGenerate, stageAutoGenerate);
         visit(SettingsKey::stageAutoInterval, stageAutoInterval);
         visit(SettingsKey::stageAlwaysOnTop, stageAlwaysOnTop);
+        visit(SettingsKey::stageAutoPlay, stageAutoPlay);
+        visit(SettingsKey::stageWallpaperPath, stageWallpaperPath);
+        visit(SettingsKey::stageWallpaperMode, stageWallpaperMode);
         visit(SettingsKey::browserBpm, browserBpm);
         visit(SettingsKey::browserFollowDaw, browserFollowDaw);
         visit(SettingsKey::browserBars, browserBars);

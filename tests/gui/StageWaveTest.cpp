@@ -21,6 +21,7 @@
 #include "Shared/Gui/Components/GenWave/GenWavePlayer.h"
 #include "Shared/Gui/Components/StageWave/StageWaveRender.h"
 #include "Shared/Gui/Components/Loading/GuiLoading.h"
+#include "Shared/Gui/Components/Wallpaper/Wallpaper.h"
 #include "Shared/Gui/Components/ParamBrowser/ParamBrowser.h"
 #include "Shared/Core/Editor/EditorStageWaveText.h"
 #include "Shared/Core/Editor/EditorParamBrowserText.h"
@@ -1328,4 +1329,145 @@ TEST_CASE("打鍵の並び: 長い音符を遅いテンポで押しても、並�
 
 	// 全音符 × 8 は 4 分音符 32 個ぶん (20 BPM なら 96 秒) だが、30 秒で離す
 	CHECK(events[1].at == (int)std::lround(StageWaveRender::maxPatternSeconds * rate));
+}
+
+
+TEST_CASE("生成過程プレビュー: 作り終えたらすぐに再生するかを SETTINGS で切り替える (4.5.0)")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	auto& host = *processor;
+
+	host.stageAutoGenerate = false;
+
+	// 既定は入 (これまでどおり)
+	CHECK(host.stageAutoPlay);
+
+	processor->prepareToPlay(48000.0, 512);
+
+	host.stageBpm = 240.0f;
+	host.stageBars = 1;
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+
+	auto* launcher = findFirst<GuiGenWave>(*editor);
+
+	REQUIRE(launcher != nullptr);
+
+	launcher->setWindowOpen(true);
+
+	auto& stage = *launcher->stageWave();
+
+	auto build = [&] {
+		auto job = StageWaveRender::prepare(host, stage.currentOptions());
+
+		REQUIRE(job != nullptr);
+
+		return StageWaveRender::run(*job);
+	};
+
+	const auto result = build();
+
+	REQUIRE_FALSE(result.isEmpty());
+
+	// 入: 作り終えたら流れ出す
+	stage.finishGenerate(result);
+
+	CHECK_FALSE(stage.isPlayerPaused());
+
+	// SETTINGS のトグルで切ると、作り終えたところで頭のコマに止めておく
+	auto toggles = findAll<GuiToggleButton>(*editor, [](GuiToggleButton& t) { return t.getButtonText() == SettingsGuiText::stageAutoPlay.get(); });
+
+	REQUIRE(toggles.size() == 1);
+	CHECK(toggles[0]->getToggleState());
+
+	toggles[0]->setToggleState(false, juce::dontSendNotification);
+	toggles[0]->onClick();
+
+	CHECK_FALSE(host.stageAutoPlay);
+
+	stage.finishGenerate(result);
+
+	CHECK(stage.isPlayerPaused());
+
+	launcher->setWindowOpen(false);
+
+	editor.reset();
+}
+
+TEST_CASE("生成過程プレビュー: 窓の壁紙を SETTINGS で選べ、画像を読んで描く (4.5.0)")
+{
+	// 壁紙そのもの: 読めない・空なら描かない。同じ場所なら読み直さない
+	{
+		GuiWallpaper wallpaper;
+
+		CHECK(wallpaper.load({}));
+		CHECK_FALSE(wallpaper.isValid());
+		CHECK_FALSE(wallpaper.load({}));
+
+		const auto file = juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("stage_wallpaper", ".png");
+
+		{
+			juce::Image image(juce::Image::RGB, 32, 16, true);
+			juce::Graphics(image).fillAll(juce::Colours::red);
+
+			juce::FileOutputStream out(file);
+			REQUIRE(out.openedOk());
+			juce::PNGImageFormat().writeImageToStream(image, out);
+		}
+
+		CHECK(wallpaper.load(file.getFullPathName()));
+		CHECK(wallpaper.isValid());
+		CHECK_FALSE(wallpaper.load(file.getFullPathName()));
+
+		for (int mode = 0; mode < 4; ++mode)
+		{
+			juce::Image canvas(juce::Image::ARGB, 100, 60, true);
+			juce::Graphics g(canvas);
+
+			CHECK(wallpaper.draw(g, canvas.getBounds().toFloat(), mode));
+		}
+
+		file.deleteFile();
+	}
+
+	// SETTINGS: 壁紙の行と並べ方の選択。並べ方はプラグインの画面の壁紙と同じ 4 つ
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	EditorTestAccess::materializeAll(*static_cast<AudioPlugin2686VEditor*>(editor.get()));
+
+	CHECK(processor->stageWallpaperPath.isEmpty());
+	CHECK(processor->stageWallpaperMode == 0);
+
+	auto labels = findAll<GuiLabel>(*editor, [](GuiLabel& l) { return l.getText() == SettingsGuiText::stageWallpaper.get(); });
+
+	REQUIRE(labels.size() == 1);
+
+	auto* page = labels[0]->getParentComponent();
+	auto* settings = dynamic_cast<GuiBase*>(page);
+
+	REQUIRE(settings != nullptr);
+
+	settings->layout(page->getLocalBounds());
+
+	auto modes = findAll<GuiComboBox>(*page, [](GuiComboBox& b) { return b.label.getText() == SettingsGuiText::stageWallpaperMode.get(); });
+
+	REQUIRE(modes.size() == 1);
+	CHECK(modes[0]->getNumItems() == 4);
+
+	// 「すぐに再生する」の行の下に、壁紙の行、並べ方の行の順に並ぶ
+	auto toggles = findAll<GuiToggleButton>(*page, [](GuiToggleButton& t) { return t.getButtonText() == SettingsGuiText::stageAutoPlay.get(); });
+
+	REQUIRE(toggles.size() == 1);
+	CHECK(toggles[0]->getBottom() <= labels[0]->getY());
+	CHECK(labels[0]->getBottom() <= modes[0]->getY());
+	CHECK(modes[0]->getBottom() <= page->getHeight());
+
+	modes[0]->setSelectedId(3, juce::sendNotificationSync);
+
+	CHECK(processor->stageWallpaperMode == 2);
+
+	editor.reset();
 }

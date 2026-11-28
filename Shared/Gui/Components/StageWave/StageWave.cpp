@@ -771,6 +771,12 @@ void GuiStageWave::finishGenerate(const StageWaveRender::Result& result)
 
 	m_player.restart(juce::Time::getMillisecondCounterHiRes());
 
+	// 作り終えたらすぐに再生するか (SETTINGS。4.5.0)。切っていれば頭のコマで止めておく
+	if (!ctx.audioProcessor.stageAutoPlay)
+	{
+		if (const auto* wave = timeline()) m_player.showFrame(*wave, 0, juce::Time::getMillisecondCounterHiRes());
+	}
+
 	generateBtn.setEnabled(true);
 	generateBtn.setButtonText(EditorGuiText::StageWave::regenerate);
 	deleteBtn.setEnabled(!m_result.isEmpty());
@@ -879,6 +885,9 @@ void GuiStageWave::timerCallback()
 	{
 		window->setAlwaysOnTop(ctx.audioProcessor.stageAlwaysOnTop);
 	}
+
+	// SETTINGS で壁紙を変えたら、開いている窓にもすぐ当てる (4.5.0)
+	if (m_wallpaper.load(ctx.audioProcessor.stageWallpaperPath)) repaint();
 
 	if (++m_idleTicks >= infoRefreshTicks) {
 		m_idleTicks = 0;
@@ -1061,7 +1070,11 @@ void GuiStageWave::paint(juce::Graphics& g)
 {
 	using namespace StageWaveRender;
 
-	g.fillAll(GuiColor::GenWave::WindowBg);
+	// 壁紙 (4.5.0)。無ければこれまでどおりの地の色
+	m_wallpaper.load(ctx.audioProcessor.stageWallpaperPath);
+
+	if (!m_wallpaper.draw(g, getLocalBounds().toFloat(), ctx.audioProcessor.stageWallpaperMode))
+		g.fillAll(GuiColor::GenWave::WindowBg);
 
 	// 区分のあいだの縦線
 	g.setColour(GuiColor::GenWave::GroupDivider);

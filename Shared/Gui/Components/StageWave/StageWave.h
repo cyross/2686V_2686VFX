@@ -11,6 +11,7 @@
 #include "Shared/Core/Gui/GuiColor.h"
 #include "Shared/Core/Gui/GuiContext.h"
 #include "Shared/Gui/Components/GenWave/GenWavePlayer.h"
+#include "Shared/Gui/Components/Wallpaper/Wallpaper.h"
 
 // ============================================================================
 // 生成中の波形の窓 (4.4.0)
@@ -114,6 +115,9 @@ public:
 
 	bool isBusy() const { return m_busy; }
 
+	// 再生が止まっているか (テストと、作り終えたらすぐに再生するかの確かめ用。4.5.0)
+	bool isPlayerPaused() const { return m_player.isPaused(); }
+
 	// 作り始め・作り終わりを知らせる (窓がローディング画面を出し入れする)
 	std::function<void(bool busy)> onBusyChanged;
 
@@ -199,6 +203,9 @@ private:
 	StageWaveRender::Result m_result;
 
 	GenWavePlayer m_player;
+
+	// 窓の壁紙 (4.5.0。SETTINGS で選ぶ)。描くたびに場所を見て、変わっていれば読み直す
+	GuiWallpaper m_wallpaper;
 
 	bool m_busy = false;
 

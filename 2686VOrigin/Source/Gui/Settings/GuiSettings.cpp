@@ -833,6 +833,50 @@ void GuiSettings::setup()
     stageOnTopToggle.setExplicitFocusOrder(++tabOrder);
     stageOnTopToggle.onClick = [this] { pluginOf(ctx).stageAlwaysOnTop = stageOnTopToggle.getToggleState(); };
 
+    // 生成過程プレビューを作り終えたらすぐに再生する (4.5.0)。既定は入
+    stageAutoPlayToggle.setup({ .parent = *this, .title = SettingsGuiText::stageAutoPlay, .font = toggleFont, .isReset = false });
+    stageAutoPlayToggle.setToggleState(pluginOf(ctx).stageAutoPlay, juce::dontSendNotification);
+    stageAutoPlayToggle.setWantsKeyboardFocus(true);
+    stageAutoPlayToggle.setExplicitFocusOrder(++tabOrder);
+    stageAutoPlayToggle.onClick = [this] { pluginOf(ctx).stageAutoPlay = stageAutoPlayToggle.getToggleState(); };
+
+    // 生成過程プレビューの窓の壁紙 (4.5.0)。開いている窓には、窓の側が次の描き直しで当てる
+    setupRow(stageWallpaperLabel, SettingsGuiText::stageWallpaper, stageWallpaperPathLabel, stageWallpaperBrowseBtn);
+    stageWallpaperPathLabel.setText(pluginOf(ctx).stageWallpaperPath.isEmpty()
+        ? Io::empty : juce::File(pluginOf(ctx).stageWallpaperPath).getFileName(), juce::dontSendNotification);
+    stageWallpaperPathLabel.setWantsKeyboardFocus(false);
+    stageWallpaperBrowseBtn.setWantsKeyboardFocus(true);
+    stageWallpaperBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    stageWallpaperBrowseBtn.onClick = [this] {
+        editorOf(ctx).openFileChooser(
+            SettingsGuiText::stageWallpaperChoose,
+            "*.png;*.jpg;*.jpeg",
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.existsAsFile()) {
+                    pluginOf(ctx).stageWallpaperPath = file.getFullPathName();
+                    stageWallpaperPathLabel.setText(file.getFileName(), juce::dontSendNotification);
+                }
+            }
+        );
+    };
+
+    stageWallpaperClearBtn.setup({ .parent = *this, .title = SettingsGuiText::wallpaperClear, .textColor = GuiColor::Button::CautionText, .bgColor = GuiColor::Button::CautionBg, .isReset = false });
+    stageWallpaperClearBtn.setWantsKeyboardFocus(true);
+    stageWallpaperClearBtn.setExplicitFocusOrder(++tabOrder);
+    stageWallpaperClearBtn.onClick = [this] {
+        pluginOf(ctx).stageWallpaperPath = "";
+        stageWallpaperPathLabel.setText(Io::empty, juce::dontSendNotification);
+    };
+
+    stageWallpaperModeSelector.setup({ .parent = *this, .title = SettingsGuiText::stageWallpaperMode, .items = wpModeItems, .isReset = false });
+    stageWallpaperModeSelector.setSelectedId(pluginOf(ctx).stageWallpaperMode + 1, juce::dontSendNotification);
+    stageWallpaperModeSelector.setWantsKeyboardFocus(true);
+    stageWallpaperModeSelector.setExplicitFocusOrder(++tabOrder);
+    stageWallpaperModeSelector.onChange = [this] {
+        pluginOf(ctx).stageWallpaperMode = stageWallpaperModeSelector.getSelectedId() - 1;
+    };
+
     separator5.setupComponent(*this);
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = SettingsGuiText::showVirtualKeyboard, .font = toggleFont , .isReset = false });
@@ -1381,6 +1425,32 @@ void GuiSettings::layout(juce::Rectangle<int> content)
         stageOnTopToggle.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::BrowserAutoToggleWidth));
     }
 
+    // 生成過程プレビューを作り終えたらすぐに再生する (4.5.0)
+    {
+        auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+        stageAutoPlayToggle.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::BrowserAutoToggleWidth));
+    }
+
+    // 生成過程プレビューの窓の壁紙と、その並べ方 (4.5.0)。プラグインの画面の壁紙の 2 行と同じ形
+    {
+        auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+        stageWallpaperLabel.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LongLabelWidth));
+        stageWallpaperClearBtn.setBounds(row.removeFromRight(SettingsGuiValue::Settings::ClearButtonWidth));
+        stageWallpaperBrowseBtn.setBounds(row.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+        stageWallpaperPathLabel.setBounds(row);
+    }
+
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+
+    {
+        auto row = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+        stageWallpaperModeSelector.label.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::LongLabelWidth));
+        stageWallpaperModeSelector.setBounds(row.removeFromLeft(SettingsGuiValue::Settings::ModeSelectorWidth));
+    }
+
     separator5.layoutComponent(sRect);
 
     // 21. Virtual Keyboard Row
@@ -1487,6 +1557,10 @@ void GuiSettings::setSettings()
     stageAutoIntervalSlider.setEnabledWithLabel(pluginOf(ctx).stageAutoGenerate);
     browserAutoToggle.setToggleState(pluginOf(ctx).browserAutoGenerate, juce::dontSendNotification);
     stageOnTopToggle.setToggleState(pluginOf(ctx).stageAlwaysOnTop, juce::dontSendNotification);
+    stageAutoPlayToggle.setToggleState(pluginOf(ctx).stageAutoPlay, juce::dontSendNotification);
+    stageWallpaperPathLabel.setText(pluginOf(ctx).stageWallpaperPath.isEmpty()
+        ? Io::empty : juce::File(pluginOf(ctx).stageWallpaperPath).getFileName(), juce::dontSendNotification);
+    stageWallpaperModeSelector.setSelectedId(pluginOf(ctx).stageWallpaperMode + 1, juce::dontSendNotification);
 
     // 設定を読み込み直したときも、つまみの見せ方を合わせる
     if (auto* editor = dynamic_cast<juce::Component*>(&ctx.editor)) GuiSlider::refreshN88Display(*editor);

@@ -183,6 +183,16 @@ class GuiSettings : public GuiBase
     // 生成過程プレビューの窓を必ず最前面にする (4.4.1)。既定は切
     GuiToggleButton stageOnTopToggle;
 
+    // 生成過程プレビューを作り終えたらすぐに再生するか (4.5.0)。既定は入
+    GuiToggleButton stageAutoPlayToggle;
+
+    // 生成過程プレビューの窓の壁紙と、その並べ方 (4.5.0)。プラグインの画面の壁紙と同じ造り
+    GuiLabel stageWallpaperLabel;
+    GuiLabel stageWallpaperPathLabel;
+    GuiTextButton stageWallpaperBrowseBtn;
+    GuiTextButton stageWallpaperClearBtn;
+    GuiComboBox stageWallpaperModeSelector;
+
     NormalSeparator separator5;
 
     // 仮想MIDIキーボード表示制御
@@ -308,6 +318,12 @@ public:
         stageAutoIntervalSlider(context),
         browserAutoToggle(context),
         stageOnTopToggle(context),
+        stageAutoPlayToggle(context),
+        stageWallpaperLabel(context),
+        stageWallpaperPathLabel(context),
+        stageWallpaperBrowseBtn(context),
+        stageWallpaperClearBtn(context),
+        stageWallpaperModeSelector(context),
         separator5(context),
         virtualMidiKeyboardToggle(context),
         separator6(context),

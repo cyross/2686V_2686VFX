@@ -53,6 +53,10 @@ namespace SettingsGuiText
 	static inline const I18n::Text stageAutoInterval{ u8"待ち時間", u8"Wait" };
 	static inline const I18n::Text stageAutoIntervalUnit{ u8" 秒", u8" s" };
 	static inline const I18n::Text stageAlwaysOnTop{ u8"生成過程プレビューの窓を必ず最前面にする", u8"Keep the build process preview window always on top" };
+	static inline const I18n::Text stageAutoPlay{ u8"生成過程プレビューを作り終えたら、すぐに再生する (切ると頭のコマで止めておく)", u8"Start playing the build process preview as soon as it is built (off: wait at the first frame)" };
+	static inline const I18n::Text stageWallpaper{ u8"プレビュー壁紙:", u8"Preview wallpaper:" };
+	static inline const I18n::Text stageWallpaperChoose{ u8"生成過程プレビューの壁紙画像ファイルを選択してください", u8"Choose a wallpaper image for the build process preview" };
+	static inline const I18n::Text stageWallpaperMode{ u8"プレビュー壁紙表示スケール:", u8"Preview wallpaper fit:" };
 	static inline const I18n::Text browserAutoGenerate{ u8"ファイルブラウザーでフォルダを開いたとき、プレビューが揃っていなければ全部を自動で作る", u8"When the file browser opens a folder, build all previews if any are missing" };
 	static inline const I18n::Text liveGraphFps{ u8"速さ", u8"Rate" };
 	static inline const I18n::Text liveDetune{ u8"MUL/DET・FIX を鳴らしながら反映", u8"Apply MUL/DET and FIX while notes play" };

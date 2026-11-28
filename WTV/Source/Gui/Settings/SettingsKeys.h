@@ -79,6 +79,11 @@ namespace SettingsKey
 	static inline const juce::String stageAutoInterval = "stageAutoInterval";
 	static inline const juce::String stageAlwaysOnTop = "stageAlwaysOnTop";
 
+	// 生成過程プレビューを作り終えたらすぐに再生するか・窓の壁紙 (4.5.0)
+	static inline const juce::String stageAutoPlay = "stageAutoPlay";
+	static inline const juce::String stageWallpaperPath = "stageWallpaperPath";
+	static inline const juce::String stageWallpaperMode = "stageWallpaperMode";
+
 	// ファイルブラウザーの行のプレビューの作り方・見せ方と自動生成 (4.4.1)。全フォルダ共通
 	static inline const juce::String browserBpm = "browserBpm";
 	static inline const juce::String browserFollowDaw = "browserFollowDaw";
