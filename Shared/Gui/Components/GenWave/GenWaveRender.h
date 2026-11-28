@@ -103,4 +103,12 @@ namespace GenWaveRender
     // patternKey は作ったときの打鍵の並びの符号 (StageWaveRender::patternKey)。
     // 並びを変えると別の置き場になるので、前の並びで作ったものは「未生成」に見える。
     juce::File cacheFileFor(const juce::File& cacheDir, const juce::File& source, const juce::String& patternKey);
+
+    // パラメータファイル 1 件ぶんの、貯めてある全部 (どの打鍵の並びで作ったものも)。
+    // 4.4.0 までの、並びの符号が付かない名前のものも含む。
+    // 並びを変えて作り直すと前のものは誰も読まなくなるので、消すときに使う
+    juce::Array<juce::File> cacheFilesFor(const juce::File& cacheDir, const juce::File& source);
+
+    // 貯めてある全部のうち、keep 以外を消す
+    void deleteOtherCacheFiles(const juce::File& cacheDir, const juce::File& source, const juce::File& keep);
 }

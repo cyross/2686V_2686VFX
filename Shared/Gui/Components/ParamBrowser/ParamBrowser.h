@@ -313,6 +313,12 @@ private:
     size_t m_queueAt = 0;
     juce::MemoryBlock m_savedState;
     bool m_busy = false;
+
+    // 生成過程プレビューを止めているか (stagePreviewHold を 1 つ上げているか)
+    bool m_holdsStagePreview = false;
+
+    // 作っているあいだ、生成過程プレビューを止める・止めるのをやめる。二重には数えない
+    void holdStagePreview(bool hold);
     bool m_cancelled = false;
 
     juce::ThreadPool m_pool{ 1 };

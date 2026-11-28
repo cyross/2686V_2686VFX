@@ -488,6 +488,20 @@ GuiParamBrowser::~GuiParamBrowser()
     stopTimer();
 
     m_pool.removeAllJobs(true, 4000);
+
+    // 作っている途中で壊れたときも、生成過程プレビューを止めたままにしない
+    holdStagePreview(false);
+}
+
+void GuiParamBrowser::holdStagePreview(bool hold)
+{
+    if (hold == m_holdsStagePreview) return;
+
+    m_holdsStagePreview = hold;
+
+    auto& count = ctx.audioProcessor.stagePreviewHold;
+
+    count = hold ? count + 1 : juce::jmax(0, count - 1);
 }
 
 bool GuiParamBrowser::isAllowed(const Item& item) const
@@ -1382,6 +1396,9 @@ void GuiParamBrowser::startGenerate(const std::vector<int>& targets)
     m_queueAt = 0;
     m_busy = true;
 
+    // ファイルを当てているあいだ、生成過程プレビューは作らない (当てたファイルの音になるため)
+    holdStagePreview(true);
+
     bulkGenerateBtn.setEnabled(false);
     bulkDeleteBtn.setEnabled(false);
 
@@ -1401,6 +1418,9 @@ void GuiParamBrowser::generateOne(int itemIndex)
     m_queueAt = 0;
     m_cancelled = false;
     m_busy = true;
+
+    // ファイルを当てているあいだ、生成過程プレビューは作らない (当てたファイルの音になるため)
+    holdStagePreview(true);
 
     bulkGenerateBtn.setEnabled(false);
     bulkDeleteBtn.setEnabled(false);
@@ -1446,15 +1466,18 @@ void GuiParamBrowser::generateNext()
 
     // 作り方 (打鍵の並び) は全フォルダ共通の設定から
     const auto pattern = StageWaveRender::browserPattern(ctx.audioProcessor);
-    const auto cacheFile = GenWaveRender::cacheFileFor(
-        GenWaveRender::cacheDirectory(ctx.audioProcessor), item.file, StageWaveRender::patternKey(pattern));
+    const auto cacheDir = GenWaveRender::cacheDirectory(ctx.audioProcessor);
+    const auto cacheFile = GenWaveRender::cacheFileFor(cacheDir, item.file, StageWaveRender::patternKey(pattern));
+    const auto source = item.file;
 
     juce::Component::SafePointer<GuiParamBrowser> safe(this);
 
-    m_pool.addJob([safe, rig, cacheFile, index, pattern] {
+    m_pool.addJob([safe, rig, cacheDir, cacheFile, source, index, pattern] {
         auto wave = std::make_shared<GenWaveRender::Wave>(StageWaveRender::renderPattern(*rig, pattern));
 
-        GenWaveRender::write(cacheFile, *wave);
+        // 貯めるのは 1 件につき今の並びのぶんだけ。前の並び (と 4.4.0 までの名前) で
+        // 作ったものは誰も読まないので消す。消さないと、並びを変えるたびに増えていく
+        if (GenWaveRender::write(cacheFile, *wave)) GenWaveRender::deleteOtherCacheFiles(cacheDir, source, cacheFile);
 
         juce::MessageManager::callAsync([safe, wave, index] {
             if (safe == nullptr) return;
@@ -1492,6 +1515,10 @@ void GuiParamBrowser::finishBulk()
     m_busy = false;
     m_cancelled = false;
 
+    // 戻したので、生成過程プレビューを作ってよい。戻したぶんも「触った」に数えるので、
+    // 自動生成が入っていれば、ユーザーの音で作り直す
+    holdStagePreview(false);
+
     bulkGenerateBtn.setEnabled(true);
     bulkDeleteBtn.setEnabled(true);
 
@@ -1512,7 +1539,8 @@ void GuiParamBrowser::deleteAllPreviews()
 
         if (item.isFolder) continue;
 
-        GenWaveRender::cacheFileFor(cacheDir, item.file, currentPatternKey()).deleteFile();
+        // 今の並びのものだけでなく、前の並び (と 4.4.0 までの名前) で作ったものも消す
+        for (const auto& file : GenWaveRender::cacheFilesFor(cacheDir, item.file)) file.deleteFile();
 
         item.wave = {};
         item.hasWave = false;

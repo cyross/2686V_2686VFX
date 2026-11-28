@@ -133,13 +133,45 @@ juce::File GenWaveRender::cacheDirectory(const GuiProcessorHost& processor)
     return dir;
 }
 
+namespace
+{
+    // 置き場の名前の頭 (元のファイル名と、元の場所から作った短い符号)。
+    // 同じ名前が別のフォルダにあっても混ざらないようにするためで、中身を見分けるためのものではない。
+    juce::String cacheStem(const juce::File& source)
+    {
+        const juce::String tag =
+            juce::String::toHexString((juce::int64)source.getFullPathName().toLowerCase().hashCode64());
+
+        return source.getFileName() + "." + tag;
+    }
+}
+
 juce::File GenWaveRender::cacheFileFor(const juce::File& cacheDir, const juce::File& source, const juce::String& patternKey)
 {
-    // 元の場所から短い符号を作る。同じ名前が別のフォルダにあっても
-    // 混ざらないようにするためで、中身を見分けるためのものではない。
-    const juce::String tag =
-        juce::String::toHexString((juce::int64)source.getFullPathName().toLowerCase().hashCode64());
-
     // 打鍵の並びの符号も付ける。並びを変えたら、前に作ったものは別物として扱う
-    return cacheDir.getChildFile(source.getFileName() + "." + tag + "." + patternKey + fileExtension);
+    return cacheDir.getChildFile(cacheStem(source) + "." + patternKey + fileExtension);
+}
+
+juce::Array<juce::File> GenWaveRender::cacheFilesFor(const juce::File& cacheDir, const juce::File& source)
+{
+    const auto stem = cacheStem(source);
+
+    // 「頭.」のあとに並びの符号が続くもの。頭のすぐ後ろを「.」で区切るので、
+    // 符号が前方一致するだけの別の元 (abc と abcd) を拾わない
+    auto files = cacheDir.findChildFiles(juce::File::findFiles, false, stem + ".*" + fileExtension);
+
+    // 4.4.0 までの、並びの符号が付かない名前
+    const auto legacy = cacheDir.getChildFile(stem + fileExtension);
+
+    if (legacy.existsAsFile()) files.addIfNotAlreadyThere(legacy);
+
+    return files;
+}
+
+void GenWaveRender::deleteOtherCacheFiles(const juce::File& cacheDir, const juce::File& source, const juce::File& keep)
+{
+    for (const auto& file : cacheFilesFor(cacheDir, source))
+    {
+        if (file != keep) file.deleteFile();
+    }
 }
