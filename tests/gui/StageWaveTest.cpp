@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 
 #include <cmath>
+#include <limits>
 #include <functional>
 #include <vector>
 
@@ -1470,4 +1471,144 @@ TEST_CASE("生成過程プレビュー: 窓の壁紙を SETTINGS で選べ、画
 	CHECK(processor->stageWallpaperMode == 2);
 
 	editor.reset();
+}
+
+TEST_CASE("生成中の波形の窓: 拾った値は ±1 で切らず、数でないものだけを弾く (4.5.0)")
+{
+	// FM の搬送波を足した和は 1 を超える。切ると倍率を下げても頭打ちに見える
+	CHECK(StageWaveRender::storedValue(1.8f) == doctest::Approx(1.8f));
+	CHECK(StageWaveRender::storedValue(-2.5f) == doctest::Approx(-2.5f));
+	CHECK(StageWaveRender::storedValue(0.25f) == doctest::Approx(0.25f));
+
+	// 線が飛び過ぎないところで収める
+	CHECK(StageWaveRender::storedValue(1000.0f) == doctest::Approx(StageWaveRender::valueLimit));
+	CHECK(StageWaveRender::storedValue(-1000.0f) == doctest::Approx(-StageWaveRender::valueLimit));
+
+	CHECK(StageWaveRender::storedValue(std::numeric_limits<float>::quiet_NaN()) == 0.0f);
+	CHECK(StageWaveRender::storedValue(std::numeric_limits<float>::infinity()) == 0.0f);
+}
+
+TEST_CASE("ファイルブラウザー: 書き出す名前の欄は名前の部分だけを出し、拡張子は 1 回だけ付く (4.5.0)")
+{
+	auto processor = std::make_unique<AudioPlugin2686V>();
+	auto& host = *processor;
+
+	std::unique_ptr<juce::AudioProcessorEditor> editor(processor->createEditor());
+
+	auto* editorHost = dynamic_cast<GuiEditorHost*>(editor.get());
+
+	REQUIRE(editorHost != nullptr);
+
+	GuiContext context(host, *editorHost, host.apvts);
+
+	juce::TemporaryFile tempDir;
+	const auto root = tempDir.getFile();
+
+	root.createDirectory();
+
+	GuiParamBrowser browser(context);
+	browser.setSize(1200, 800);
+
+	juce::File chosen;
+
+	GuiParamBrowser::Request request;
+
+	request.root = root;
+	request.limit = root;
+	request.mode = GuiParamBrowser::Mode::save;
+	request.allowed = { "OPZX7" };
+	request.extension = ".param.opzx7s.json";
+	request.defaultName = "default.param.opzx7s.json";
+	request.onChoose = [&chosen](const juce::File& file) { chosen = file; };
+
+	const auto openSave = [&] {
+		chosen = juce::File();
+		browser.open(*editor, request);
+	};
+
+	const auto nameField = [&]() -> juce::TextEditor* {
+		auto found = findAll<juce::TextEditor>(browser, [](juce::TextEditor& e) { return e.isVisible() && e.getText() == "default"; });
+
+		return found.size() == 1 ? found[0] : nullptr;
+	};
+
+	const auto save = [&] {
+		auto buttons = findAll<juce::TextButton>(browser, [](juce::TextButton& b) { return b.getButtonText() == EditorGuiText::ParamBrowser::save.get(); });
+
+		REQUIRE(buttons.size() == 1);
+		REQUIRE(buttons[0]->onClick != nullptr);
+
+		buttons[0]->onClick();
+	};
+
+	// 既定の名前は拡張子を外して出す
+	openSave();
+
+	auto* field = nameField();
+
+	REQUIRE(field != nullptr);
+
+	// 欄の右に拡張子を添える幅を空けてある
+	auto saves = findAll<juce::TextButton>(browser, [](juce::TextButton& b) { return b.getButtonText() == EditorGuiText::ParamBrowser::save.get(); });
+
+	REQUIRE(saves.size() == 1);
+	CHECK(field->getRight() < saves[0]->getX() - 40);
+
+	// 名前だけを打てば、拡張子が付く
+	field->setText("test0001", juce::dontSendNotification);
+	save();
+
+	CHECK(chosen.getFileName() == "test0001.param.opzx7s.json");
+
+	// 拡張子まで打っても、二重には付かない
+	openSave();
+	field = nameField();
+
+	REQUIRE(field != nullptr);
+
+	field->setText("test0002.param.opzx7s.json", juce::dontSendNotification);
+	save();
+
+	CHECK(chosen.getFileName() == "test0002.param.opzx7s.json");
+
+	editor.reset();
+}
+
+TEST_CASE("ファイルブラウザー: 貯めた波形は 1 を超える値もそのまま読み戻せる (4.5.0)")
+{
+	GenWaveRender::Wave wave;
+
+	wave.noteHz = 261.6;
+	wave.left = { 0.0f, 0.5f, 1.8f, -2.4f, 0.0f };
+	wave.right = { 0.0f, -0.25f, 1.0f, -1.0f, 0.1f };
+
+	juce::TemporaryFile temp(".genwave");
+
+	REQUIRE(GenWaveRender::write(temp.getFile(), wave));
+
+	const auto back = GenWaveRender::read(temp.getFile());
+
+	REQUIRE(back.size() == wave.size());
+
+	// 8 ビットに詰めるので、いちばん大きい値 (2.4) の 1/127 ほどはずれる
+	const double tolerance = 2.4 / 127.0;
+
+	for (size_t i = 0; i < wave.size(); ++i)
+	{
+		CHECK(std::abs(back.left[i] - wave.left[i]) <= tolerance);
+		CHECK(std::abs(back.right[i] - wave.right[i]) <= tolerance);
+	}
+
+	// ±1 に収まる音は、これまでどおり 1/127 の細かさで持つ
+	GenWaveRender::Wave quiet;
+
+	quiet.left = { 0.0f, 0.5f, -0.75f };
+	quiet.right = quiet.left;
+
+	REQUIRE(GenWaveRender::write(temp.getFile(), quiet));
+
+	const auto quietBack = GenWaveRender::read(temp.getFile());
+
+	REQUIRE(quietBack.size() == 3);
+	CHECK(quietBack.left[2] == doctest::Approx(-0.75f).epsilon(1.0 / 127.0));
 }

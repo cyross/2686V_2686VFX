@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <array>
+#include <cmath>
 #include <memory>
 #include <vector>
 
@@ -40,6 +41,17 @@ namespace StageWaveRender
 
 	// 枠の数 (1 段あたり)
 	inline constexpr int viewsPerRow = 8;
+
+	// 途中の段は 1 を超えることがある (FM は搬送波を足した和、TL が大きいとき)。
+	// ±1 で切ると、窓の倍率を下げても本当の山が見えず、音は割れていないのに
+	// 頭打ちに見えてしまう。はみ出した分は窓の枠で隠れるので、拾った値は
+	// 数でないもの (NaN・無限大) を弾き、線が飛び過ぎない程度に収めるだけにする
+	inline constexpr float valueLimit = 16.0f;
+
+	inline float storedValue(float v)
+	{
+		return std::isfinite(v) ? juce::jlimit(-valueLimit, valueLimit, v) : 0.0f;
+	}
 
 	// 第 3 段の段
 	enum Stage { stageRaw = 0, stageCore, stageUnison, stageDac, stageFx, stageCount };

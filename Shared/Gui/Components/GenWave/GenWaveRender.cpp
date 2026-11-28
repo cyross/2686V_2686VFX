@@ -36,20 +36,33 @@ bool GenWaveRender::write(const juce::File& file, const Wave& wave)
         stream.writeInt((int)wave.left.size());
         stream.writeFloat((float)wave.noteHz);
 
+        // 1 を超える音も持てるよう、いちばん大きい値を倍率として書き、
+        // それで割ってから 8 ビットへ詰める。1 以下なら倍率は 1 のまま
+        float scale = 1.0f;
+
+        for (const auto* side : { &wave.left, &wave.right })
+        {
+            for (float v : *side)
+            {
+                if (std::isfinite(v)) scale = juce::jmax(scale, std::abs(v));
+            }
+        }
+
+        stream.writeFloat(scale);
+
         std::vector<juce::int8> bytes;
 
         bytes.reserve(wave.left.size() * 2);
 
-        // L をひとまとめ、そのあと R。読むときに前から順に取れる。
-        for (float v : wave.left)
-        {
-            bytes.push_back((juce::int8)juce::jlimit(-127, 127, (int)std::lround(v * 127.0f)));
-        }
+        const auto pack = [scale](float v) {
+            if (!std::isfinite(v)) v = 0.0f;
 
-        for (float v : wave.right)
-        {
-            bytes.push_back((juce::int8)juce::jlimit(-127, 127, (int)std::lround(v * 127.0f)));
-        }
+            return (juce::int8)juce::jlimit(-127, 127, (int)std::lround(v / scale * 127.0f));
+        };
+
+        // L をひとまとめ、そのあと R。読むときに前から順に取れる。
+        for (float v : wave.left) bytes.push_back(pack(v));
+        for (float v : wave.right) bytes.push_back(pack(v));
 
         stream.write(bytes.data(), bytes.size());
         stream.flush();
@@ -77,11 +90,16 @@ GenWaveRender::Wave GenWaveRender::read(const juce::File& file)
 
     // 1 のものは混ざったものしか入っていない。読めるだけ読んで、
     // 左右へ同じものを入れる。
-    if (version != 1 && version != fileVersion) return out;
+    if (version < 1 || version > fileVersion) return out;
 
     const int rate = stream.readInt();
     const int count = stream.readInt();
     const float hz = stream.readFloat();
+
+    // 2 までは ±1 で切って詰めてあった
+    float scale = (version >= 3) ? stream.readFloat() : 1.0f;
+
+    if (!std::isfinite(scale) || scale < 1.0f || scale > 1000.0f) return out;
 
     if (rate <= 0 || count <= 0 || count > (int)(maxSeconds * renderRate)) return out;
 
@@ -99,8 +117,8 @@ GenWaveRender::Wave GenWaveRender::read(const juce::File& file)
 
     for (int i = 0; i < count; ++i)
     {
-        out.left.push_back((float)bytes[(size_t)i] / 127.0f);
-        out.right.push_back((float)bytes[(size_t)(channels == 1 ? i : count + i)] / 127.0f);
+        out.left.push_back((float)bytes[(size_t)i] / 127.0f * scale);
+        out.right.push_back((float)bytes[(size_t)(channels == 1 ? i : count + i)] / 127.0f * scale);
     }
 
     return out;

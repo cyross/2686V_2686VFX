@@ -71,6 +71,10 @@ public:
     static constexpr int deleteButtonWidth = 130;
     static constexpr int saveButtonWidth = 110;
     static constexpr int nameLabelWidth = 64;
+
+    // 名前の欄の右に添える拡張子の字の大きさと、欄とのあいだ
+    static constexpr float extensionFontSize = 14.0f;
+    static constexpr int extensionGap = 4;
     static constexpr int searchLabelWidth = 64;
 
     // 「検索」「名前」の見出しの字の大きさ
@@ -382,6 +386,7 @@ private:
     // 「abc.ccolor.ccolor.json」のように二重になる。形式が違う
     // (.yaml を選んで .json で書く) ときも外す。
     juce::String withoutSaveExtension(const juce::String& name) const;
+    int extensionWidth() const;
 
     void startBulkGenerate();
 

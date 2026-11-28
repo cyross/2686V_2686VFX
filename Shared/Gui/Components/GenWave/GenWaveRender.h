@@ -40,12 +40,15 @@ namespace GenWaveRender
     // 貯めるファイルの見出し
     // 2 から L と R を別々に持つ。1 のものは混ざったものしか
     // 入っていないので、読むときに左右へ同じものを入れる。
-    inline constexpr int fileVersion = 2;
+    // 3 (4.5.0) から、1 を超える音も持てるよう倍率を書く。2 までは ±1 で
+    // 切ってあったので、倍率 1 として読む。
+    inline constexpr int fileVersion = 3;
     inline const juce::String fileExtension = ".genwave";
 
     struct Wave
     {
-        // storeRate で持つ。-1.0〜1.0。
+        // storeRate で持つ。たいていは -1.0〜1.0 だが、音の大きい音色では
+        // 1 を超えることもある (切らずに持ち、窓の倍率で見られるようにする)。
         //
         // チャンネルによっては左右で違う音が出る (ステレオの波形メモリ、
         // パンを振ったもの) ので、混ぜずに両方持つ。真ん中は描くときに

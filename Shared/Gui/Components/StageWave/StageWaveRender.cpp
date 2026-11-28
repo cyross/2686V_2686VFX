@@ -22,7 +22,7 @@ namespace
 		int unisonSeen = 1;
 	};
 
-	float clip(float v) { return juce::jlimit(-1.0f, 1.0f, v); }
+	float clip(float v) { return StageWaveRender::storedValue(v); }
 
 	// 打鍵の並びどおりに回す。gate なら、離した音を余韻を待たずに止める。
 	// stopAt が 0 より大きければ、余韻を待たずにそこ (サンプル) で止める
@@ -363,8 +363,8 @@ GenWaveRender::Wave StageWaveRender::renderPattern(GuiRenderRig& rig, const Patt
 
 			if (((done + i) % step) != 0) continue;
 
-			out.left.push_back(juce::jlimit(-1.0f, 1.0f, left[i]));
-			out.right.push_back(juce::jlimit(-1.0f, 1.0f, right[i]));
+			out.left.push_back(storedValue(left[i]));
+			out.right.push_back(storedValue(right[i]));
 		}
 
 		// 打鍵の並びを終えて、音が消えて tailSeconds たったら切り上げる

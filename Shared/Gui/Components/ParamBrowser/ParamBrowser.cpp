@@ -614,7 +614,11 @@ void GuiParamBrowser::open(juce::Component& parent, const Request& request)
     addAndMakeVisible(bulkDeleteBtn);
 
     // 書き出す先を決めるときだけ、名前の欄と保存ボタンを出す
-    nameEditor.setText(request.defaultName, juce::dontSendNotification);
+    // 欄には名前の部分だけを出し、拡張子は欄の右に固定の字で添える。拡張子まで
+    // 欄に入れていると、途中へ字を足したときに末尾が拡張子の形でなくなり、
+    // 書くときに拡張子がもう一度付いて「名前.param.x.足した字json.param.x.json」
+    // のような長い名前になる
+    nameEditor.setText(withoutSaveExtension(request.defaultName), juce::dontSendNotification);
     nameEditor.setColour(juce::TextEditor::backgroundColourId, GuiColor::ParamBrowser::FieldBg);
     nameEditor.setColour(juce::TextEditor::textColourId, GuiColor::ParamBrowser::Text);
     nameEditor.setColour(juce::TextEditor::outlineColourId, GuiColor::ParamBrowser::Border);
@@ -1150,8 +1154,8 @@ void GuiParamBrowser::chooseAt(int viewIndex)
     {
         // 書き出す先を決めているときは、名前を写すだけにする。
         // 押した拍子に上書きされては困る。
-        // 既定の名前と同じく拡張子まで出す。書くときに形式へ揃え直す。
-        nameEditor.setText(item.file.getFileName(), juce::dontSendNotification);
+        // 既定の名前と同じく、名前の部分だけを出す (拡張子は欄の右に添えてある)
+        nameEditor.setText(withoutSaveExtension(item.file.getFileName()), juce::dontSendNotification);
 
         return;
     }
@@ -1752,6 +1756,7 @@ void GuiParamBrowser::resized()
     row3.removeFromLeft(nameLabelWidth);
     saveBtn.setBounds(row3.removeFromRight(saveButtonWidth));
     row3.removeFromRight(padding);
+    row3.removeFromRight(extensionWidth());
     nameEditor.setBounds(row3);
 }
 
@@ -2150,6 +2155,25 @@ void GuiParamBrowser::drawSaveFrame(juce::Graphics& g)
     g.setColour(GuiColor::ParamBrowser::LabelText);
     g.setFont(juce::FontOptions(labelFontSize, juce::Font::bold));
     g.drawText(EditorGuiText::ParamBrowser::saveName, label, juce::Justification::centred, false);
+
+    // 名前の欄の右に、書くときに付く拡張子を添える
+    if (m_extension.isNotEmpty())
+    {
+        const auto ext = nameEditor.getBounds().withX(nameEditor.getRight()).withWidth(extensionWidth());
+
+        g.setColour(GuiColor::ParamBrowser::Text);
+        g.setFont(juce::FontOptions(extensionFontSize));
+        g.drawText(m_extension, ext.withTrimmedLeft(extensionGap), juce::Justification::centredLeft, false);
+    }
+}
+
+// 名前の欄の右に添える拡張子の幅。無いときは 0
+int GuiParamBrowser::extensionWidth() const
+{
+    if (m_extension.isEmpty()) return 0;
+
+    return extensionGap * 2
+        + juce::GlyphArrangement::getStringWidthInt(juce::Font(juce::FontOptions(extensionFontSize)), m_extension);
 }
 
 void GuiParamBrowser::drawPath(juce::Graphics& g)

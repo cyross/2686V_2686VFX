@@ -58,6 +58,13 @@ I wanted to write tracks in my DAW that sounded like they came off a "26" or a "
   - Under the build process preview settings in SETTINGS there is a new toggle, "Start playing the build process preview as soon as it is built". On by default (as before). When off, the preview waits at the first frame once it is built (press ▶ to play)
   - Also added a wallpaper for the build process preview window ("Preview wallpaper:") and how it is fitted ("Preview wallpaper fit:"). It works like the plugin screen's wallpaper, with Stretch / Fill / Fit / Original, and applies to an open window straight away. When empty, the window keeps its usual background colour
   - Saved to the settings file as `stageAutoPlay` / `stageWallpaperPath` / `stageWallpaperMode`. Every plugin except 2686VFX
+- **Fixed: waveforms in the build process preview and the file browser looked flattened at ±1**
+  - In the third row of the build process preview (before processing, after the chip's own processing, and so on), FM carriers stacked at a high TL go past 1. These values were cut to ±1 before drawing, so the tops looked flat even though the sound was not clipped, and lowering the display zoom could not show the real peaks. The values are now kept as they are, and anything outside the box is simply hidden by its edge
+  - The file browser's row previews cut the finished sound to ±1 in the same way. The cache file now stores a scale (format 3), so values past 1 are read back intact. Caches in the older format still load (they stay cut until they are rebuilt)
+  - The real-time waveform preview (oscilloscope) never cut its values
+- **Fixed: file names could grow long when saving parameters**
+  - The name field of the save browser showed the name with its extension (`default.param.opzx7s.json`). Typing into the middle of it left the name no longer ending in the extension, so the extension was added again, giving names like `default.param.opzx7s.test0001json.param.opzx7s.json`
+  - The field now shows only the name, with the extension shown as fixed text to its right. Clicking a file in the list also copies just its name. Typing the extension yourself does not add it twice
 - **Groups can now be hidden**
   - Right-clicking a group's title shows "Hide group". Clicking it hides that group. Below it, after a separator, the checklist of that group's sections (next item) is also shown
   - Right-clicking an empty spot of the strip where groups line up shows a checklist of the groups. Groups that are shown are ticked. Ticking a group shows it (folded), unticking hides it. "Show all groups" and "Hide all groups" are also there. Clicking does not close the checklist; press ESC or click outside it to close it
